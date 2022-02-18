@@ -5,7 +5,7 @@ import json
 
 ##mtdi_structure_json = '{"name": "MD_ANALYTICS_CUBE","description": "My first time","folderId": "09988C274CEA09ABB1DE66B511521CCF","tables": [{"name": "all_mppd_tbl_col","columnHeaders": [{"name": "project_guid","dataType": "STRING"},{"name": "table_guid","dataType": "STRING"},{"name": "logical_table_name","dataType": "STRING"},{"name": "physical_table_name","dataType": "STRING"},{"name": "column_guid","dataType": "STRING"},{"name": "column_name","dataType": "STRING"}]}],"attributes": [{"name": "project_guid","attributeForms": [{"category": "ID","expressions": [{"tableName": "all_mppd_tbl_col","columnName": "project_guid"}]}]},{"name": "table_guid","attributeForms": [{"category": "ID","expressions": [{"tableName": "all_mppd_tbl_col","columnName": "table_guid"}]}]},{"name": "logical_table_name","attributeForms": [{"category": "ID","expressions": [{"tableName": "all_mppd_tbl_col","columnName": "logical_table_name"}]}]},{"name": "physical_table_name","attributeForms": [{"category": "ID","expressions": [{"tableName": "all_mppd_tbl_col","columnName": "physical_table_name"}]}]},{"name": "column_guid","attributeForms": [{"category": "ID","expressions": [{"tableName": "all_mppd_tbl_col","columnName": "column_guid"}]}]},{"name": "column_name","attributeForms": [{"category": "ID","expressions": [{"tableName": "all_mppd_tbl_col","columnName": "column_name"}]}]}]}'
 ##mtdi_upload_session_body ='{"tables": [{"name": "all_mppd_tbl_col","updatePolicy": "REPLACE","orientation": "ROW"}]}'
-
+#Neu
 def get_tbl_col(base_url,conn, prj_id, tbl_guid):
     inst_u = f"{base_url}/api/model/tables/{tbl_guid}"
     headers = {'X-MSTR-ProjectID': prj_id}
