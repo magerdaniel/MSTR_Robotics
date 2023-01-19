@@ -3,7 +3,7 @@ description = "Demo Python scripts to automating MicroStrategy devOps processes"
 
 from distutils.core import setup
 setup(name='MSTR_Robotics_magerdaniel',
-      version= "0.0.37",
+      version= "0.0.38",
       description="MicroStrateg(P)ython",
       author="Daniel Mager",
       author_email='"danielmager@gmx.de"',
