@@ -12,10 +12,9 @@ setup(name='MSTR_Robotics_magerdaniel',
       author="Daniel Mager",
       author_email='"danielmager@gmx.de"',
       url="https://github.com/magerdaniel",
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       packages=['mstr_robotics'],
       exclude = ["hello_beer.py"]
-     # package_dir={
-     #     'package2': 'package1',
-     #     'package3': 'package1',
-     # },
+
 )
