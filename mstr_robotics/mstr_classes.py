@@ -15,6 +15,9 @@ import pandas as pd
 from typing import Optional
 from mstr_robotics.helper import str_func
 from mstr_robotics.logger import logger
+from mstr_robotics.lu_data import lu_mstr_md
+
+
 
 str_func = str_func
 log = logger
@@ -193,14 +196,28 @@ class mstr_global:
             , "path": str(self.bld_obj_path(fld_d=obj_d["ancestors"], proj_id=project_id,
                                             proj_name=self.get_project_name(conn=conn, project_id=project_id)))
             , "type": str(obj_d.get('type'))
+            , "type_bez":self.get_obj_type_name(obj_d.get('type'))["OBJECT_TYPE_BEZ"]
             , "subtype": str(obj_d.get('subtype'))
             , "owner_id": str(obj_d["owner"].get('id'))
             , "owner_name": str(obj_d["owner"].get('name'))
-            , "date_modified": str(obj_d["owner"].get('dateModified'))
-            , "date_created": str(obj_d["owner"].get('dateCreated'))
+            , "date_modified": str(obj_d["dateModified"])
+            , "date_created": str(obj_d["dateCreated"])
                      }
-        # print("project: " + proj_g + "object: " + str(obj_d.get('id')) )
+        #print(obj_row_d["date_created"] )
         return obj_row_d
+
+    def get_obj_type_name(self,obj_type_id,desc_fg=False):
+
+       for t in lu_mstr_md.lu_object_type(self):
+           obj_type_d = {"OBJECT_TYPE_ID":str(t["OBJECT_TYPE_ID"]), "OBJECT_TYPE_BEZ":"None"}
+           if str(obj_type_id)==str(t["OBJECT_TYPE_ID"]):
+               obj_type_d["OBJECT_TYPE_ID"]=t["OBJECT_TYPE_ID"]
+               obj_type_d[" "]=t["OBJECT_TYPE_BEZ"]
+
+               if desc_fg==False:
+                   obj_type_d["DESCRIPTION"] = t["DESCRIPTION"]
+                   obj_type_d["CONSTANT"] = t["CONSTANT"]
+       return obj_type_d
 
     def bld_mstr_obj_guid(self, obj_md_id=None):
         # in the MSTR MD, for what ever reason, they're changin
