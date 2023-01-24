@@ -194,7 +194,7 @@ class mstr_global:
         obj_row_d={}
         path=str(self.bld_obj_path(fld_d=obj_d["ancestors"], proj_id=project_id,
                                             proj_name=self.get_project_name(conn=conn, project_id=project_id)))
-        if str_func._get_first_x_chars(self,str_=path,i=16) != "\\System Objects\\" :
+        if str_func._get_first_x_chars(self,str_=path,i=16) != "\\System Objects\\":
             obj_row_d = {"project_id": project_id,
                          "object_id": str(obj_d.get('id'))
                 , "version": str(obj_d.get('version'))
