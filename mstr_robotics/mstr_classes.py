@@ -155,7 +155,9 @@ class mstr_global:
                                          object_id=obj["object_id"],
                                          type=obj["object_type"]
                                          )
-            full_obj_info_l.append(self.bld_obj_d(conn=conn, obj_d=obj_d.json(), project_id=obj["project_id"]))
+            obj_all_d=self.bld_obj_d(conn=conn, obj_d=obj_d.json(), project_id=obj["project_id"])
+            if len(obj_all_d.keys())>3:
+                full_obj_info_l.append(obj_all_d)
         return pd.DataFrame(full_obj_info_l, columns=list(full_obj_info_l[0].keys()))
 
     def used_by_obj_rec(self, conn, project_id, obj_l):
@@ -189,30 +191,33 @@ class mstr_global:
     @log(err_name="Faild to read out with object infos")
     def bld_obj_d(self, conn, obj_d, project_id):
         val_l = []
-        obj_row_d = {"project_id": project_id,
-                     "object_id": str(obj_d.get('id'))
-            , "version": str(obj_d.get('version'))
-            , "object_name": str(obj_d.get('name'))
-            , "path": str(self.bld_obj_path(fld_d=obj_d["ancestors"], proj_id=project_id,
+        obj_row_d={}
+        path=str(self.bld_obj_path(fld_d=obj_d["ancestors"], proj_id=project_id,
                                             proj_name=self.get_project_name(conn=conn, project_id=project_id)))
-            , "type": str(obj_d.get('type'))
-            , "type_bez":self.get_obj_type_name(obj_d.get('type'))["OBJECT_TYPE_BEZ"]
-            , "subtype": str(obj_d.get('subtype'))
-            , "owner_id": str(obj_d["owner"].get('id'))
-            , "owner_name": str(obj_d["owner"].get('name'))
-            , "date_modified": str(obj_d["dateModified"])
-            , "date_created": str(obj_d["dateCreated"])
-                     }
-        #print(obj_row_d["date_created"] )
+        if str_func._get_first_x_chars(self,str_=path,i=16) != "\\System Objects\\" :
+            obj_row_d = {"project_id": project_id,
+                         "object_id": str(obj_d.get('id'))
+                , "version": str(obj_d.get('version'))
+                , "object_name": str(obj_d.get('name'))
+                , "path": path
+                , "type": str(obj_d.get('type'))
+                , "type_bez":self.get_obj_type_name(obj_d.get('type'))["OBJECT_TYPE_BEZ"]
+                , "subtype": str(obj_d.get('subtype'))
+                , "owner_id": str(obj_d["owner"].get('id'))
+                , "owner_name": str(obj_d["owner"].get('name'))
+                , "date_modified": str(obj_d["dateModified"])
+                , "date_created": str(obj_d["dateCreated"])
+                         }
+            #print(obj_row_d["date_created"] )
         return obj_row_d
 
     def get_obj_type_name(self,obj_type_id,desc_fg=False):
-
+       obj_type_d = {"OBJECT_TYPE_ID": "", "OBJECT_TYPE_BEZ": "None"}
        for t in lu_mstr_md.lu_object_type(self):
-           obj_type_d = {"OBJECT_TYPE_ID":str(t["OBJECT_TYPE_ID"]), "OBJECT_TYPE_BEZ":"None"}
+
            if str(obj_type_id)==str(t["OBJECT_TYPE_ID"]):
                obj_type_d["OBJECT_TYPE_ID"]=t["OBJECT_TYPE_ID"]
-               obj_type_d[" "]=t["OBJECT_TYPE_BEZ"]
+               obj_type_d["OBJECT_TYPE_BEZ"]=t["OBJECT_TYPE_BEZ"]
 
                if desc_fg==False:
                    obj_type_d["DESCRIPTION"] = t["DESCRIPTION"]
