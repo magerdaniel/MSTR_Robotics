@@ -1,24 +1,16 @@
 from mstrio.connection import Connection
-#from mstrio.connection import get_connection
-#from mstrio.api import projects
-#from mstrio.project_objects import report
-# import error_controller
-# from mstrio.utils.error_handlers import ErrorHandler
 from mstrio.utils import parser
 from mstrio.project_objects.datasets import SuperCube
 from mstrio.api import reports
 from mstrio.api import browsing
 from mstrio.api import objects as api_obj
-from mstrio.object_management import object
 from mstrio.object_management import folder
+from mstrio.project_objects import Report
 import pandas as pd
-from typing import Optional
 from mstr_robotics.helper import str_func
 from mstr_robotics.logger import logger
 from mstr_robotics.lu_data import lu_mstr_md
-
-
-
+import uuid
 str_func = str_func
 log = logger
 
@@ -38,6 +30,7 @@ class rep:
     def __init__(self):
         self.i_reports = reports
         self.i_parser = parser
+
 
     @log(err_name="Failed to open change log report")
     def open_Instance(self, conn, project_id, report_id):
@@ -59,6 +52,18 @@ class rep:
         print(s.json())
         report_dict = self.i_parser.Parser(report_ds.json())._Parser__map_attributes(report_ds.json())
         return report_dict
+
+    @log(err_name="Failed to execute or export change log report")
+    def report_df(self, conn, report_id, instance_id):
+
+        self.i_po_Report = Report(connection=conn, id=report_id, instance_id=instance_id)
+        """
+        report_df = self.i_po_Report.to_dataframe(connection=conn, report_id=report_id, instance_id=instance_id))
+        self.i_reports.report_instance_id(connection=conn, report_id=report_id, instance_id=instance_id)
+        report_dict = self.i_parser.Parser(report_ds.json())._Parser__map_attributes(report_ds.json())
+        """
+        df=self.i_po_Report.to_dataframe()
+        return self.i_po_Report.to_dataframe()
 
     @log(err_name="Failed to read out report_definition")
     def get_report_def(self, conn, report_id):
@@ -90,17 +95,32 @@ class mstr_global:
             ds.update()
         return ds.id
 
-    @log(err_name="Failed to read out objects from Folder")
+    #@log(err_name="Failed to read out objects from Folder")
     def get_folder_obj_l(self, conn, project_id, folder_id):
+
+        #existing_obj_l=conn.get(f'{conn.base_url}/api/folders/{folder_id}?limit=-1')
         i_folder = folder.Folder(connection=conn, id=folder_id)
         existing_obj_l = i_folder.get_contents(to_dictionary=True)
         return existing_obj_l
 
+
     @log(err_name="Failed to rename object")
     def _rename_object(self, conn,project_id,object_id,object_type, new_name, desc_str):
-        short_cut_obj = object.Object(connection=conn, type=object_type, id=object_id)
-        short_cut_obj.alter(name=str(new_name), description=str(desc_str))
-        return
+
+        #short_cut_obj = object.Object(connection=conn, type=object_type, id=object_id)
+        #"http://rs002312.fastrootserver.de:8080/MicroStrategyLibrary/api/objects/31CB97694D39D44FD8DF1782D1E0D71D?type=18&flags=70"13042
+        base_url=f'{conn.base_url}/api/objects/{object_id}?type={object_type}&flags=70'
+        try:
+            #short_cut_obj.alter(name=str(new_name) , description=str(desc_str))
+            body='{'+f'"name":"{new_name}","description":"{str(desc_str)}"'+'}'
+            resp=conn.put(base_url,data=str(body))
+        except:
+            #short_cut_obj.alter(name=str(new_name+ uuid.uuid1().hex), description=str(desc_str))
+            body={"name":str(new_name + uuid.uuid1().hex), "description":str(desc_str)}
+            body = '{' + f'"name":"{new_name}{uuid.uuid1().hex}","description":"{str(desc_str)}"'+'}'
+            resp=conn.put(base_url,data=str(body))
+
+        return resp
 
     @log(err_name="Didn't find object or could parse it")
     def get_object_info(self, conn, project_id, object_id, type):
@@ -161,9 +181,15 @@ class mstr_global:
         return pd.DataFrame(full_obj_info_l, columns=list(full_obj_info_l[0].keys()))
 
     def used_by_obj_rec(self, conn, project_id, obj_l):
+
+        """
+        def_search=conn.post(f'{conn.base_url}/api/metadataSearches/results?pattern=4&domain=2&usedByObject={obj_l}&usedByRecursive=true&visibility=ALL')
+        #f'{conn.base_url}/api/metadataSearches/results?pattern=4&domain=2&usedByObject=59D59D7741F61B68480572B9B7A05709;4&usedByRecursive=true&visibility=ALL')'
+        """
         def_search = self.brow.store_search_instance(connection=conn, project_id=project_id,
                                                      used_by_object=obj_l,
                                                      used_by_one_of=True, used_by_recursive=True)
+
         get_search = self.brow.get_search_results(connection=conn, project_id=project_id,
                                                   search_id=def_search.json()["id"])
         search_obj_l = []
@@ -194,7 +220,8 @@ class mstr_global:
         obj_row_d={}
         path=str(self.bld_obj_path(fld_d=obj_d["ancestors"], proj_id=project_id,
                                             proj_name=self.get_project_name(conn=conn, project_id=project_id)))
-        if str_func._get_first_x_chars(self,str_=path,i=16) != "\\System Objects\\":
+        if str_func._get_first_x_chars(self,str_=path,i=16) != "\\System Objects\\" and \
+                    obj_d.get('type') in [1, 2, 3, 4, 6, 8, 10, 11, 12, 13, 14, 15, 18, 23, 34, 55]:
             obj_row_d = {"project_id": project_id,
                          "object_id": str(obj_d.get('id'))
                 , "version": str(obj_d.get('version'))
@@ -211,17 +238,25 @@ class mstr_global:
             #print(obj_row_d["date_created"] )
         return obj_row_d
 
-    def get_obj_type_name(self,obj_type_id,desc_fg=False):
-       obj_type_d = {"OBJECT_TYPE_ID": "", "OBJECT_TYPE_BEZ": "None"}
+    def get_obj_type_name(self,obj_type_id):
+       obj_type_d = {"MD_OBJ_TYPE_ID": "", "MD_OBJ_TYPE_BEZ": "None"}
        for t in lu_mstr_md.lu_object_type(self):
 
-           if str(obj_type_id)==str(t["OBJECT_TYPE_ID"]):
-               obj_type_d["OBJECT_TYPE_ID"]=t["OBJECT_TYPE_ID"]
-               obj_type_d["OBJECT_TYPE_BEZ"]=t["OBJECT_TYPE_BEZ"]
+           if str(obj_type_id)==str(t["MD_OBJ_TYPE_ID"]):
+               obj_type_d["OBJECT_TYPE_ID"]=t["MD_OBJ_TYPE_ID"]
+               obj_type_d["OBJECT_TYPE_BEZ"]=t["MD_OBJ_TYPE_BEZ"]
 
-               if desc_fg==False:
-                   obj_type_d["DESCRIPTION"] = t["DESCRIPTION"]
-                   obj_type_d["CONSTANT"] = t["CONSTANT"]
+       return obj_type_d
+
+    def get_obj_type_id(self,pa_obj_id):
+       #obj_type = {"OBJECT_TYPE_ID": "", "OBJECT_TYPE_BEZ": "None"}
+       obj_type_d={}
+
+       for t in lu_mstr_md.lu_object_type(self):
+
+           if str(pa_obj_id)==str(t["PA_OBJ_TYPE_ID"]):
+               obj_type_d["OBJECT_TYPE_ID"]=t["MD_OBJ_TYPE_ID"]
+
        return obj_type_d
 
     def bld_mstr_obj_guid(self, obj_md_id=None):
