@@ -16,15 +16,11 @@ log = logger
 
 
 @log(err_name=f'Failed to open the a connection to the I-Server.')
-def get_conn(self, base_url, project_id=None,*args,**kwargs):
+def get_conn(self, base_url, *args,**kwargs):
 
     conn = Connection(base_url=base_url,*args,**kwargs)
     conn.headers['Content-type'] = "application/json"
-    if project_id:
-        try:
-            conn.select_project(project_id)
-        except:
-            print("Project: "+ project_id+ " does not exist")
+
     return conn
 
 
