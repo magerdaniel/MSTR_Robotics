@@ -12,8 +12,10 @@ def logger(err_name):
                 return result
             except Exception as err:
                 desc = ""
+                kwargs.pop("password_", None)
                 if func.__name__ == 'get_conn':
-                    kwargs["conn_det"].pop("password", None) #remove password
+                      pass
+                      #remove password
                 if func.__name__ == 'cube_upload':
                     kwargs.pop("load_df",None) #remove password
                 desc = f'{err_name}. Pls check: {kwargs} '
