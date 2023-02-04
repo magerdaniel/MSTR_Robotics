@@ -55,13 +55,7 @@ class rep:
 
     @log(err_name="Failed to execute or export change log report")
     def report_df(self, conn, report_id, instance_id):
-
         self.i_po_Report = Report(connection=conn, id=report_id, instance_id=instance_id)
-        """
-        report_df = self.i_po_Report.to_dataframe(connection=conn, report_id=report_id, instance_id=instance_id))
-        self.i_reports.report_instance_id(connection=conn, report_id=report_id, instance_id=instance_id)
-        report_dict = self.i_parser.Parser(report_ds.json())._Parser__map_attributes(report_ds.json())
-        """
         df=self.i_po_Report.to_dataframe()
         return self.i_po_Report.to_dataframe()
 
@@ -210,7 +204,13 @@ class mstr_global:
         rec_obj_l = []
         for obj in obj_l:
             if obj not in rec_obj_l:
-                rec_obj_l += self.used_by_obj_rec(conn, project_id, obj)
+                try:
+                    rec_obj_l += self.used_by_obj_rec(conn, project_id, obj)
+                except Exception as err:
+                    if err.http_code==404:
+                        print("The object:"+obj + "does not exist in project"+project_id )
+                else:
+                    print(err)
 
         return [dict(t) for t in {tuple(d.items()) for d in rec_obj_l}]
 
