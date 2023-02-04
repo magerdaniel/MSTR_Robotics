@@ -207,7 +207,7 @@ class mstr_global:
                 try:
                     rec_obj_l += self.used_by_obj_rec(conn, project_id, obj)
                 except Exception as err:
-                    if err.http_code==404:
+                    if str(err).find("ERR004")>0:
                         print("The object: "+obj + " does not exist in project: "+project_id )
                     else:
                         print(err)
