@@ -208,9 +208,9 @@ class mstr_global:
                     rec_obj_l += self.used_by_obj_rec(conn, project_id, obj)
                 except Exception as err:
                     if err.http_code==404:
-                        print("The object:"+obj + "does not exist in project"+project_id )
-                else:
-                    print(err)
+                        print("The object: "+obj + " does not exist in project: "+project_id )
+                    else:
+                        print(err)
 
         return [dict(t) for t in {tuple(d.items()) for d in rec_obj_l}]
 
