@@ -21,7 +21,10 @@ def get_conn(self, base_url, project_id=None,*args,**kwargs):
     conn = Connection(base_url=base_url,*args,**kwargs)
     conn.headers['Content-type'] = "application/json"
     if project_id:
-        conn.select_project(project_id)
+        try:
+            conn.select_project(project_id)
+        except:
+            print("Project: "+ project_id+ " does not exist")
     return conn
 
 

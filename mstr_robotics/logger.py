@@ -12,7 +12,7 @@ def logger(err_name):
                 return result
             except Exception as err:
                 desc = ""
-                kwargs.pop("password_", None)
+                kwargs.pop("password", None)
                 if func.__name__ == 'get_conn':
                       pass
                       #remove password
