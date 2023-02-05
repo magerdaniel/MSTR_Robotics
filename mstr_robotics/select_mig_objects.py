@@ -16,8 +16,8 @@ class cubes:
     def __init__(self):
         self.glob = mstr_global
 
-    def up_load_to_cube(self,conn,cube_upload_param):
-
+    def up_load_to_cube(self,conn,project_id,cube_upload_param):
+        self.glob.set_project_id(self,conn=conn, project_id=project_id)
         self.glob.cube_upload(self,conn=conn
                               ,load_df=cube_upload_param["load_df"]
                               ,updatePolicy="REPLACE"
@@ -132,6 +132,7 @@ class get_change_log:
 
     def chg_rep_to_df(self,conn,prompt_answ,chg_log_source="pa"):
 
+        self.glob.set_project_id(conn=conn, project_id=self.chg_log_rep_proj_id)
         instance_id = self.rep.open_Instance(conn=conn, project_id=self.chg_log_rep_proj_id,
                                              report_id=self.chg_log_report_id)
 
@@ -152,8 +153,6 @@ class get_change_log:
             report_df = self.rep.report_df(conn=self.conn,
                                                report_id=self.chg_log_report_id, instance_id=instance_id)
             report_df['OBJECT_TYPE_ID'] = report_df['OBJECT_TYPE_ID'].apply(lambda x: self.glob.get_obj_type_id(pa_obj_id=x)["OBJECT_TYPE_ID"])
-
-
 
         return report_df
 
