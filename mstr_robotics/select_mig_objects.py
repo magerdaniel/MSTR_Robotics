@@ -58,7 +58,7 @@ class bld_short_cuts:
         for index, obj in short_cut_df.iterrows():
             #short_cut_url = f'{conn.base_url}/objects/{obj[2]}/type/{str(obj[4])}/shortcuts'
             if obj[df_key_cols_d["object_type"]]!=str(18):
-                print(obj[df_key_cols_d["object_id"]] +"____"+obj[df_key_cols_d["object_type"]])
+                print(obj[df_key_cols_d["object_id"]] +"____"+ str(obj[df_key_cols_d["object_type"]]))
                 self.bld_short_cut(conn=conn
                                    ,project_id=project_id
                                    ,folder_id=folder_id
