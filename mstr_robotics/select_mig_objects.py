@@ -143,23 +143,31 @@ class get_change_log:
         rep_def=self.rep.get_report_def(conn=self.conn,report_id=self.chg_log_report_id)
         cols=self.parse_chglog_rep_cols(rep_def)
 
-        if chg_log_source=="md":
-            report_dict = self.rep.report_dict(conn=self.conn,
-                                               report_id=self.chg_log_report_id, instance_id=instance_id)
-            cols.append("path")
-            report_list = self.read_obj(report_dict)
-            report_df = pd.DataFrame(report_list, columns=cols)
-        if chg_log_source=="pa":
-            report_df = self.rep.report_df(conn=self.conn,
-                                               report_id=self.chg_log_report_id, instance_id=instance_id)
-            report_df['OBJECT_TYPE_ID'] = report_df['OBJECT_TYPE_ID'].apply(lambda x: self.glob.get_obj_type_id(pa_obj_id=x)["OBJECT_TYPE_ID"])
+        rep_has_data_fg=self.rep.report_has_data(conn=self.conn,report_id=self.chg_log_report_id,instance_id=instance_id)
 
-        return report_df
+        if rep_has_data_fg:
 
-    def get_mig_obj_logs(self,conn,proect_id,from_date,to_date,chg_log_source):
+            if chg_log_source=="md":
+                report_dict = self.rep.report_dict(conn=self.conn,
+                                                   report_id=self.chg_log_report_id, instance_id=instance_id)
+                cols.append("path")
+                report_list = self.read_obj(report_dict)
+                report_df = pd.DataFrame(report_list, columns=cols)
+            if chg_log_source=="pa":
+                report_df = self.rep.report_df(conn=self.conn,
+                                                   report_id=self.chg_log_report_id, instance_id=instance_id)
+                report_df['OBJECT_TYPE_ID'] = report_df['OBJECT_TYPE_ID'].apply(lambda x: self.glob.get_obj_type_id(pa_obj_id=x)["OBJECT_TYPE_ID"])
+
+            return report_df
+        else:
+            raise ValueError('No changed objects found. Please review your prompt answers')
+
+
+
+    def get_mig_obj_logs(self,conn,project_id,from_date,to_date,chg_log_source):
         #get raw data from change logs
         return self.chg_rep_to_df(conn, prompt_answ =self._build_val_answ(
-                        chg_log_rep_proj_id=proect_id,
+                        chg_log_rep_proj_id=project_id,
                         chg_log_from_date =from_date,
                         chg_log_to_date=to_date),
                         chg_log_source=chg_log_source)

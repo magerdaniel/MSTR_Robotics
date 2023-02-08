@@ -62,6 +62,15 @@ class rep:
     def get_report_def(self, conn, report_id):
         return self.i_reports.report_definition(connection=conn, report_id=report_id)
 
+    @log(err_name='Something is probally wrong with your prompt answers')
+    def report_has_data(self, conn, report_id,instance_id):
+        report_has_data_fg=False
+        report_ds = self.i_reports.report_instance_id(connection=conn, report_id=report_id, instance_id=instance_id)
+
+        if len(report_ds.json()["definition"]["grid"]["rows"][0]["elements"])>0:
+            report_has_data_fg=True
+
+        return report_has_data_fg
 
 class mstr_global:
 
