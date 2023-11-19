@@ -17,5 +17,5 @@ setup(name='MSTR_Robotics_magerdaniel',
       long_description=long_description,
       long_description_content_type='text/markdown',
       packages=['mstr_robotics'],
-      package_data={'mstr_robotics': ['notebooks/jup_schema_monitor.ipynb']},
+      package_data={'mstr_robotics': ['jup_schema_monitor.ipynb']},
 )
