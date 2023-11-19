@@ -1,6 +1,6 @@
 description = "Demo Python scripts to automating MicroStrategy devOps processes"
 from distutils.core import setup
-
+from distutils.command.install import INSTALL_SCHEMES
 from pathlib import Path
 this_directory = Path(__file__).parent
 
