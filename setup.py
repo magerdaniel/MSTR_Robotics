@@ -16,7 +16,7 @@ setup(name='MSTR_Robotics_magerdaniel',
       packages=find_packages(),
       include_package_data=True,
       long_description_content_type='text/markdown',
-      packages=['mstr_robotics'],
+
 
 )
 
