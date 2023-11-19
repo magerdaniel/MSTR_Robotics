@@ -5,9 +5,12 @@ In February I provided a few files to demonstrate what can be done. I revamped m
 
 So if you’re using my code, pls get in contact with me over linkedIn:
 
-  https://www.linkedin.com/in/daniel-mager-4a30881/
+https://www.linkedin.com/in/daniel-mager-4a30881/
+
 or
-  per mail danielmager@gmx.de
+
+per mail danielmager@gmx.de
+
 
 Cheers
 Daniel
