@@ -1,6 +1,6 @@
 from mstrio.connection import Connection
 from mstrio.api import browsing
-from mstrio.types import ObjectTypes
+from mstrio.types import ObjectTypes, ObjectSubTypes
 from mstrio.api import objects as api_obj
 from mstrio.object_management import folder
 import pandas as pd
@@ -24,13 +24,30 @@ class mstr_global:
         self.i_str_func=str_func()
         self.i_ObjectTypes=ObjectTypes
         self.i_mstr_api=mstr_api()
-
+        self.md_searches=md_searches()
 
     def get_folder_obj_l(self, conn,  folder_id):
         #reads out the content of a folder
         i_folder = folder.Folder(connection=conn, id=folder_id)
         existing_obj_l = i_folder.get_contents(to_dictionary=True)
         return existing_obj_l
+
+    def get_obj_from_sh_fold(self,conn, folder_id):
+        obj_l = self.get_folder_obj_l(conn=conn, folder_id=folder_id)
+        obj_det_l=[]
+        for obj_d in obj_l:
+            if obj_d["type"] == 18:
+                obj_det_d = {}
+                obj_det_d["project_id"] = conn.project_id
+                obj_det_d["id"] = obj_d["target_info"]["id"]
+                obj_det_d["name"] = obj_d["target_info"]["name"]
+                obj_det_d["type"] = obj_d["target_info"]["type"]
+                obj_det_d["type_bez"] = ObjectTypes(obj_d["target_info"]["type"]).name
+                obj_det_d["sub_type"] = obj_d["target_info"]["subtype"]
+                obj_det_d["sub_type_bez"] = ObjectSubTypes(obj_d["target_info"]["subtype"]).name
+                obj_det_l.append(obj_det_d.copy())
+
+        return obj_det_l
 
     def get_object_info(self, conn,  object_id, type):
         return self.i_api_obj.get_object_info(connection=conn,
@@ -73,6 +90,12 @@ class mstr_global:
         path_d={"path_name":path_name,"path_ids":path_ids}
         return path_d
 
+    def get_obj_type_from_l(self,obj_l):
+        obj_type_l=[]
+
+        return obj_type_l
+
+
     def get_obj_name(self,conn,report_id,type):
         #the REST Api expects the type of the object...
         return self.i_api_obj.get_object_info(conn=conn,
@@ -85,7 +108,7 @@ class mstr_global:
         #this means for example, the path as a full string
         val_l = []
         obj_row_d={}
-        path=self.bld_obj_path(fld_d=obj_d["ancestors"],proj_name=self.i_mstr_api.get_project_name(conn=conn))
+        path=self.bld_obj_path(fld_d=obj_d["ancestors"],proj_name=self.i_mstr_api.get_project_name(conn=conn,project_id=conn.project_id))
         if self.i_str_func._get_first_x_chars(str_=str(path["path_name"]), i=16) != "\\System Objects\\" and \
                     obj_d.get('type') in [1, 2, 3, 4, 6, 8, 10, 11, 12, 13, 14, 15, 18, 23, 34, 55]:
             obj_row_d = {"project_id": conn.headers["X-MSTR-ProjectID"],
@@ -95,7 +118,7 @@ class mstr_global:
                 , "path_name": str(path["path_name"])
                 , "path_ids":str(path["path_ids"])
                 , "type": str(obj_d.get('type'))
-                , "type_bez":self.i_ObjectTypes(obj_d["type"])
+                , "type_bez":self.i_ObjectTypes(obj_d["type"]).name
                 , "subtype": str(obj_d.get('subtype'))
                 , "owner_id": str(obj_d["owner"].get('id'))
                 , "owner_name": str(obj_d["owner"].get('name'))
@@ -135,7 +158,7 @@ class md_searches():
 
 
     def search_for_type_l(self,conn,obj_l,dpn_fg=False,name=None,root_folder_id=None,
-                          info_level = "base_path",cube_to_loop_d=None,mtdi_id=None, count_only_fg=True):
+                          info_level = "base_path", count_only_fg=True,*args  ,**kwargs):
 
         kwargs = {"project_id" : conn.headers["X-MSTR-ProjectID"],"info_level":info_level,"count_only_fg":count_only_fg,
                   "dpn_fg":dpn_fg,
@@ -148,8 +171,8 @@ class md_searches():
         return search_obj_l
 
     def search_for_used_in_obj_direct(self,conn,obj_l,dpn_fg=True,
-                                      cube_to_loop_d=None,mtdi_id=None,info_level = "base_path",
-                                      count_only_fg=True, *args,**kwargs ):
+                                    info_level = "base_path",
+                                    count_only_fg=True,*args, **kwargs ):
 
         kwargs = {"project_id" : conn.headers["X-MSTR-ProjectID"],
                   "info_level": info_level,
@@ -158,6 +181,7 @@ class md_searches():
                                  "uses_recursive" : False
                                 }
                  }
+
         if dpn_fg == False:
             search_obj_l=self._run_search( conn,  **kwargs)
         else:
@@ -239,6 +263,7 @@ class md_searches():
             try:
                 search_result_d=self.brow.get_search_results(connection=conn,
                                                   search_id=serach_inst["id"],
+                                                  project_id=conn.headers["X-MSTR-ProjectID"],
                                                   offset=offset, limit=limit)
 
                 full_obj_info_l=self._extract_info_from_search(conn=conn, dpn_prefix=dpn_prefix, run_prop_d=run_prop_d,
@@ -268,6 +293,8 @@ class md_searches():
         for obj_d in search_result_d:
             try:
                 if not "info_level" in kwargs.keys():
+                    kwargs["info_level"]="base"
+                if  kwargs["info_level"]=="base":
                     #contains only object information from the search
                     #optimized for performance
                     obj_row_d={"project_id" : conn.headers["X-MSTR-ProjectID"],

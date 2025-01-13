@@ -1,4 +1,5 @@
 import pandas as pd
+
 class df_helper():
 
     def clean_double_col(self, df, postfix_left="_x", postfix_right="_y"):
@@ -37,3 +38,11 @@ class df_helper():
         flaged_obj_all_df = self.clean_double_col(df=flaged_obj_all_df)
 
         return flaged_obj_all_df
+
+    def add_prefix_col_to_df(self,df, prefix_col_d):
+        i = 0
+        for k in prefix_col_d:
+            if k not in list(df.keys()):
+                df.insert(i, k, prefix_col_d[k])
+                i += 1
+        return df

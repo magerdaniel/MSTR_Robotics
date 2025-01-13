@@ -91,7 +91,22 @@ class msic():
         return key_l
 
     def get_comon_val_l(self,list_1,list_2):
-       return list(set(list_1).intersection(list_2))
+       #return list(set(list_1).intersection(list_2))
+        matches = []
+        for item in list_1:
+           if item in list_2:
+               matches.append(item)
+        return matches
+
+    def keep_cols_from_dict_l(self,list_l,keep_cols):
+        clean_l = []
+        for e in list_l:
+            new_d = {}
+            for m in self.get_comon_val_l(keep_cols, list_2=e.keys()):
+                new_d[m] = e[m]
+
+            clean_l.append(new_d.copy())
+        return clean_l
 
     def list_to_dict(self,list_in_l, col_l):
         #merge do lists into one dict
@@ -108,43 +123,41 @@ class msic():
             dict_l.append(dict_d.copy())
         return dict_l
 
-    def add_prefix_to_dict_keys(self,dict, dpn_prefix):
+    def add_prefix_to_dict_keys(self,dict, dpn_prefix, dict_cols= []):
         #adds a prefix to the keys of a dict
         # use case here is to distinct i.e. between the object_id and the depn_object_id
         new_dict = {}
+        include=0
         if dpn_prefix==None:
             return dict
         for key, value in dict.items():
-            new_key = dpn_prefix + key
-            new_dict[new_key] = value
+            if dict_cols==[]:
+                include=1
+
+            if key in dict_cols:
+                include = 1
+
+            if include==1:
+               new_key = dpn_prefix + key
+               new_dict[new_key] = value
+
         return new_dict
 
-"""
-class sql_server_obj():
-    pass
+    def rem_dbl_dict_in_l (self,dict_l):
+
+        tuple_l = set(tuple(sorted(d.items())) for d in dict_l)
+
+        #tuple_l =list(set(tuple(keys) for keys in dict_l))
+        # Convert tuples back to dictionaries
+        unique_dict_l = [dict(t) for t in tuple_l]
+
+        return unique_dict_l
+
+    def rem_dbl_in_l(self,list_l):
+        list_l = list(set(list_l))
+        return list_l
+
+    def sort_dict_by_key_in_l(self,dict_l,sort_key, reverse=False):
+        return sorted(dict_l, key=lambda x: x.get(sort_key, None), reverse=reverse)
 
 
-class ZZZ_df_helper():
-
-    def clean_double_col(self, df, postfix_left="_x", postfix_right="_y"):
-        # postfix_left gets removed
-        # postfix_right gets deleted
-        doubles_y = [col for col in df.columns if col.endswith(postfix_right)]
-        df.drop(columns=doubles_y, inplace=True)
-        df.columns = [col.replace(postfix_left, '') for col in df.columns]
-        return df
-
-    def rem_att_id_forms(self,df,postfix="@ID"):
-        df.columns = [col.replace(postfix, '') for col in df.columns]
-        return df
-
-
-    def flag_folder_df(self,flag_path_d_l, obj_df, obj_path="path", flag_path="flag_path"):
-        flag_path_df = pd.DataFrame.from_dict(flag_path_d_l)
-        unique_str = flag_path_df[flag_path].unique()
-        matching_rows_df = obj_df[obj_df['path'].str.contains('|'.join(unique_str))]
-        flaged_obj_df = pd.merge(matching_rows_df, flag_path_df, left_on=matching_rows_df['path']
-                                 .str.extract(f'({"|".join(unique_str)})')[0],
-                                 right_on='flag_path')
-        return flaged_obj_df
-"""
