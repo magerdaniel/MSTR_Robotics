@@ -328,7 +328,7 @@ class prompts():
         if baseFormType in ["integer","double","numeric","decimal"]:
             exp_prp_data_type="Numeric"
 
-        if baseFormType in ["big_decimal"]:
+        if baseFormType in ["big_decimal","bigDecimal"]:
             exp_prp_data_type="BigDecimal"
 
         if baseFormType in ["time_stamp"]:

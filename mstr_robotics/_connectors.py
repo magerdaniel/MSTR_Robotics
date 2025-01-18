@@ -189,6 +189,24 @@ class mstr_api():
         url += f"{instance_id}/chapters/{chapter_key}/visualizations/{vis_id}?offset=0&limit=1000"
         return conn.get(url).json()
 
+    def get_v2_cube_instance(self,conn,cube_id,offset_val,limit_val):
+        url = f'{conn.base_url}/api/v2/cubes/{cube_id}/instances?offset={offset_val}&limit={limit_val}'
+        return conn.post(url)
+
+
+
+    def zzz_fetch_cube_elements(self,conn, cube_id, attribute_id, limit_val=100):
+        all_element_l = []
+        offset_val = 0
+        tot_count = 0
+        while tot_count >= offset_val:
+            url = f"{conn.base_url}/api/cubes/{cube_id}/attributes/{attribute_id}/elements?offset={offset_val}&limit={limit_val}"
+            resp = conn.get(url)
+            tot_count = int(resp.headers["x-mstr-total-count"])
+            offset_val += limit_val
+            all_element_l.extend(resp.json())
+        return all_element_l
+
 
 
     def ZZZ_get_cube_data(self,conn,cube_id,instance_id,offset,limit) :

@@ -81,6 +81,11 @@ class msic():
                 new_dict_l.append(d)
         return new_dict_l
 
+    def get_obj_id_by_type_l(self,dict_l, obj_type_l):
+        obj_type_l = self.get_dict_with_id_in_l(dict_l=dict_l, search_l=obj_type_l, key="type")
+        obj_id_l = self.get_key_form_dict_l(dict_l=obj_type_l, key="id")
+        return obj_id_l
+
     def get_key_form_dict_l(self,dict_l,key="id"):
         #if you communicating over REST with MSTR, you of often
         #get list of dictionary, where you only need the object_id's.

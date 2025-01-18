@@ -7,8 +7,10 @@ from mstr_robotics._helper import msic
 from mstr_robotics._connectors import mstr_api
 from mstr_robotics.mstr_classes import mstr_global
 from mstrio.project_objects import OlapCube
-from flashtext import KeywordProcessor
+from mstr_robotics.read_out_prj_obj import io_attributes
 
+io_att=io_attributes()
+from flashtext import KeywordProcessor
 from itertools import chain
 import json
 
@@ -65,13 +67,51 @@ class read_out_cube_att():
                 rag_att_form_id_d["form_dataType"] = i_prompts.get_exp_prp_data_type(form["dataType"])
                 if att["name"] == att_name and form["name"] == form_name:
                     return rag_att_form_id_d
-                elif att["name"] == att_name and form_name==None and i==0:
-                    return rag_att_form_id_d
+                #elif att["name"] == att_name and form_name==None and i==0:
+                #    return rag_att_form_id_d
                 i+=1
 
         return rag_att_form_id_d
 
-    def read_cube_att_form_exp_val_l(self,conn,cube_list_l):
+    #def read_cube_att_form_exp_val_l(conn, cube_id,*args,**kwargs):
+
+
+    def fetch_cube_elements(self, conn, cube_id,limit_val=10000,*args,**kwargs):
+        rag_att_form_l = []
+        offset_val = 0
+        row_count = 1
+        while row_count > 0:
+            resp=i_mstr_api.get_v2_cube_instance(conn=conn, cube_id=cube_id, offset_val=offset_val,limit_val=limit_val,*args,**kwargs)
+            #url = f'{conn.base_url}/api/v2/cubes/{cube_id}/instances?offset={offset_val}&limit={limit_val}'
+            #resp = conn.post(url)
+            cube_def= resp.json()
+            for att in cube_def["definition"]["grid"]["rows"]:
+                form_nr = 0
+                rag_att_form_d = {}
+                rag_att_form_d["project_id"] = conn.project_id
+                rag_att_form_d["attribute_id"] = att["id"]
+                rag_att_form_d["attribute_name"] = att["name"]
+                row_count = len(att["elements"])
+                for form in att["forms"]:
+                    rag_att_form_d["form_id"] = form["id"]
+                    rag_att_form_d["form_name"] = form["name"]
+                    rag_att_form_d["form_dataType"] = i_prompts.get_exp_prp_data_type(form["dataType"])
+                    for element in att["elements"]:
+                        rag_att_form_d["key"] = element["formValues"][form_nr]
+                        rag_att_form_d["ele_prp_ans"] = element["id"]
+                        rag_att_form_l.append(rag_att_form_d.copy())
+            offset_val += limit_val
+            resp.close()
+        return rag_att_form_l
+
+    def read_cube_att_form_exp_val_l(self, conn, cube_list_l,*args,**kwargs):
+        all_cube_element_l=[]
+        for cube in cube_list_l:
+            cube_element_l=self.fetch_cube_elements(conn=conn,cube_id=cube["id"],*args,**kwargs)
+            all_cube_element_l.extend(cube_element_l)
+        return all_cube_element_l
+
+    def zzz_read_cube_att_form_exp_val_l(self,conn,cube_list_l):
         element_d_l = []
         for cube_id in cube_list_l:
             cube = OlapCube(connection=conn, id=cube_id["id"])
@@ -90,7 +130,7 @@ class read_out_cube_att():
                     distinct_val = cube_df[col].unique()
                     for val in distinct_val:
                         att_form_d["key"] = val
-                        att_form_d["prp_ans"] = val
+                        #att_form_d["prp_ans"] = val
                         element_d_l.append(att_form_d.copy())
                 else:
                     #print("col not added")
@@ -104,8 +144,6 @@ class read_out_cube_att():
 
 
         return element_d_l
-
-
 
 class map_objects():
 

@@ -16,11 +16,6 @@ i_prompts=prompts()
 i_mstr_api=mstr_api()
 
 
-class ZZ_read_out_prp():
-    def _read_metric_def(self):
-        pass
-
-
 class read_out_hierarchy():
 
     def __init__(self):
@@ -131,18 +126,8 @@ class read_table_def():
 
         return prjtblcol
 
-    def zzz_get_prj_tbl(self,conn):
-        inst_u = f"{conn.base_url}/api/model/tables"
-        r = conn.get(inst_u)
-        return r
-
     def runreadout(self,conn,*args,**kwargs):
         #define target table for data upload
-        tbl_name = "all_mppd_tbl_col"
-        #initialize column order for pandas dataframe
-        #load_col_ord_l=list(run_prop_d.keys())
-
-
         #do the readout
         tbl_id_l=[]
         all_tables_l= i_mstr_api.get_prj_tbl(conn).json()["tables"]
