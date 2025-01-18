@@ -9,7 +9,7 @@ for scheme in list(INSTALL_SCHEMES.values()):
 
 long_description = (this_directory / "README.md").read_text()
 setup(name='MSTR_Robotics_magerdaniel',
-      version= "0.3.00",
+      version= "0.3.01",
       description="MicroStrateg(P)ython",
       author="Daniel Mager",
       author_email='"danielmager@gmx.de"',
