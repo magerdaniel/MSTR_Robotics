@@ -17,5 +17,12 @@ setup(name='MSTR_Robotics_magerdaniel',
       long_description=long_description,
       long_description_content_type='text/markdown',
       packages=['mstr_robotics'],
+      install_requires=[
+        "mstrio-py",  # MicroStrategy Python Library
+        "langchain",  # Framework for developing LLM-powered applications
+        "openai",  # OpenAI Python client
+        "flashtext",  # Library for keyword extraction and replacement
+        # itertools is a standard Python library and does not need to be installed
+        ],
       package_data={'mstr_robotics': ['jup_schema_monitor.ipynb']},
 )
