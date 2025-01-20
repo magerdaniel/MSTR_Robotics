@@ -18,7 +18,7 @@ setup(name='MSTR_Robotics_magerdaniel',
       long_description_content_type='text/markdown',
       packages=['mstr_robotics'],
       install_requires=[
-        "mstrio-py",  # MicroStrategy Python Library
+        "mstrio-py==11.4.6.101",  # MicroStrategy Python Library
         "langchain",  # Framework for developing LLM-powered applications
         "openai",  # OpenAI Python client
         "flashtext",  # Library for keyword extraction and replacement
