@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="MSTR_Robotics_magerdaniel",
-    version="0.3.06",
+    version="0.3.07",
     description="MicroStrateg(P)ython",
     author="Daniel Mager",
     author_email="danielmager@gmx.de",
@@ -19,6 +19,9 @@ setup(
         "mstrio-py==11.4.6.101",  # Specify the exact or compatible version
         "langchain",
         "openai",
+        "tiktoken",
+        "langchain-community",
+        "faiss-cpu",
         "flashtext>=2.7",  # Add a minimum version if applicable
     ],
     package_data={"mstr_robotics": ["jup_schema_monitor.ipynb"]},  # Include additional files
