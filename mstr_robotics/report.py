@@ -325,13 +325,13 @@ class prompts():
         if baseFormType in ["fixed_length_string","n_var_char","Char","varChar"]:
             exp_prp_data_type="Char"
 
-        if baseFormType in ["integer","double","numeric","decimal"]:
+        if baseFormType in ["integer","double","numeric","decimal","int64","float"]:
             exp_prp_data_type="Numeric"
 
         if baseFormType in ["big_decimal","bigDecimal"]:
             exp_prp_data_type="BigDecimal"
 
-        if baseFormType in ["time_stamp"]:
+        if baseFormType in ["time_stamp","date"]:
             exp_prp_data_type="DateTime"
 
         if exp_prp_data_type == "":

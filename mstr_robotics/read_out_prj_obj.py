@@ -768,12 +768,13 @@ class read_report():
             filter_text=str(rep_def["dataSource"]["filter"]["text"])
         except:
             pass
-        for u in rep_def["dataSource"]["dataTemplate"]['units']:
-            if u["type"]=="metrics":
-                try:
-                    report_limit_text=str(u["limit"]["text"])
-                except:
-                    pass
+        if "dataTemplate" in rep_def["dataSource"].keys():
+            for u in rep_def["dataSource"]["dataTemplate"]['units']:
+                if u["type"]=="metrics":
+                    try:
+                        report_limit_text=str(u["limit"]["text"])
+                    except:
+                        pass
 
         rep_head_d=i_mstr_global.get_object_info_d(conn=conn,object_id=report_id,type="3")
         #rep_head_d.rename(columns={'id': 'report_id'}, inplace=True)
