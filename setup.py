@@ -16,7 +16,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),  # Automatically find all packages
     install_requires=[
-        "mstrio-py==11.4.6.101",  # Specify the exact or compatible version
+        "mstrio-py==11.4.9.101",  # Specify the exact or compatible version
         "langchain",
         "openai",
         "tiktoken",
