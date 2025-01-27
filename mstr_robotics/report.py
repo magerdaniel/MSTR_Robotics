@@ -163,6 +163,7 @@ class cube():
     def get_cube_def(self,conn,cube_id):
         return cube_definition(connection=conn, id=cube_id).json()
 
+
     def get_mtdi_cube_col_id(self,conn, cube_l):
 
         mstr_rag_col_d = {}
@@ -177,7 +178,8 @@ class cube():
             mstr_rag_col_d[cube_id] = att_col_keys_d.copy()
         return mstr_rag_col_d
 
-    def get_RAG_cube_col_mstr_id(self,cube_id,mstr_rag_col_d, col_name):
+    def get_RAG_cube_col_mstr_id(self,conn,cube_id,col_name):
+        mstr_rag_col_d=self.get_mtdi_cube_col_id(conn, cube_l=[cube_id])
         col_id = mstr_rag_col_d[cube_id][col_name]
         return col_id
 
