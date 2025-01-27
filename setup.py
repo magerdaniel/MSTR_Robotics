@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="MSTR_Robotics_magerdaniel",
-    version="0.3.9",
+    version="0.3.10",
     description="MicroStrateg(P)ython",
     author="Daniel Mager",
     author_email="danielmager@gmx.de",
