@@ -193,6 +193,16 @@ class mstr_api():
         url = f'{conn.base_url}/api/v2/cubes/{cube_id}/instances?offset={offset_val}&limit={limit_val}'
         return conn.post(url)
 
+    def get_open_prp_stat(self,conn,report_id,instance_id):
+        url = f'{conn.base_url}/api/reports/{report_id}/instances/{instance_id}/status'
+        stat = conn.get(url)
+
+        try:
+            status=stat.json()["status"]
+        except:
+            print(stat)
+            status=1
+        return status
 
 
     def zzz_fetch_cube_elements(self,conn, cube_id, attribute_id, limit_val=100):

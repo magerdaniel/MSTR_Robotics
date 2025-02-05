@@ -183,10 +183,16 @@ class answer_prompts():
                     break
         return prp_ans_l
 
-    def save_AI_rep(self, conn, rep_wizzard_id, prompt_answ, ai_rep_name, ai_rep_folder_id):
-        instance_id = i_rep.open_Instance(conn=conn, report_id=rep_wizzard_id)
-        first_draft = i_rep.set_inst_prompt_ans(conn=conn, report_id=rep_wizzard_id, instance_id=instance_id,
-                                                     prompt_answ=prompt_answ)
+    def save_AI_rep(self, conn, report_id, prompt_answ, ai_rep_name, ai_rep_folder_id):
+        instance_id = i_rep.open_Instance(conn=conn, report_id=report_id)
+        first_draft = i_rep.set_inst_prompt_ans(conn=conn, report_id=report_id, instance_id=instance_id,
+                                                prompt_answ=prompt_answ)
+
+        rep_stat = i_rep.get_open_prp_stat(conn=conn, report_id=report_id, instance_id=instance_id)
+
+        if rep_stat == 2:
+            prompt_answ = i_rep.close_open_prp(conn=conn, report_id=report_id, instance_id=instance_id,
+                                         prompt_answ=prompt_answ)
         rep_id = i_rep.save_rep_inst(conn=conn, instance_id=instance_id, rep_name=ai_rep_name
                                           , save_mode="OVERWRITE"
                                           , promptOption="static"

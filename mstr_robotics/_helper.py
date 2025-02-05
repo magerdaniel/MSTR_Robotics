@@ -128,6 +128,12 @@ class msic():
             dict_l.append(dict_d.copy())
         return dict_l
 
+    def get_vals_from_dict_l(self,dict_l, key="id"):
+        val_l = []
+        for d in dict_l:
+            val_l.append(d[key])
+        return val_l
+
     def add_prefix_to_dict_keys(self,dict, dpn_prefix, dict_cols= []):
         #adds a prefix to the keys of a dict
         # use case here is to distinct i.e. between the object_id and the depn_object_id

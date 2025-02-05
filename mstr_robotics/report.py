@@ -8,9 +8,11 @@ from mstrio.project_objects.report import Report
 from mstrio.api.cubes import cube_definition
 import pandas as pd
 from mstr_robotics.mstr_pandas import df_helper
+from mstr_robotics._helper import msic
 import json
 
 i_mstr_api=mstr_api()
+i_msic=msic()
 
 class rep:
 
@@ -27,6 +29,10 @@ class rep:
         open_prompts=self.i_reports.get_prompted_instance(connection=conn, report_id=report_id
                                              ,instance_id=instance_id, closed = False)
         return open_prompts.json()
+
+    def get_open_prp_stat(self,conn, report_id, instance_id):
+        return i_mstr_api.get_open_prp_stat(conn=conn, report_id=report_id,
+                                      instance_id=instance_id)
 
     def set_inst_prompt_ans(self, conn, report_id, instance_id, prompt_answ):
         prompt_answ_url = f'{conn.base_url}/api/reports/{report_id}/instances/{instance_id}/prompts/answers'
@@ -366,6 +372,35 @@ class prompts():
     def bld_obj_prp_json(self,object_id,object_type):
         return json.dumps({"id": object_id, "type": object_type})
 
+    def close_open_prp(self,conn, report_id, instance_id, prompt_answ):
+        # checks the answered prp
+        prompt_answ_d = json.loads(prompt_answ)
+        prp_ans_d_l = prompt_answ_d["prompts"]
+        prp_ans_id_l = i_msic.keep_cols_from_dict_l(list_l=prp_ans_d_l, keep_cols=["id"])
+
+        # checks the all prp in report / dashboard
+        rep_open_prp_d_l = rep().get_open_prompts(conn=conn, report_id=report_id, instance_id=instance_id)
+        rep_open_prp_id_l = i_msic.keep_cols_from_dict_l(list_l=rep_open_prp_d_l, keep_cols=["id"])
+
+        # checks the prp not answered jet
+        open_prp_l = [x for x in rep_open_prp_id_l if x not in prp_ans_id_l]
+        open_prp_l = i_msic.get_vals_from_dict_l(dict_l=open_prp_l)
+
+        for prp in rep_open_prp_d_l:
+            print(prp["id"])
+            if prp["id"] in open_prp_l:
+                print(prp)
+                open_prp_d = {}
+                open_prp_d["id"] = prp["id"]
+                open_prp_d["type"] = prp["type"]
+                if prp["type"] in ["OBJECTS", "ELEMENTS"]:
+                    open_prp_d["answers"] = []
+                else:
+                    open_prp_d["answers"] = {}
+                rep_open_prp_d_l.append(open_prp_d.copy())
+        prompt_answ = self.frame_prp(prp_ans=rep_open_prp_d_l)
+        return prompt_answ
+
     def zzz_loop_att_exp_prp(self,prp_job_ans_l):
         expr_JSON_l = []
         for att_exp_prp in prp_job_ans_l:
@@ -384,6 +419,7 @@ class prompts():
             expr_JSON_l.append(att_form_exp_j)
 
         return expr_JSON_l
+
     def zzz_get_form_type(self,baseFormType):
         form_type_d={"number":"Numeric",
                      "big_decimal":"BigDecimal"}
