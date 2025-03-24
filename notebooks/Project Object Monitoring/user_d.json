@@ -1,0 +1,8 @@
+{ "sKey": "*********************************", # API key for openAI 
+
+   ,"conn_params" : {
+    "username": "Administrator",
+    "password": "*****",
+    "base_url": "https://YOUR_SERVER:YOUR_PORT/MicroStrategyLibrary/api"
+}
+}

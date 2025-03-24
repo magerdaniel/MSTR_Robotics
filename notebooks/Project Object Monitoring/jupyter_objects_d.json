@@ -1,0 +1,44 @@
+{"turtorial_RAG": 
+{
+    "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+    #your folders
+    "read_out_cbe_fold_id": "9981CB214C79D75EC342A781539A4E5A",
+    "ele_cbe_folder_id": "2B028FBC466C3DC839E1E092FDF4CC56",
+    "read_out_ai_obj_fold_id": "D41FC55D4282E9A5C943D9A8670336CF",
+
+    "cube_RAG_form_val_ans_name": "attribute_form_elements",
+    "cube_RAG_form_val_ans_id": None,
+    "cube_obj_prp_rel_name": "obj_prp_rel",
+    "cube_obj_prp_rel_id": None,
+    "cube_att_form_def_name": "att_form_def",
+    "cube_att_form_def_id": None,
+    "cbe_doss_vis_def_detail_id": None,
+    "cbe_doss_vis_def_detail_name": "dashboard_definitions",
+    "cbe_rep_def_id": None,
+    "cbe_rep_def_name": "report_refinitions"
+},
+"chat_bot_rep":{"rep_dos_id":"25D40AD444B6D51B333021ADFB219501",
+		"ai_rep_folder_id":"1346F3614BF3E15BC090ED96B76CD7AC"
+		 }
+		 
+,
+"PA_RAG": 
+{
+    "project_id": "40DA7A1549651FD60A9D39AAB7EC77B0",
+
+    "read_out_cbe_fold_id": "9981CB214C79D75EC342A781539A4E5A",
+    "ele_cbe_folder_id": "7937398D42746E0BC81097AF7490A794",
+    "read_out_ai_obj_fold_id": "1043AD4C46C982A0ECCAE1A24FB147B7",
+
+    "cube_RAG_form_val_ans_name": "attribute_form_elements",
+    "cube_RAG_form_val_ans_id": None,
+    "cube_obj_prp_rel_name": "obj_prp_rel",
+    "cube_obj_prp_rel_id": None,
+    "cube_att_form_def_name": "att_form_def",
+    "cube_att_form_def_id": None,
+    "cbe_doss_vis_def_detail_id": None,
+    "cbe_doss_vis_def_detail_name": "dashboard_definitions",
+    "cbe_rep_def_id": None,
+    "cbe_rep_def_name": "report_refinitions"
+}
+}
