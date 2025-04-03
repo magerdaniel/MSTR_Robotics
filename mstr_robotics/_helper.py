@@ -1,5 +1,18 @@
 class str_func:
 
+    def web_base_url(self,base_url):
+        url_start = base_url.split("/")  # Split by backslash
+        web_base_url=f'{url_start[0]+"//"+url_start[2]}/MicroStrategy/servlet/mstrWeb?'
+        return web_base_url
+
+    def get_server_base_url(self,base_url):
+        url_parts = base_url.split("/")
+        server = url_parts[2].split(":")
+        return server[0]
+
+    def get_project_name_base_url(self, project_name):
+        return project_name.replace(" ", "+")
+
     def rem_braket(self, exp):
         if exp[:1] =="(":
             exp = exp.replace("(", "")

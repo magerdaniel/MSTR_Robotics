@@ -14,7 +14,7 @@ i_mstr_global=mstr_global()
 i_rep=rep()
 i_mstr_api=mstr_api()
 
-class read_out_cube_att():
+class zzz_read_out_cube_att():
 
     def trans_cbe_el_prp(self, ele_str):
 
@@ -22,27 +22,6 @@ class read_out_cube_att():
         el_ans_str = "h" + ':'.join(el_l[-1 * (len(el_l) - 1):])
         el_ans_d = {"id": ':'.join(el_l[-1 * (len(el_l) - 1):]) + ";" + el_l[0]}
         return el_ans_d
-
-
-    def zzz_read_cube_att_elements(self,conn,cube_list_l ):
-        key_val_l=[]
-
-        for cube_id in cube_list_l:
-            #print(cube_id["id"])
-            cube = OlapCube(connection=conn, id=cube_id["id"])
-            att_ell_l=cube.attr_elements
-            for att in att_ell_l:
-                #print(att["attribute_name"])
-                key_val_d={}
-                key_val_d["attribute_id"]=att["attribute_id"]
-                key_val_d["attribute_name"]=att["attribute_name"]
-                for element in att["elements"]:
-                    #print(element)
-                    key_val_d["element_ans"]=self.trans_cbe_el_prp(ele_str=element["id"])
-                    key_val_d["element_val_key"]=element["formValues"][0]
-                    key_val_l.append(key_val_d.copy())
-
-        return key_val_l
 
     def read_cube_att_forms(self,conn,cube_def, att_name, form_name=None):
         #reads out attorm definitions
@@ -100,31 +79,59 @@ class read_out_cube_att():
             all_cube_element_l.extend(cube_element_l)
         return all_cube_element_l
 
+
+    def zzz_read_cube_att_elements(self,conn,cube_list_l ):
+        key_val_l=[]
+
+        for cube_id in cube_list_l:
+            #print(cube_id["id"])
+            cube = OlapCube(connection=conn, id=cube_id["id"])
+            att_ell_l=cube.attr_elements
+            for att in att_ell_l:
+                #print(att["attribute_name"])
+                key_val_d={}
+                key_val_d["attribute_id"]=att["attribute_id"]
+                key_val_d["attribute_name"]=att["attribute_name"]
+                for element in att["elements"]:
+                    #print(element)
+                    key_val_d["element_ans"]=self.trans_cbe_el_prp(ele_str=element["id"])
+                    key_val_d["element_val_key"]=element["formValues"][0]
+                    key_val_l.append(key_val_d.copy())
+
+        return key_val_l
+
 class map_objects():
 
     def get_doss_rep_prp(self,conn, object_l):
         prp_rep_l = []
+        prp_rep_err_l = []
         for rep_dos in object_l:
-            if rep_dos["type"] == 3:
-                for prp in i_rep.get_rep_prp_l(conn=conn, report_id=rep_dos["id"]):
-                    rep_prp_d = {}
-                    rep_prp_d["project_id"]=conn.project_id
-                    rep_prp_d["rep_dos_id"] = rep_dos["id"]
-                    rep_prp_d["type"] = rep_dos["type"]
-                    rep_prp_d["sub_type"] = rep_dos["sub_type"]
-                    rep_prp_d["prompt_id"] = prp.id
-                    prp_rep_l.append(rep_prp_d.copy())
-            elif rep_dos["type"] == 55:
-                for prp in i_mstr_api.get_dossier_prp_l(conn=conn, dossier_id=rep_dos["id"]):
-                    rep_prp_d = {}
-                    rep_prp_d["project_id"]=conn.project_id
-                    rep_prp_d["rep_dos_id"] = rep_dos["id"]
-                    rep_prp_d["type"] = rep_dos["type"]
-                    rep_prp_d["sub_type"] = rep_dos["sub_type"]
-                    rep_prp_d["prompt_id"] = prp["id"]
-                    prp_rep_l.append(rep_prp_d.copy())
+            try:
+                if rep_dos["type"] == 3:
+                    for prp in i_rep.get_rep_prp_l(conn=conn, report_id=rep_dos["id"]):
+                        rep_prp_d = {}
+                        rep_prp_d["project_id"]=conn.project_id
+                        rep_prp_d["rep_dos_id"] = rep_dos["id"]
+                        rep_prp_d["type"] = rep_dos["type"]
+                        rep_prp_d["sub_type"] = rep_dos["sub_type"]
+                        rep_prp_d["prompt_id"] = prp.id
+                        prp_rep_l.append(rep_prp_d.copy())
+                elif rep_dos["type"] == 55:
+                    for prp in i_mstr_api.get_dossier_prp_l(conn=conn, dossier_id=rep_dos["id"]):
+                        rep_prp_d = {}
+                        rep_prp_d["project_id"]=conn.project_id
+                        rep_prp_d["rep_dos_id"] = rep_dos["id"]
+                        rep_prp_d["type"] = rep_dos["type"]
+                        rep_prp_d["sub_type"] = rep_dos["sub_type"]
+                        rep_prp_d["prompt_id"] = prp["id"]
+                        prp_rep_l.append(rep_prp_d.copy())
 
-        return prp_rep_l
+            except Exception as e:
+                prp_rep_err_d = {"rep_dos_id": rep_dos["id"], "rep_dos_type":rep_dos["type"], "err_msg": str(e)}
+                prp_rep_err_l.append(prp_rep_err_d.copy())
+
+        all_rep_prp_d = {"prp_rep_l": prp_rep_l, "prp_rep_err_l": prp_rep_err_l}
+        return all_rep_prp_d
 
     def get_RAG_cube_attribute_id(self,conn, cube_l):
         cube_att_l = []
@@ -138,11 +145,11 @@ class map_objects():
                 cube_att_l.append(cube_att_d.copy())
         return cube_att_l
 
-    def bld_ai_prp_ans(self,conn, cube_id,  rep_dos_id, key_word_l):
+    def bld_ai_prp_ans(self,conn, cube_id,  rep_dos_id, key_word_l,key_val_l = ["key"]):
 
         disp_col_ids_l = []
         attr_elements_l = []
-        key_val_l = ["key"]  #
+          #
         # print(mstr_rag_col_d)
         mstr_rag_col_d=i_cube.get_mtdi_cube_col_id(conn, cube_l=[cube_id])
         for col_name in mstr_rag_col_d[cube_id].keys():

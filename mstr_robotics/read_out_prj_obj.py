@@ -188,70 +188,75 @@ class io_attributes():
     def read_att_form_exp(self,conn,att_id_l,*args,**kwargs):
         all_att_maps_d = self.run_prop_d.copy()
         all_att_maps_l = []
-
+        all_att_err_l = []
         for att_id in att_id_l:
-            #print(att_id)
-            att=self.i_read_att(connection=conn,id=att_id,show_expression_as="tokens").json()
-            key_form_l = self.get_att_key_form_l(att)
-            for form in att["forms"]:
-                if "isFormGroup" not in list(form.keys()):
-                    all_att_maps_d["project_id"] = conn.headers["X-MSTR-ProjectID"]
-                    all_att_maps_d["attribute_id"] = att_id
-                    all_att_maps_d["attribute_name"] =att["name"]
-                    all_att_maps_d["form_id"] = form["id"]
-                    all_att_maps_d["form_name"] = form["name"]
-                    #all_att_maps_d["description"] = form["description"]
-                    all_att_maps_d["form_category"] = form["category"]
-                    all_att_maps_d["form_type"] = form["type"]
-                    all_att_maps_d["displayFormat"] = form["displayFormat"]
-                    all_att_maps_d["form_dataType"] = form["dataType"]["type"]
-                    all_att_maps_d["REST_form_type"] = i_prompts.get_exp_prp_data_type(baseFormType=form["dataType"]["type"])
-                    all_att_maps_d["form_precision"] = form["dataType"]["precision"]
-                    all_att_maps_d["form_scale"] = form["dataType"]["scale"]
+            try:
+                att=self.i_read_att(connection=conn,id=att_id,show_expression_as="tokens").json()
+                key_form_l = self.get_att_key_form_l(att)
+                for form in att["forms"]:
+                    if "isFormGroup" not in list(form.keys()):
+                        all_att_maps_d["project_id"] = conn.headers["X-MSTR-ProjectID"]
+                        all_att_maps_d["attribute_id"] = att_id
+                        all_att_maps_d["attribute_name"] =att["name"]
+                        all_att_maps_d["form_id"] = form["id"]
+                        all_att_maps_d["form_name"] = form["name"]
+                        #all_att_maps_d["description"] = form["description"]
+                        all_att_maps_d["form_category"] = form["category"]
+                        all_att_maps_d["form_type"] = form["type"]
+                        all_att_maps_d["displayFormat"] = form["displayFormat"]
+                        all_att_maps_d["form_dataType"] = form["dataType"]["type"]
+                        all_att_maps_d["REST_form_type"] = i_prompts.get_exp_prp_data_type(baseFormType=form["dataType"]["type"])
+                        all_att_maps_d["form_precision"] = form["dataType"]["precision"]
+                        all_att_maps_d["form_scale"] = form["dataType"]["scale"]
 
-                    if form["id"] in key_form_l:
-                        all_att_maps_d["key_form"]=True
-                    else:
-                        all_att_maps_d["key_form"]=False
-
-                    all_att_maps_d["display_form_nr"]=0
-                    display_form_nr=1
-                    for rd_form in att["displays"]["reportDisplays"]:
-                        if form["id"] == rd_form["id"]:
-                            all_att_maps_d["display_form_nr"]=display_form_nr
+                        if form["id"] in key_form_l:
+                            all_att_maps_d["key_form"]=True
                         else:
-                            display_form_nr+=1
+                            all_att_maps_d["key_form"]=False
+
+                        all_att_maps_d["display_form_nr"]=0
+                        display_form_nr=1
+                        for rd_form in att["displays"]["reportDisplays"]:
+                            if form["id"] == rd_form["id"]:
+                                all_att_maps_d["display_form_nr"]=display_form_nr
+                            else:
+                                display_form_nr+=1
 
 
-                    all_att_maps_d["browse_form_nr"] = 0
-                    browse_form_nr = 1
-                    for bd_form in att["displays"]["browseDisplays"]:
-                        if form["id"] == bd_form["id"]:
-                            all_att_maps_d["browse_form_nr"] = browse_form_nr
-                        else:
-                            browse_form_nr += 1
+                        all_att_maps_d["browse_form_nr"] = 0
+                        browse_form_nr = 1
+                        for bd_form in att["displays"]["browseDisplays"]:
+                            if form["id"] == bd_form["id"]:
+                                all_att_maps_d["browse_form_nr"] = browse_form_nr
+                            else:
+                                browse_form_nr += 1
 
-                    for e in form["expressions"]:
-                        # print(e)
-                        all_att_maps_d["form_expressionId"] = e["expressionId"]
-                        all_att_maps_d["form_expressionText"] = e["expression"]["text"]
-                        # all_att_maps_d["expression_text"]=e["expression"]["text"]
-                        for tok in e["expression"]["tokens"]:
-                            if "target" in list(tok.keys()):
-                                if "column" == tok["target"]["subType"]:
-                                    all_att_maps_d["exp_value"] = tok["value"]
-                                    all_att_maps_d["column_id"] = tok["target"]["objectId"]
-                                    all_att_maps_d["column_name"] = tok["target"]["name"]
-                                    all_att_maps_d["column_versionId"] = tok["target"]["versionId"]
-                                    all_att_maps_d["column_dateCreated"] = tok["target"]["dateCreated"]
-                                    all_att_maps_d["column_dateModified"] = tok["target"]["dateModified"]
-                                    all_att_maps_l.append(all_att_maps_d.copy())
-                                    for table in e["tables"]:
-                                        all_att_maps_d["table_id"] = table["objectId"]
-                                        all_att_maps_d["table_subType"] = table["subType"]
+                        for e in form["expressions"]:
+                            # print(e)
+                            all_att_maps_d["form_expressionId"] = e["expressionId"]
+                            all_att_maps_d["form_expressionText"] = e["expression"]["text"]
+                            # all_att_maps_d["expression_text"]=e["expression"]["text"]
+                            for tok in e["expression"]["tokens"]:
+                                if "target" in list(tok.keys()):
+                                    if "column" == tok["target"]["subType"]:
+                                        all_att_maps_d["exp_value"] = tok["value"]
+                                        all_att_maps_d["column_id"] = tok["target"]["objectId"]
+                                        all_att_maps_d["column_name"] = tok["target"]["name"]
+                                        all_att_maps_d["column_versionId"] = tok["target"]["versionId"]
+                                        all_att_maps_d["column_dateCreated"] = tok["target"]["dateCreated"]
+                                        all_att_maps_d["column_dateModified"] = tok["target"]["dateModified"]
                                         all_att_maps_l.append(all_att_maps_d.copy())
+                                        for table in e["tables"]:
+                                            all_att_maps_d["table_id"] = table["objectId"]
+                                            all_att_maps_d["table_subType"] = table["subType"]
+                                            all_att_maps_l.append(all_att_maps_d.copy())
 
-        return all_att_maps_l
+            except Exception as e:
+                all_att_err_d={"attribute_id":att_id , "err_msg":str(e)}
+                all_att_err_l.append(all_att_err_d.copy())
+
+        all_att_d={"all_att_maps_l":all_att_maps_l,"all_att_err_l":all_att_err_l}
+        return all_att_d
 
     def get_att_key_form_l(self,att):
         key_form_l = []
@@ -287,7 +292,7 @@ class read_schema():
         fact_l=i_md_searches.search_for_type_l(conn,obj_l=["13"] )
         fact_id_l=i_msic.get_key_form_dict_l(dict_l=fact_l)
 
-        att_form_exp_l=self.io_attributes.read_att_form_exp(conn=conn,att_id_l=att_id_l)
+        att_form_exp_l=self.io_attributes.read_att_form_exp(conn=conn,att_id_l=att_id_l)["all_att_maps_l"]
         att_form_exp_df=pd.DataFrame.from_dict(att_form_exp_l)
 
         fact_exp_l=self.io_facts.read_fact_exp(conn=conn,fact_id_l=fact_id_l)
@@ -323,7 +328,7 @@ class read_gen():
 
     def get_obj_def(self,conn, object_id, obj_type=None, obj_sub_type=None):
         obj_def = {}
-        print(obj_type)
+        #print(obj_type)
         if str(obj_type) == "12":
 
             obj_def = attributes.get_attribute(connection=conn, id=object_id, show_expression_as="tokens").json()
@@ -454,11 +459,17 @@ class read_prompts():
                 self.prompt_obj_l.append(p_obj_row_d.copy())
 
         else:
-            # print(prompt_def_d)
-            p_obj_row_d["object_id"] = prompt_def_d["question"]["search"]["objectId"]
-            p_obj_row_d["prp_subType"] = prompt_def_d["question"]["search"]["subType"]
-            self.prompt_obj_l.append(p_obj_row_d.copy())
-            self.prp_search_obj_l.append({"id": p_obj_row_d["prompt_id"], "type": 10}.copy())
+            #print(prompt_def_d)
+            if ("expressionType" in prompt_def_d.keys() and
+                prompt_def_d["expressionType"]=="hierarchy" and
+                prompt_def_d["question"]["listAllHierarchies"]==True):
+                    print("allHierPrompt")
+            else:
+
+                p_obj_row_d["object_id"] = prompt_def_d["question"]["search"]["objectId"]
+                p_obj_row_d["prp_subType"] = prompt_def_d["question"]["search"]["subType"]
+                self.prompt_obj_l.append(p_obj_row_d.copy())
+                self.prp_search_obj_l.append({"id": p_obj_row_d["prompt_id"], "type": 10}.copy())
 
     def _add_att_to_obj_l(self,conn,p_row_d):
         p_obj_row_d={}
@@ -632,8 +643,6 @@ class read_report():
         obj_d["form_name"] = ""
         return obj_d
 
-
-
     def read_grid_attribute(self,conn, obj, row_col_fg, row_col_nr):
         att_l=[]
         att_d = self.run_prop_d.copy()
@@ -764,18 +773,24 @@ class read_report():
         rep_def=i_rep.get_report_all_def(conn=conn,report_id=report_id,show_advanced_properties=show_advanced_properties)
         filter_text=""
         report_limit_text=""
-        try:
-            filter_text=str(rep_def["dataSource"]["filter"]["text"])
-        except:
-            pass
-        if "dataTemplate" in rep_def["dataSource"].keys():
-            for u in rep_def["dataSource"]["dataTemplate"]['units']:
-                if u["type"]=="metrics":
-                    try:
-                        report_limit_text=str(u["limit"]["text"])
-                    except:
-                        pass
+        if "errors" in rep_def.keys():
+            filter_text=str(rep_def["errors"])
+        else:
+            try:
 
+                filter_text=str(rep_def["dataSource"]["filter"]["text"])
+            except:
+                pass
+            if "dataTemplate" in rep_def["dataSource"].keys():
+                if "units" in rep_def["dataSource"]["dataTemplate"].keys():
+                    for u in rep_def["dataSource"]["dataTemplate"]['units']:
+                        if u["type"]=="metrics":
+                            try:
+                                report_limit_text=str(u["limit"]["text"])
+                            except:
+                                pass
+                else:
+                    filter_text=str(str(rep_def["dataSource"]["dataTemplate"]))
         rep_head_d=i_mstr_global.get_object_info_d(conn=conn,object_id=report_id,type="3")
         #rep_head_d.rename(columns={'id': 'report_id'}, inplace=True)
         rep_head_d.pop("project_id")
@@ -791,24 +806,33 @@ class read_report():
         rep_head_l=[]
         rep_avail_obj_l=[]
         rep_grid_obj_l=[]
+        rep_def_err_l=[]
         for report_id in report_id_l:
-            load_d["project_id"]=conn.project_id
-            load_d["report_id"]=report_id
-            self.run_prop_d=load_d.copy()
-            rep_def=i_rep.get_report_def(conn=conn,report_id=report_id).json()
-            grid_obj_d=self.read_out_grid(conn=conn,grid_definition=rep_def["definition"]["grid"])
-            pageBy_obj_d=self.read_grid_pageBy(conn=conn,pageBy_l=rep_def["definition"]["grid"]["pageBy"])
-            avail_obj_d=self.read_avail_obj(conn=conn,avail_obj=rep_def["definition"]["availableObjects"])
+            try:
+                load_d["project_id"]=conn.project_id
+                load_d["report_id"]=report_id
+                self.run_prop_d=load_d.copy()
+                rep_def=i_rep.get_report_def(conn=conn,report_id=report_id).json()
+                grid_obj_d=self.read_out_grid(conn=conn,grid_definition=rep_def["definition"]["grid"])
+                pageBy_obj_d=self.read_grid_pageBy(conn=conn,pageBy_l=rep_def["definition"]["grid"]["pageBy"])
+                avail_obj_d=self.read_avail_obj(conn=conn,avail_obj=rep_def["definition"]["availableObjects"])
 
-            rep_grid_obj_l.extend(grid_obj_d)
-            rep_grid_obj_l.extend(pageBy_obj_d)
-            rep_avail_obj_l.extend(avail_obj_d)
-            rep_head_d=self.read_rep_quick_filt(conn=conn,report_id=report_id,show_advanced_properties="false")
-            rep_head_l.append(rep_head_d)
+                rep_grid_obj_l.extend(grid_obj_d)
+                rep_grid_obj_l.extend(pageBy_obj_d)
+                rep_avail_obj_l.extend(avail_obj_d)
+                rep_head_d=self.read_rep_quick_filt(conn=conn,report_id=report_id,show_advanced_properties="false")
+                rep_head_l.append(rep_head_d)
+
+            except Exception as e:
+                rep_def_err_d = {"load_d": load_d, "rep_def":rep_def,"grid_obj_d":grid_obj_d,
+                                 "pageBy_obj_d":pageBy_obj_d,"avail_obj_d":avail_obj_d,
+                                 "err_msg": str(e)}
+                rep_def_err_l.append(rep_def_err_d.copy())
 
         rep_def_df= self.bld_rep_def_df(rep_head_l,rep_grid_obj_l=rep_grid_obj_l,rep_avail_obj_l=rep_avail_obj_l)
 
-        return rep_def_df
+        rep_def_d={"rep_def_df":rep_def_df,"rep_def_err_l":rep_def_err_l}
+        return rep_def_d
 
     def bld_rep_def_df(self,rep_head_l, rep_grid_obj_l, rep_avail_obj_l):
 
@@ -840,3 +864,154 @@ class read_report():
                               right_on=['project_id', 'report_id', 'object_id', 'form_id'], how='left')
         rep_def_df = i_df_helper.clean_double_col(df=rep_def_df)
         return rep_def_df
+
+class read_cube():
+
+    def read_cube_model_header(self,conn, cube_id, cube_head_d=None):
+        cube_all_def_d = i_mstr_api.get_cube_all_def(conn=conn, cube_id=cube_id,)
+        cbe_all_info = cube_all_def_d["information"]
+        cbe_opt = cube_all_def_d["options"]
+        cbe_sourceType = cube_all_def_d["sourceType"]
+        cbe_timeBased = cube_all_def_d["timeBased"]
+        cbe_filt = cube_all_def_d["filter"]
+
+        # cbe_def=cubes.cube_definition(connection= conn, id= cube_id).json()
+
+        if cube_head_d == None:
+            cube_head_d = {}
+            cube_head_d["project_id"] = conn.project_id
+            cube_head_d["cube_id"] = cbe_all_info["id"]
+
+        cube_head_d["cube_name"] = cbe_all_info["name"]
+        cube_head_d["primaryLocale"] = cbe_all_info["primaryLocale"]
+        cube_head_d["subType"] = cbe_all_info["subType"]
+        cube_head_d["create_date"] = cbe_all_info["dateCreated"]
+        cube_head_d["mod_date"] = cbe_all_info["dateModified"]
+        cube_head_d["language_d"] = str(cbe_opt["dataLanguages"])
+        cube_head_d["refresch_type"] = str(cbe_opt["dataRefresh"])
+        cube_head_d["paration_by_d"] = str(cbe_opt["dataPartition"]["partitionAttribute"])
+        cube_head_d["number_of_partions"] = str(cbe_opt["dataPartition"]["numberOfPartitions"])
+        cube_head_d["fetch_parallel"] = str(cbe_opt["dataPartition"]["fetchDataSlicesInParallel"])
+        cube_head_d["source_type"] = str(cbe_sourceType)
+        cube_head_d["timezone"] = cbe_timeBased["timezone"]
+        cube_head_d["calendar"] = cbe_timeBased["calendar"]
+        cube_head_d["enableTimezoneAndCalendarReporting"] = cbe_timeBased["enableTimezoneAndCalendarReporting"]
+        if "text" in cbe_filt.keys():
+            cube_head_d["filter_text"] = cbe_filt["text"]
+        else:
+            cube_head_d["filter_text"] = ""
+        return cube_head_d
+
+    def read_cube_load_info(self,conn, cube_id):
+        cbe_head_d = cubes.cube_info(connection=conn, id=cube_id).json()["cubesInfos"][0]
+        # print(cbe_head_d.keys())
+        cube_head_d = {}
+        cube_head_d["project_id"] = conn.project_id
+        cube_head_d["cube_id"] = cbe_head_d["cubeId"]
+        cube_head_d["cube_name"] = cbe_head_d["cubeName"]
+        cube_head_d["path"] = cbe_head_d["path"]
+        cube_head_d["modificationTime"] = cbe_head_d["modificationTime"]
+        cube_head_d["server_mode"] = cbe_head_d["serverMode"]
+        cube_head_d["cube_size"] = cbe_head_d["size"]
+        cube_head_d["cube_status"] = cbe_head_d["status"]
+        return cube_head_d
+
+    def read_cube(self,conn, cube_id):
+        cube_head_d = self.read_cube_load_info(conn, cube_id)
+        cube_head_d = self.read_cube_model_header(conn, cube_id, cube_head_d)
+        cube_def = cubes.cube_definition(connection=conn, id=cube_id).json()
+        cube_att_d = self.read_cube_att_forms(conn, cube_def)
+        cube_met_d = self.read_cube_metrics(conn, cube_def)
+        cube_d = {"cube_head_d": cube_head_d, "cube_att_d": cube_att_d, "cube_met_d": cube_met_d}
+        return cube_d
+
+    # ['information', 'template', 'filter', 'options', 'timeBased', 'sourceType', 'advancedProperties']
+
+    def read_all_olap_cubes(self,conn, cube_l):
+
+        cube_head_d_l = []
+        cube_att_d_l = []
+        cube_met_d_l = []
+        for cube_id in cube_l:
+            cube_d = self.read_cube(conn=conn, cube_id=cube_id)
+            cube_head_d_l.append(cube_d["cube_head_d"])
+            cube_att_d_l.extend(cube_d["cube_att_d"])
+            cube_met_d_l.extend(cube_d["cube_met_d"])
+        cube_l_d = {"cube_head_d_l": cube_head_d_l, "cube_att_d_l": cube_att_d_l, "cube_met_d_l": cube_met_d_l}
+        return cube_l_d
+
+    def trans_cbe_el_prp(self, ele_str):
+
+        el_l = ele_str.split(":")
+        el_ans_str = "h" + ':'.join(el_l[-1 * (len(el_l) - 1):])
+        el_ans_d = {"id": ':'.join(el_l[-1 * (len(el_l) - 1):]) + ";" + el_l[0]}
+        return el_ans_d
+
+    def read_cube_att_forms(self,conn,cube_def):
+        #reads out attorm definitions
+        rag_att_form_d_l=[]
+        for att in cube_def["definition"]["availableObjects"]["attributes"]:
+            for form in att["forms"]:
+                #print(att)
+                #print(form)
+                rag_att_form_d = {}
+                rag_att_form_d["project_id"] = conn.project_id
+                rag_att_form_d["cube_id"] = cube_def["id"]
+                rag_att_form_d["attribute_id"] = att["id"]
+                rag_att_form_d["attribute_name"] = att["name"]
+                rag_att_form_d["form_id"] = form["id"]
+                rag_att_form_d["form_name"] = form["name"]
+                if "dataType" in form.keys():
+                    rag_att_form_d["form_dataType"] = i_prompts.get_exp_prp_data_type(form["dataType"])
+                else:
+                    rag_att_form_d["form_dataType"] = i_prompts.get_exp_prp_data_type(form["baseFormType"])
+                rag_att_form_d_l.append(rag_att_form_d.copy())
+
+        return rag_att_form_d_l
+
+    def read_cube_metrics(self,conn, cube_def):
+        metric_def_d_l=[]
+        for m in cube_def["definition"]["availableObjects"]["metrics"]:
+            m_def_d={}
+            m_def_d["project_id"] = conn.project_id
+            m_def_d["cube_id"] = cube_def["id"]
+            m_def_d["metric_id"]=m["id"]
+            m_def_d["metric_name"] = m["name"]
+            m_def_d["metric_data_type"] = m["dataType"]
+            metric_def_d_l.append(m_def_d.copy())
+        return metric_def_d_l
+
+    def fetch_cube_elements(self, conn, cube_id,limit_val=10000,*args,**kwargs):
+        rag_att_form_l = []
+        offset_val = 0
+        row_count = 1
+        while row_count > 0:
+            resp=i_mstr_api.get_v2_cube_instance(conn=conn, cube_id=cube_id, offset_val=offset_val,limit_val=limit_val,*args,**kwargs)
+            #url = f'{conn.base_url}/api/v2/cubes/{cube_id}/instances?offset={offset_val}&limit={limit_val}'
+            #resp = conn.post(url)
+            cube_def= resp.json()
+            for att in cube_def["definition"]["grid"]["rows"]:
+                form_nr = 0
+                rag_att_form_d = {}
+                rag_att_form_d["project_id"] = conn.project_id
+                rag_att_form_d["attribute_id"] = att["id"]
+                rag_att_form_d["attribute_name"] = att["name"]
+                row_count = len(att["elements"])
+                for form in att["forms"]:
+                    rag_att_form_d["form_id"] = form["id"]
+                    rag_att_form_d["form_name"] = form["name"]
+                    rag_att_form_d["form_dataType"] = i_prompts.get_exp_prp_data_type(form["dataType"])
+                    for element in att["elements"]:
+                        rag_att_form_d["key"] = element["formValues"][form_nr]
+                        rag_att_form_d["ele_prp_ans"] = element["id"]
+                        rag_att_form_l.append(rag_att_form_d.copy())
+            offset_val += limit_val
+            resp.close()
+        return rag_att_form_l
+
+    def read_cube_att_form_exp_val_l(self, conn, cube_list_l,*args,**kwargs):
+        all_cube_element_l=[]
+        for cube in cube_list_l:
+            cube_element_l=self.fetch_cube_elements(conn=conn,cube_id=cube["id"],*args,**kwargs)
+            all_cube_element_l.extend(cube_element_l)
+        return all_cube_element_l

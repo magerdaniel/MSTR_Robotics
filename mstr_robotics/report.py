@@ -8,11 +8,12 @@ from mstrio.project_objects.report import Report
 from mstrio.api.cubes import cube_definition
 import pandas as pd
 from mstr_robotics.mstr_pandas import df_helper
-from mstr_robotics._helper import msic
+from mstr_robotics._helper import msic,str_func
 import json
 
 i_mstr_api=mstr_api()
 i_msic=msic()
+i_str_func=str_func()
 
 class rep:
 
@@ -20,6 +21,7 @@ class rep:
         self.i_reports = reports
         self.i_parser = parser
         self.i_df_helper=df_helper()
+
 
     def open_Instance(self, conn, report_id):
         rep_instance = self.i_reports.report_instance(connection=conn, report_id=report_id)
@@ -137,6 +139,16 @@ class rep:
     def bld_rep_library_url(self,conn, report_id):
         rep_url = f'{conn.base_url}/app/{conn.project_id}/{report_id}/share'
         html_link = f'<a href={rep_url} target="_blank">Jump to MSTR Library</a>'
+        return html_link
+
+    def web_base_url(self,conn, report_id):
+        web_base_url=i_str_func.web_base_url(base_url=conn.base_url)
+        server=i_str_func.get_server_base_url(base_url=conn.base_url)
+        project_name=i_str_func.get_project_name_base_url(project_name=conn.project_name)
+        rep_url=f'{web_base_url}Server={server}&Project={project_name}&evt=4001&src=mstrWeb.4001&reportViewMode=1&reportID={report_id}&currentViewMedia=2'
+        print(rep_url)
+        #rep_url = f'{conn.base_url}/app/{conn.project_id}/{report_id}/share'
+        html_link = f'<a href={rep_url} target="_blank">Jump to MSTR Web</a>'
         return html_link
 
     def bld_free_form_rep_df(self,conn, report_id,prp_answ_d=None):
@@ -333,13 +345,13 @@ class prompts():
         if baseFormType in ["fixed_length_string","n_var_char","Char","varChar"]:
             exp_prp_data_type="Char"
 
-        if baseFormType in ["integer","double","numeric","decimal","int64","float"]:
+        if baseFormType in ["integer","double","numeric","number","decimal","int64","float"]:
             exp_prp_data_type="Numeric"
 
         if baseFormType in ["big_decimal","bigDecimal"]:
             exp_prp_data_type="BigDecimal"
 
-        if baseFormType in ["time_stamp","date"]:
+        if baseFormType in ["time_stamp","date","dateTime","timeStamp"]:
             exp_prp_data_type="DateTime"
 
         if exp_prp_data_type == "":
@@ -374,32 +386,37 @@ class prompts():
 
     def close_open_prp(self,conn, report_id, instance_id, prompt_answ):
         # checks the answered prp
-        prompt_answ_d = json.loads(prompt_answ)
-        prp_ans_d_l = prompt_answ_d["prompts"]
-        prp_ans_id_l = i_msic.keep_cols_from_dict_l(list_l=prp_ans_d_l, keep_cols=["id"])
+        rep_stat = rep().get_open_prp_stat(conn=conn, report_id=report_id, instance_id=instance_id)
 
-        # checks the all prp in report / dashboard
-        rep_open_prp_d_l = rep().get_open_prompts(conn=conn, report_id=report_id, instance_id=instance_id)
-        rep_open_prp_id_l = i_msic.keep_cols_from_dict_l(list_l=rep_open_prp_d_l, keep_cols=["id"])
+        if rep_stat == 2:
+            prompt_answ_d = json.loads(prompt_answ)
+            prp_ans_d_l = prompt_answ_d["prompts"]
+            prp_ans_id_l = i_msic.keep_cols_from_dict_l(list_l=prp_ans_d_l, keep_cols=["id"])
 
-        # checks the prp not answered jet
-        open_prp_l = [x for x in rep_open_prp_id_l if x not in prp_ans_id_l]
-        open_prp_l = i_msic.get_vals_from_dict_l(dict_l=open_prp_l)
+            # checks the all prp in report / dashboard
+            rep_open_prp_d_l = rep().get_open_prompts(conn=conn, report_id=report_id, instance_id=instance_id)
+            rep_open_prp_id_l = i_msic.keep_cols_from_dict_l(list_l=rep_open_prp_d_l, keep_cols=["id"])
 
-        for prp in rep_open_prp_d_l:
-            print(prp["id"])
-            if prp["id"] in open_prp_l:
-                print(prp)
-                open_prp_d = {}
-                open_prp_d["id"] = prp["id"]
-                open_prp_d["type"] = prp["type"]
-                if prp["type"] in ["OBJECTS", "ELEMENTS"]:
-                    open_prp_d["answers"] = []
-                else:
-                    open_prp_d["answers"] = {}
-                rep_open_prp_d_l.append(open_prp_d.copy())
-        prompt_answ = self.frame_prp(prp_ans=rep_open_prp_d_l)
-        return prompt_answ
+            # checks the prp not answered jet
+            open_prp_l = [x for x in rep_open_prp_id_l if x not in prp_ans_id_l]
+            open_prp_l = i_msic.get_vals_from_dict_l(dict_l=open_prp_l)
+
+            for prp in rep_open_prp_d_l:
+                print(prp["id"])
+                if prp["id"] in open_prp_l:
+                    print(prp)
+                    open_prp_d = {}
+                    open_prp_d["id"] = prp["id"]
+                    open_prp_d["type"] = prp["type"]
+                    if prp["type"] in ["OBJECTS", "ELEMENTS"]:
+                        open_prp_d["answers"] = []
+                    else:
+                        open_prp_d["answers"] = {}
+                    rep_open_prp_d_l.append(open_prp_d.copy())
+            prompt_answ = self.frame_prp(prp_ans=rep_open_prp_d_l)
+            rep().set_inst_prompt_ans(conn=conn, report_id=report_id, instance_id=instance_id,
+                                                prompt_answ=prompt_answ)
+        return
 
     def zzz_loop_att_exp_prp(self,prp_job_ans_l):
         expr_JSON_l = []

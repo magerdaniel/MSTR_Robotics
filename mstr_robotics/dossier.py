@@ -106,15 +106,14 @@ class doss_read_out_det():
     def run_read_out_doss_hier_det(self, conn, dossier_l):
         self.visual_list = []
         for dossier_id in dossier_l:
-            instance_id=i_mstr_api.create_dossier_instance(conn,dossier_id)
-            doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
-            # print(doss_hier)
-            self.visual_d = {}
-            self.visual_d["dossier_id"] = dossier_id
-            self.visual_d["dossier_name"] = doss_hier["name"]
-            self.visual_d["error_msg"] = ''
             try:
-
+                instance_id=i_mstr_api.create_dossier_instance(conn,dossier_id)
+                doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
+                # print(doss_hier)
+                self.visual_d = {}
+                self.visual_d["dossier_id"] = dossier_id
+                self.visual_d["dossier_name"] = doss_hier['name']
+                self.visual_d["error_msg"] = ''
                 for chapter in doss_hier["chapters"]:
                     # print(chapter)
                     self.visual_d["chapter_key"] = chapter["key"]
@@ -122,7 +121,9 @@ class doss_read_out_det():
                     self.read_pages_hier_det(conn=conn,chapter=chapter, instance_id=instance_id)
 
             except Exception as err:
-                print(err)
+                #print(err)
+                self.visual_d["dossier_id"] = dossier_id
+                self.visual_d["dossier_name"] = ""
                 self.visual_d["chapter_key"] = ""
                 self.visual_d["chapter_name"] = ""
                 self.visual_d["page_key"] = ""

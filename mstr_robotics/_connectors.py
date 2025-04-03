@@ -134,6 +134,12 @@ class mstr_api():
         report_def=conn.get(url)
         return report_def.json()
 
+    def get_cube_all_def(self,conn, cube_id, showExpressionAs="tokens", showFilterTokens="true",
+                         showAdvancedProperties="true"):
+        url = f'{conn.base_url}/api/model/cubes/{cube_id}?showExpressionAs={showExpressionAs}&showFilterTokens={showFilterTokens}&showAdvancedProperties={showAdvancedProperties}'
+        cube_all_def_d = conn.get(url).json()
+        return cube_all_def_d
+
     def get_report_raw(self,conn,report_id,instance_id):
         #normaly I use the report libraries from mstrio
         # to fetch the data. Sometimes they bring back an error. so this one is for trouble

@@ -1,4 +1,5 @@
 import json
+import ast
 from openai import OpenAI
 from flashtext import KeywordProcessor
 from langchain.vectorstores import FAISS
@@ -19,8 +20,14 @@ class keyword_processor():
         return keywords_l
 
     def check_keyword(self,filt_obj_str):
+        print(filt_obj_str)
         keywords_l = self.KeywordProcessor.extract_keywords(filt_obj_str)
         return keywords_l[0]
+
+    def check_keyword_all(self,filt_obj_str):
+        print(filt_obj_str)
+        keywords_l = self.KeywordProcessor.extract_keywords(filt_obj_str)
+        return keywords_l
 
 class vectorDB_faisst():
 
@@ -41,9 +48,10 @@ class vectorDB_faisst():
 
 class mstr_openAI():
 
-    def __init__(self,sKey):
+    def __init__(self):
+        pass
         #self.sKey=sKey
-        self.i_embeddings = OpenAIEmbeddings(openai_api_key=sKey)
+        #self.i_embeddings = OpenAIEmbeddings(openai_api_key=sKey)
 
 
     def check_trans_chatGPT(self,sKey,messages,*args,**kwargs):
@@ -54,7 +62,6 @@ class mstr_openAI():
     def call_open_AI(self, sKey, messages, max_tokens=1000, temperature=0.3, model="gpt-4o-mini"):
         # This is the default and can be omitted
         client = OpenAI(api_key=sKey)
-
         chat_completion = client.chat.completions.create(
             messages=messages,
             # model="gpt-3.5-turbo",
@@ -65,8 +72,26 @@ class mstr_openAI():
         js = json.loads(chat_completion.json())
         return js
 
-class chat_bot_RAG():
+class chat_bot():
 
+    def run_chat_msg(self,msg_t,sKey,model,vector_store,max_tokens,temperature):
+        key_word_l = vector_store.check_keyword_all( filt_obj_str=msg_t)
+        rag_rep_prp_l = []
+
+        # rag_rep_prp_filt_d=get_rag_rep_prp_d(conn=conn,cube_id=cube_RAG_form_val_ans_id, mstr_rag_col_d=mstr_rag_col_d,rep_dos_id=rep_dos_id,key_word_l=key_word_l)
+
+        messages = self.split_AI_msg(msg_t, key_word_l)
+
+        json_t = mstr_openAI().call_open_AI(sKey=sKey, messages=messages, max_tokens=max_tokens, temperature=temperature, model=model)
+        json_t_d = json.loads(json_t["choices"][0]["message"]["content"])
+        msg_filter_t = json_t_d["filter"]
+        messages = self.filter_RAG_l(msg_t=msg_t, key_word_l=key_word_l, msg_filter_t=msg_filter_t)
+        json_f = mstr_openAI().call_open_AI(sKey=sKey, messages=messages, max_tokens=max_tokens, temperature=temperature, model=model)
+        json_f = json_f["choices"][0]["message"]["content"]
+        filter_d = ast.literal_eval(json_f)
+        json_fin = json_t_d.copy()
+        json_fin["filter"] = filter_d
+        return json_fin
     def filter_RAG_l(self,msg_t, key_word_l, msg_filter_t):
         messages = [
             {
