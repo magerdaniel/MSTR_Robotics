@@ -1,0 +1,7 @@
+{ "sKey": "ksjdfskflsdf******************hsdfaskjdfkasjhdf", 
+   "conn_params" : {
+    "username": "Administrator",
+    "password": "*******",
+    "base_url": "yourserver:your_port/MicroStrategyLibrary/api"
+}
+}
