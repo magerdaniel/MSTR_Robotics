@@ -1,0 +1,245 @@
+object_name,obj_type,BI_tool
+Supplier,attribute,Strategy
+Customer Region,attribute,Strategy
+Category,attribute,Strategy
+Year,attribute,Strategy
+Customer,attribute,Strategy
+Item,attribute,Strategy
+Day,attribute,Strategy
+Quarter,attribute,Strategy
+Subcategory,attribute,Strategy
+Brand,attribute,Strategy
+Region,attribute,Strategy
+Month,attribute,Strategy
+Call Center,attribute,Strategy
+Revenue,metric,Strategy
+Cost_1,metric,Strategy
+Profit,metric,Strategy
+Profit Margin,metric,Strategy
+Units Sold,metric,Strategy
+Count of Samples,metric,Strategy
+a.Mean,metric,Strategy
+b.Median,metric,Strategy
+c.Mode,metric,Strategy
+d.Variance,metric,Strategy
+e.StDev,metric,Strategy
+f. Range,metric,Strategy
+25th Percentile,metric,Strategy
+50th Percentile,metric,Strategy
+75th Percentile,metric,Strategy
+Employee,attribute,Strategy
+Discount,metric,Strategy
+Freight,metric,Strategy
+Income Bracket,attribute,Strategy
+Payment Method,attribute,Strategy
+Call Ctr,attribute,Strategy
+Manager,attribute,Strategy
+Age Range,attribute,Strategy
+Catalog,attribute,Strategy
+Country,attribute,Strategy
+Customer Address,attribute,Strategy
+Customer Age,attribute,Strategy
+Customer Birth Date,attribute,Strategy
+Customer City,attribute,Strategy
+Customer Country,attribute,Strategy
+Customer Email,attribute,Strategy
+Customer Gender,attribute,Strategy
+Customer Latitude,attribute,Strategy
+Customer Longitude,attribute,Strategy
+Customer State,attribute,Strategy
+Days to Ship,attribute,Strategy
+Discontinued Code,attribute,Strategy
+Distribution Center,attribute,Strategy
+Education Level,attribute,Strategy
+Employee Age,attribute,Strategy
+Employee Birth Date,attribute,Strategy
+Employee Experience,attribute,Strategy
+Employee FTE Flag,attribute,Strategy
+First Order Date,attribute,Strategy
+Hire Date,attribute,Strategy
+Household Count,attribute,Strategy
+Housing Type,attribute,Strategy
+Last Order Date,attribute,Strategy
+Marital Status,attribute,Strategy
+MicroStrategy User,attribute,Strategy
+Month of Year,attribute,Strategy
+Order,attribute,Strategy
+Phone Plan,attribute,Strategy
+Phone Usage,attribute,Strategy
+Promotion,attribute,Strategy
+Promotion Type,attribute,Strategy
+Rush Order,attribute,Strategy
+Salary,attribute,Strategy
+Ship Date,attribute,Strategy
+Shipper,attribute,Strategy
+Status,attribute,Strategy
+Supplier Address,attribute,Strategy
+Supplier City,attribute,Strategy
+Supplier Contact,attribute,Strategy
+Supplier Email,attribute,Strategy
+Supplier Latitude,attribute,Strategy
+Supplier Longitude,attribute,Strategy
+Supplier Phone Number,attribute,Strategy
+Supplier State,attribute,Strategy
+Supplier Zipcode,attribute,Strategy
+Warranty,attribute,Strategy
+Zip Code,attribute,Strategy
+# of Customers,metric,Strategy
+% Change to Profit,metric,Strategy
+% Change to Revenue,metric,Strategy
+% Change to Units Sold,metric,Strategy
+% Change YTD Sales,metric,Strategy
+% Change YTD Units Sold,metric,Strategy
+% Customers bought Affinity Product,metric,Strategy
+% Diff from LM - Customer Count,metric,Strategy
+% Diff from LM - Order Count,metric,Strategy
+% Diff from LM - Profit,metric,Strategy
+% Diff from LM - Profit Margin,metric,Strategy
+% Diff from LM - Revenue,metric,Strategy
+% Diff from LM - Units Sold,metric,Strategy
+% Diff from TM LY - Customer Count,metric,Strategy
+% Diff from TM LY - Order Count,metric,Strategy
+% Diff from TM LY - Profit,metric,Strategy
+% Diff from TM LY - Profit Margin,metric,Strategy
+% Diff from TM LY - Revenue,metric,Strategy
+% Diff from TM LY - Units Sold,metric,Strategy
+% DifffromForecastSales,metric,Strategy
+% DifffromLYSales,metric,Strategy
+% Revenue Difference vs. Target,metric,Strategy
+Affinity,metric,Strategy
+All Contributors Revenue Abs.,metric,Strategy
+All Customers Revenue Abs.,metric,Strategy
+All Products Revenue Abs.,metric,Strategy
+All Products Revenue Filt.,metric,Strategy
+Average Revenue,metric,Strategy
+Avg Revenue per Customer,metric,Strategy
+Begin on Hand,metric,Strategy
+BOH-MTD,metric,Strategy
+BOH-QTD,metric,Strategy
+BOH-YTD,metric,Strategy
+Category Revenue Abs.,metric,Strategy
+Category Revenue Abs. (base table),metric,Strategy
+Category Revenue Filt.,metric,Strategy
+Combined Customer Count,metric,Strategy
+Combined Revenue,metric,Strategy
+Combined Revenue Contribution to Correlated Item Sales,metric,Strategy
+Combined Revenue Contribution to Reference Item Sales,metric,Strategy
+Copy (2) of Profit,metric,Strategy
+Copy of Profit,metric,Strategy
+Correlation,metric,Strategy
+Cost Growth,metric,Strategy
+Cost Target,metric,Strategy
+Cost_net,metric,Strategy
+Cost_net_net,metric,Strategy
+Count of Customers,metric,Strategy
+Count Order shipped within 5 days,metric,Strategy
+"Covariance (Reference Item,Correlated Item)",metric,Strategy
+Current Date,metric,Strategy
+Customer Count,metric,Strategy
+Customer Region Revenue Abs.,metric,Strategy
+Discount %,metric,Strategy
+Distribution Center Count,metric,Strategy
+Employee Headcount,metric,Strategy
+End on hand,metric,Strategy
+EOH-MTD,metric,Strategy
+EOH-QTD,metric,Strategy
+EOH-YTD,metric,Strategy
+Gross Revenue,metric,Strategy
+Hire Date,metric,Strategy
+Item Count,metric,Strategy
+Last Month's Cost,metric,Strategy
+Last Month's Customer Count,metric,Strategy
+Last Month's Order Count,metric,Strategy
+Last Month's Profit,metric,Strategy
+Last Month's Profit Margin,metric,Strategy
+Last Month's Revenue,metric,Strategy
+Last Month's Units Sold,metric,Strategy
+Last Quarter's Cost,metric,Strategy
+Last Quarter's Profit,metric,Strategy
+Last Quarter's Profit Margin,metric,Strategy
+Last Quarter's Revenue,metric,Strategy
+Last Quarter's Units Sold,metric,Strategy
+Last Year's Cost,metric,Strategy
+Last Year's Customer Count,metric,Strategy
+Last Year's Month to Date Revenue,metric,Strategy
+Last Year's Order Count,metric,Strategy
+Last Year's Profit,metric,Strategy
+Last Year's Profit Margin,metric,Strategy
+Last Year's Revenue,metric,Strategy
+Last Year's Units Sold,metric,Strategy
+Length of Employment (months),metric,Strategy
+LY-YTD Units Sold,metric,Strategy
+LY-YTDRevenue,metric,Strategy
+Max Revenue per Customer,metric,Strategy
+Min Revenue per Customer,metric,Strategy
+Month to Date Revenue,metric,Strategy
+Non-Web Sales,metric,Strategy
+On Hand Qty,metric,Strategy
+Order Count,metric,Strategy
+Percent Growth,metric,Strategy
+Previous Period Revenue,metric,Strategy
+Probability of Purchase,metric,Strategy
+Probability p(Correlated | Reference),metric,Strategy
+Probability p(Reference | Correlated),metric,Strategy
+Profit Forecast,metric,Strategy
+Profit Forecast Factor,metric,Strategy
+Profit Forecast Percentage,metric,Strategy
+Profit Margin Target,metric,Strategy
+Profit per Employee,metric,Strategy
+Profit Per Year,metric,Strategy
+Profit Percent Growth,metric,Strategy
+Profit Rand Metric,metric,Strategy
+Profit Target,metric,Strategy
+QTDRevenue,metric,Strategy
+Quarterly Average of Daily Revenue,metric,Strategy
+Quarterly Standard Deviation of Daily Revenue,metric,Strategy
+Random Number,metric,Strategy
+Reference Item Customer Count,metric,Strategy
+Reference Item Revenue,metric,Strategy
+Remainder Revenue,metric,Strategy
+Revenue 2 Weeks Ago,metric,Strategy
+Revenue Contribution to All Contributors Abs.,metric,Strategy
+Revenue Contribution to All Customers Abs.,metric,Strategy
+Revenue Contribution to All Products Abs.,metric,Strategy
+Revenue Contribution to All Products Filt.,metric,Strategy
+Revenue Contribution to Category Abs.,metric,Strategy
+Revenue Contribution to Category Filt.,metric,Strategy
+Revenue Forecast,metric,Strategy
+Revenue Forecast Factor,metric,Strategy
+Revenue Forecast Percentage,metric,Strategy
+Revenue per Employee,metric,Strategy
+Revenue Rand Metric,metric,Strategy
+Revenue Target,metric,Strategy
+Revenue Target per Month,metric,Strategy
+Running Revenue Average,metric,Strategy
+Running Revenue Contribution to All Contributors Abs.,metric,Strategy
+Running Revenue Contribution to All Customers Abs.,metric,Strategy
+Running Revenue Total,metric,Strategy
+Rush Charge,metric,Strategy
+Sales Rank,metric,Strategy
+Sell-through Percentage,metric,Strategy
+Sigma Correlated Item,metric,Strategy
+Sigma Reference Item,metric,Strategy
+Standard Deviation of Revenue,metric,Strategy
+Std Dev Revenue per Customer,metric,Strategy
+Targeted Customers Revenue,metric,Strategy
+Tenure (Years),metric,Strategy
+TextTest,metric,Strategy
+Timeliness,metric,Strategy
+Total Customer Count,metric,Strategy
+Transactions Per Customer,metric,Strategy
+Unit Cost,metric,Strategy
+Unit Price,metric,Strategy
+Unit Profit,metric,Strategy
+Units Received,metric,Strategy
+Units Sold - MTD,metric,Strategy
+Units Sold - YTD,metric,Strategy
+Units Sold Target,metric,Strategy
+Web Sales,metric,Strategy
+Yearly Salary Expenditures,metric,Strategy
+YTD-InventoryTurnover,metric,Strategy
+YTDas%ofLYTD,metric,Strategy
+YTDAvgInventory,metric,Strategy
+YTDRevenue,metric,Strategy
+Store,attribute,Strategy
+Avg Revenue per Order,metric,Strategy
