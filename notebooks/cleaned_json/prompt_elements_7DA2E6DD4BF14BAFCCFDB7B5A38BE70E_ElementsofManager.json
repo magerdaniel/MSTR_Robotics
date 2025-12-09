@@ -1,0 +1,24 @@
+{
+  "information": {
+    "versionId": "693B0F374DB257C1137AF493296EE1F1",
+    "acg": 255,
+    "primaryLocale": "en-US",
+    "objectId": "7DA2E6DD4BF14BAFCCFDB7B5A38BE70E",
+    "subType": "prompt_elements",
+    "name": "Elements of Manager"
+  },
+  "title": "Manager",
+  "instruction": "Choose elements of Manager.",
+  "question": {
+    "attribute": {
+      "objectId": "8D679D4311D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Manager"
+    },
+    "listAllElements": true
+  },
+  "restriction": {
+    "required": false,
+    "allowPersonalAnswers": "none"
+  }
+}

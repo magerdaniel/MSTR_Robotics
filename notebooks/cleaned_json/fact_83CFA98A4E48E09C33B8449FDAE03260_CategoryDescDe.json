@@ -1,0 +1,58 @@
+{
+  "dataType": {
+    "type": "fixed_length_string",
+    "precision": 50,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "7D94AB8652094B43AA7A9FCBAFD3EA39",
+      "expression": {
+        "text": "category_desc_de",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "category_desc_de",
+            "type": "column_reference",
+            "target": {
+              "versionId": "FE689E061448E8B072AA1CA07144DCF9",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "CE6A582143CB37513B1AC4959DC5307F",
+              "subType": "column",
+              "name": "category_desc_de"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D67933E11D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_CATEGORY"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D3711D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Category"
+    }
+  ],
+  "versionId": "587C31BC4C23FC0B89275E8053DB739A",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Category Desc De",
+  "id": "83CFA98A4E48E09C33B8449FDAE03260"
+}

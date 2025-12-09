@@ -1,0 +1,68 @@
+{
+  "dataType": {
+    "type": "integer",
+    "precision": 2,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "C3C40C8E2EA54D3393BF62588B522701",
+      "expression": {
+        "text": "churn",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "churn",
+            "type": "column_reference",
+            "target": {
+              "versionId": "AB990ABDCA412BAB9B92E99FCC2E61BC",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "E8C6957B4F9388198B4E2E80FE19E8AA",
+              "subType": "column",
+              "name": "churn"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "374BEA694C70098E7549BCAF98272A66",
+          "subType": "logical_table",
+          "name": "LU_CUSTOMER_TELCO"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D3C11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Customer"
+    },
+    {
+      "objectId": "BD19156D468084094B34FDAE0D9BDB2B",
+      "subType": "attribute",
+      "name": "Phone Plan"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "DAC32F3F47767DD26EE8AF9232890AF2",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Churn",
+  "id": "FF10A2EE4EEAD7C9BE4A6AA62344303C"
+}

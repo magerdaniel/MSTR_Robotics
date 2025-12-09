@@ -1,0 +1,58 @@
+{
+  "dataType": {
+    "type": "integer",
+    "precision": 2,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "6C745A17BCEE11D58AF800C04FF2C54C",
+      "expression": {
+        "text": "quarter_duration",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "quarter_duration",
+            "type": "column_reference",
+            "target": {
+              "versionId": "698869993F44832BBFF4F5B2F9AD4FBF",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8EDB6B0F11D5AEC0C000E38A4CC5F24F",
+              "subType": "column",
+              "name": "quarter_duration"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D6793A411D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_QUARTER"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D4A11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Quarter"
+    }
+  ],
+  "versionId": "F8002D9146C06546490A5582920A1051",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Quarter Duration",
+  "id": "6C7459FC11D5BCEEC000F88A4CC5F24F"
+}

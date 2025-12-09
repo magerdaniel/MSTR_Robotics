@@ -1,0 +1,24 @@
+{
+  "information": {
+    "versionId": "4AA242D24F236842FADDDA83F93DE57C",
+    "acg": 255,
+    "primaryLocale": "en-US",
+    "objectId": "7E31364947BC9CB5B49EB39367F0DC1F",
+    "subType": "prompt_elements",
+    "name": "Elements of Year"
+  },
+  "title": "Year",
+  "instruction": "Choose elements of Year.",
+  "question": {
+    "attribute": {
+      "objectId": "8D679D5111D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Year"
+    },
+    "listAllElements": true
+  },
+  "restriction": {
+    "required": false,
+    "allowPersonalAnswers": "none"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "dataType": {
+    "type": "decimal",
+    "precision": 0,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "6AFEB6DFEDF34B0A91B7D07F5C42C160",
+      "expression": {
+        "text": "on_order_qty",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "on_order_qty",
+            "type": "column_reference",
+            "target": {
+              "versionId": "8C8BBFFCD64CF83C93A0DEB6B1501807",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "B60B7F5D47E11828A1F71BB40B87A617",
+              "subType": "column",
+              "name": "on_order_qty"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "C24B5636416240634C5CBFB92F763391",
+          "subType": "logical_table",
+          "name": "INVENTORY_CURR"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D4211D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Item"
+    }
+  ],
+  "versionId": "92E05EA24C1529D423C9FBB838961D9C",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "On Order Quantity",
+  "id": "3103680A41C81E81EC3079BD44126F09"
+}

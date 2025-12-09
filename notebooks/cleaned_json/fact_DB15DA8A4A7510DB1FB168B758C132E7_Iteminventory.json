@@ -1,0 +1,94 @@
+{
+  "dataType": {
+    "type": "decimal",
+    "precision": 0,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "3B98132E18FA4D76B1BF7FC41F5DB834",
+      "expression": {
+        "text": "eoh_qty",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "eoh_qty",
+            "type": "column_reference",
+            "target": {
+              "versionId": "8E518C6E35474627CF6F0AB2AD264564",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8D67916111D3E4981000E787EC6DE8A4",
+              "subType": "column",
+              "name": "eoh_qty"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D67932011D3E4981000E787EC6DE8A4",
+          "subType": "table_partition_wh",
+          "name": "PMT_INVENTORY"
+        },
+        {
+          "objectId": "C24B5636416240634C5CBFB92F763391",
+          "subType": "logical_table",
+          "name": "INVENTORY_CURR"
+        }
+      ]
+    }
+  ],
+  "extensions": [
+    {
+      "name": "Degradation to Day with constant expression",
+      "description": "",
+      "extensionMethod": "lower",
+      "targetAttributes": [
+        {
+          "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+          "subType": "attribute",
+          "name": "Day"
+        }
+      ],
+      "guide": {},
+      "joinAttributes": [
+        {
+          "attribute": {
+            "objectId": "8D679D4411D3E4981000E787EC6DE8A4",
+            "subType": "attribute",
+            "name": "Month"
+          },
+          "direction": "self"
+        }
+      ],
+      "allocationExpression": {}
+    }
+  ],
+  "entryLevel": [
+    {
+      "objectId": "8D679D4211D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Item"
+    },
+    {
+      "objectId": "8D679D4411D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Month"
+    }
+  ],
+  "versionId": "A40D85B94F3417E71180348665802C47",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Item inventory",
+  "description": "Month level item inventories can be used for End on hand and Beginning on hand type inventory calculations. This fact has been degraded to day to support YTD and MTD analysis",
+  "id": "DB15DA8A4A7510DB1FB168B758C132E7"
+}

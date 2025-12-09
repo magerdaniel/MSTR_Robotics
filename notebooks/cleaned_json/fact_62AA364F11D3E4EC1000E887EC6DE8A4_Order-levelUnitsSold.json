@@ -1,0 +1,78 @@
+{
+  "dataType": {
+    "type": "float",
+    "precision": 53,
+    "scale": 0
+  },
+  "expressions": [
+    {
+      "expressionId": "62AA366BE4EC11D387E80010A4E86DEC",
+      "expression": {
+        "text": "qty_sold",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "qty_sold",
+            "type": "column_reference",
+            "target": {
+              "versionId": "02CA5783482DD0CC7555FDB1A554B6A4",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8D6792AA11D3E4981000E787EC6DE8A4",
+              "subType": "column",
+              "name": "qty_sold"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D6793D411D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "ORDER_FACT"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+      "subType": "attribute",
+      "name": "Day"
+    },
+    {
+      "objectId": "3F58258B437F5CE376CB658F89ADB3AB",
+      "subType": "attribute",
+      "name": "Days to Ship"
+    },
+    {
+      "objectId": "8D679D3F11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Employee"
+    },
+    {
+      "objectId": "8D679D4611D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Order"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "A12925F54D9BD676604865B918885E22",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Order-level Units Sold",
+  "id": "62AA364F11D3E4EC1000E887EC6DE8A4"
+}

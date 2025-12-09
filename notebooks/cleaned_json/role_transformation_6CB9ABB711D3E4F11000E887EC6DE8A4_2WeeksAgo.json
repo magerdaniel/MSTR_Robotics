@@ -1,0 +1,95 @@
+{
+  "attributes": [
+    {
+      "id": "96ED42A511D5B117C000E78A4CC5F24F",
+      "baseAttribute": {
+        "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+        "subType": "attribute",
+        "name": "Day"
+      },
+      "forms": [
+        {
+          "id": "45C11FA478E745FEA08D781CEA190FE5",
+          "name": "ID",
+          "lookupTable": {
+            "objectId": "24C30AD611D5AEC9C000E38A4CC5F24F",
+            "subType": "logical_table",
+            "name": "LU_DAY"
+          },
+          "expression": {
+            "text": "ApplySimple(\"#0-14\",day_date)",
+            "tokens": [
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "ApplySimple",
+                "type": "function",
+                "target": {
+                  "versionId": "D4379165554392BEA98FD2933628010E",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "8107C340DD9911D3B98100C04F2233EA",
+                  "subType": "function",
+                  "name": "ApplySimple",
+                  "description": "ApplySimple is a 'pass-through' function that builds a SQL expression based on the input string of database-specific SQL syntax.  Arguments may be substituted into the specified SQL pattern. This is a single-value function."
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "(",
+                "type": "character"
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "\"#0-14\"",
+                "type": "string_literal"
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": ",",
+                "type": "character"
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "day_date",
+                "type": "column_reference",
+                "target": {
+                  "versionId": "B05CD5154B809FA414858DB3EB1D8DA5",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "24C30A7F11D5AEC9C000E38A4CC5F24F",
+                  "subType": "column",
+                  "name": "day_date"
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": ")",
+                "type": "character"
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "",
+                "type": "end_of_text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "mappingType": "one_to_one",
+  "versionId": "69DAA65747E683F372771A953B75582A",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "role_transformation",
+  "name": "2 Weeks Ago",
+  "description": "Transforms Day to 2 Weeks Ago Day",
+  "id": "6CB9ABB711D3E4F11000E887EC6DE8A4"
+}

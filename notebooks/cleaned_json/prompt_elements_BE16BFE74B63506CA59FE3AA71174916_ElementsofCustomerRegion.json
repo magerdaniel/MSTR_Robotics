@@ -1,0 +1,24 @@
+{
+  "information": {
+    "versionId": "616259B7435BE5D22D216DB5568EB033",
+    "acg": 255,
+    "primaryLocale": "en-US",
+    "objectId": "BE16BFE74B63506CA59FE3AA71174916",
+    "subType": "prompt_elements",
+    "name": "Elements of Customer Region"
+  },
+  "title": "Customer Region",
+  "instruction": "Choose elements of Customer Region.",
+  "question": {
+    "attribute": {
+      "objectId": "8D679D3B11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Customer Region"
+    },
+    "listAllElements": true
+  },
+  "restriction": {
+    "required": false,
+    "allowPersonalAnswers": "none"
+  }
+}

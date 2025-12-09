@@ -1,0 +1,68 @@
+{
+  "dataType": {
+    "type": "decimal",
+    "precision": 0,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "9A4F8B7841714A2D8FD7F90966223389",
+      "expression": {
+        "text": "creditriskvalue",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "creditriskvalue",
+            "type": "column_reference",
+            "target": {
+              "versionId": "81921F590C495F93B19021B77721E3E0",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "E0068D3249063A50D952B6A6DAF199EB",
+              "subType": "column",
+              "name": "creditriskvalue"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "374BEA694C70098E7549BCAF98272A66",
+          "subType": "logical_table",
+          "name": "LU_CUSTOMER_TELCO"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D3C11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Customer"
+    },
+    {
+      "objectId": "BD19156D468084094B34FDAE0D9BDB2B",
+      "subType": "attribute",
+      "name": "Phone Plan"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "612411234E238E5A2D28599D3BDAF05A",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Credit Risk Value",
+  "id": "924B585349683EB511500EBBA5D43CCB"
+}

@@ -1,0 +1,63 @@
+{
+  "dataType": {
+    "type": "double",
+    "precision": 8,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "70ED453A3A3F45FC983910D9C16669B1",
+      "expression": {
+        "text": "recency",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "recency",
+            "type": "column_reference",
+            "target": {
+              "versionId": "144ED24C634F3DF8389EA7AE69DBABE8",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "046F5CAB4316DC1A4A86AAA4CE9A5C38",
+              "subType": "column",
+              "name": "recency"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D67935611D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_CUSTOMER"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D3C11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Customer"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "417AB8D411E83F4298EA0080EF459861",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Recency",
+  "id": "D3A92CE84909866E611CC5B716EFEEBB"
+}

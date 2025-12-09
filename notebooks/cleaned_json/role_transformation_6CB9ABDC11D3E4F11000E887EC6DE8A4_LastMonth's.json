@@ -1,0 +1,100 @@
+{
+  "attributes": [
+    {
+      "id": "96ED428A11D5B117C000E78A4CC5F24F",
+      "baseAttribute": {
+        "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+        "subType": "attribute",
+        "name": "Day"
+      },
+      "forms": [
+        {
+          "id": "45C11FA478E745FEA08D781CEA190FE5",
+          "name": "ID",
+          "lookupTable": {
+            "objectId": "24C30AD611D5AEC9C000E38A4CC5F24F",
+            "subType": "logical_table",
+            "name": "LU_DAY"
+          },
+          "expression": {
+            "text": "lm_day_date",
+            "tokens": [
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "lm_day_date",
+                "type": "column_reference",
+                "target": {
+                  "versionId": "6D5C17B5014F21D1C71FD8A54C930DE2",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "24C30A8111D5AEC9C000E38A4CC5F24F",
+                  "subType": "column",
+                  "name": "lm_day_date"
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "",
+                "type": "end_of_text"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "E2FEC00B11D5BCE5C000F88A4CC5F24F",
+      "baseAttribute": {
+        "objectId": "8D679D4411D3E4981000E787EC6DE8A4",
+        "subType": "attribute",
+        "name": "Month"
+      },
+      "forms": [
+        {
+          "id": "45C11FA478E745FEA08D781CEA190FE5",
+          "name": "ID",
+          "lookupTable": {
+            "objectId": "8D67938011D3E4981000E787EC6DE8A4",
+            "subType": "logical_table",
+            "name": "LU_MONTH"
+          },
+          "expression": {
+            "text": "prev_month_id",
+            "tokens": [
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "prev_month_id",
+                "type": "column_reference",
+                "target": {
+                  "versionId": "0E3E747B0B4BB793DAAED6874307D838",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "8EDB6AF511D5AEC0C000E38A4CC5F24F",
+                  "subType": "column",
+                  "name": "prev_month_id"
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "",
+                "type": "end_of_text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "mappingType": "one_to_one",
+  "versionId": "52469BB54338FF709A5286B3249A517D",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "role_transformation",
+  "name": "Last Month's",
+  "description": "Transforms Month to Last Month, Day to Last Month's Day",
+  "id": "6CB9ABDC11D3E4F11000E887EC6DE8A4"
+}

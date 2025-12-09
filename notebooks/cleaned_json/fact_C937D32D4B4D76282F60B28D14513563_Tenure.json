@@ -1,0 +1,63 @@
+{
+  "dataType": {
+    "type": "double",
+    "precision": 8,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "0E78E0EE46C24D27B05182E49D1D6EE8",
+      "expression": {
+        "text": "tenure",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "tenure",
+            "type": "column_reference",
+            "target": {
+              "versionId": "144ED24C634F3DF8389EA7AE69DBABE8",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "DF8442FD4979E852B9B83B87BEADBAD1",
+              "subType": "column",
+              "name": "tenure"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D67935611D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_CUSTOMER"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D3C11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Customer"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "46BD4D2842DE77D258308898887CF392",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Tenure",
+  "id": "C937D32D4B4D76282F60B28D14513563"
+}

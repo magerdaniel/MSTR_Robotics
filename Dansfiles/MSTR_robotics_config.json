@@ -1,0 +1,19 @@
+{
+    "mstr_env":
+        [{"env_id": "dev", "server": "85.214.60.83","port": "8080"},
+        {"env_id": "prod","server": "85.214.60.83","port": "8080"}
+        ],
+    "pa_env": {"env_id": "dev",
+               "pa_project_id": "40DA7A1549651FD60A9D39AAB7EC77B0",
+               "pa_report_id": "8FB0DB8645658BD488AB8483FE18A34E"
+               },
+    "REGAM_project": [
+        {
+            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "hier_att_cube_id": "C786023C406CD90CD727AF818EEEF2BA",
+            "REGAM_test_rep_fold_id": "04E55C2C46DD0FF8D19A398B5C86EC71",
+            "REGAM_cube_folder_id": "BAA7D28C4CE1F860E56EC789D3EA3A60"
+        }
+    ],
+    "REGAM_log_file":"D:\\shared_drive\\Python\\mstr_robotics\\REGAM_logs\\"
+}

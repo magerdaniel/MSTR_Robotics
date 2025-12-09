@@ -1,0 +1,24 @@
+{
+  "information": {
+    "versionId": "C4EED3F54DF4DE1B96573C9892D07685",
+    "acg": 255,
+    "primaryLocale": "en-US",
+    "objectId": "31A96A44479DBB67AA74B381CE8348DE",
+    "subType": "prompt_elements",
+    "name": "Choose from the Elements of Customer"
+  },
+  "title": "Choose from the list of Customers.",
+  "instruction": "Choose elements of Customer.",
+  "question": {
+    "attribute": {
+      "objectId": "8D679D3C11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Customer"
+    },
+    "listAllElements": true
+  },
+  "restriction": {
+    "required": false,
+    "allowPersonalAnswers": "multiple"
+  }
+}

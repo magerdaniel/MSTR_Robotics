@@ -1,0 +1,144 @@
+{
+  "attributes": [
+    {
+      "id": "2437C06511D5BD85C000F98A4CC5F24F",
+      "baseAttribute": {
+        "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+        "subType": "attribute",
+        "name": "Day"
+      },
+      "forms": [
+        {
+          "id": "45C11FA478E745FEA08D781CEA190FE5",
+          "name": "ID",
+          "lookupTable": {
+            "objectId": "24C30AD611D5AEC9C000E38A4CC5F24F",
+            "subType": "logical_table",
+            "name": "LU_DAY"
+          },
+          "expression": {
+            "text": "lq_day_date",
+            "tokens": [
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "lq_day_date",
+                "type": "column_reference",
+                "target": {
+                  "versionId": "7785780A7240C67D4127469662CAC963",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "24C30A8211D5AEC9C000E38A4CC5F24F",
+                  "subType": "column",
+                  "name": "lq_day_date"
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "",
+                "type": "end_of_text"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "2437C06411D5BD85C000F98A4CC5F24F",
+      "baseAttribute": {
+        "objectId": "8D679D4411D3E4981000E787EC6DE8A4",
+        "subType": "attribute",
+        "name": "Month"
+      },
+      "forms": [
+        {
+          "id": "45C11FA478E745FEA08D781CEA190FE5",
+          "name": "ID",
+          "lookupTable": {
+            "objectId": "8D67938011D3E4981000E787EC6DE8A4",
+            "subType": "logical_table",
+            "name": "LU_MONTH"
+          },
+          "expression": {
+            "text": "lq_month_id",
+            "tokens": [
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "lq_month_id",
+                "type": "column_reference",
+                "target": {
+                  "versionId": "55678629284DFBD995B3169D599F3EBB",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "8EDB6AF611D5AEC0C000E38A4CC5F24F",
+                  "subType": "column",
+                  "name": "lq_month_id"
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "",
+                "type": "end_of_text"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "2437C06311D5BD85C000F98A4CC5F24F",
+      "baseAttribute": {
+        "objectId": "8D679D4A11D3E4981000E787EC6DE8A4",
+        "subType": "attribute",
+        "name": "Quarter"
+      },
+      "forms": [
+        {
+          "id": "45C11FA478E745FEA08D781CEA190FE5",
+          "name": "ID",
+          "lookupTable": {
+            "objectId": "8D6793A411D3E4981000E787EC6DE8A4",
+            "subType": "logical_table",
+            "name": "LU_QUARTER"
+          },
+          "expression": {
+            "text": "prev_quarter_id",
+            "tokens": [
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "prev_quarter_id",
+                "type": "column_reference",
+                "target": {
+                  "versionId": "4014C8D9D546CF2C72C30B840E246AD0",
+                  "acg": 255,
+                  "primaryLocale": "en-US",
+                  "objectId": "8EDB6B1011D5AEC0C000E38A4CC5F24F",
+                  "subType": "column",
+                  "name": "prev_quarter_id"
+                }
+              },
+              {
+                "level": "resolved",
+                "state": "initial",
+                "value": "",
+                "type": "end_of_text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "mappingType": "one_to_one",
+  "versionId": "9429FA7643857E8CE67A3B945D16B4C6",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "role_transformation",
+  "name": "Last Quarter's",
+  "description": "Transforms Quarter to Last Quarter, Month to Last Quarter's Month, Day to Last Quarter's Day",
+  "id": "2437C03311D5BD85C000F98A4CC5F24F"
+}

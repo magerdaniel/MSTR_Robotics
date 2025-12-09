@@ -1,0 +1,201 @@
+{
+  "dataType": {
+    "type": "double",
+    "precision": 8,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "8D6795C2E49811D387E70010A4E86DEC",
+      "expression": {
+        "text": "freight",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "freight",
+            "type": "column_reference",
+            "target": {
+              "versionId": "72DEB35E49E6FD0A004CF0B3FB93F711",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8D6792BD11D3E4981000E787EC6DE8A4",
+              "subType": "column",
+              "name": "freight"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D6793D411D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "ORDER_FACT"
+        }
+      ]
+    }
+  ],
+  "extensions": [
+    {
+      "name": "Extension to Item",
+      "description": "Extension of the Freight fact to Item. The resulting entry level is Item, Day, Order, Employee, Promotion. The value of the fact at the order level is proportionally distributed among items sold in this particular order according to the units sold.",
+      "extensionMethod": "table",
+      "targetAttributes": [
+        {
+          "objectId": "8D679D4211D3E4981000E787EC6DE8A4",
+          "subType": "attribute",
+          "name": "Item"
+        }
+      ],
+      "guide": {
+        "objectId": "8D6793CE11D3E4981000E787EC6DE8A4",
+        "subType": "logical_table",
+        "name": "ORDER_DETAIL"
+      },
+      "joinAttributes": [
+        {
+          "attribute": {
+            "objectId": "8D679D4611D3E4981000E787EC6DE8A4",
+            "subType": "attribute",
+            "name": "Order"
+          },
+          "direction": "self"
+        }
+      ],
+      "allocationExpression": {
+        "text": "(Freight * {Item-level Units Sold}) / {Order-level Units Sold}",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "(",
+            "type": "character"
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "Freight",
+            "type": "object_reference",
+            "target": {
+              "versionId": "57B71C2B4DCFEA5EFA316FB37C7D738E",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8D67958311D3E4981000E787EC6DE8A4",
+              "subType": "fact",
+              "name": "Freight"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "*",
+            "type": "character",
+            "target": {
+              "versionId": "83B5F8527A43D460E34D10ABE3CA7425",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8107C312DD9911D3B98100C04F2233EA",
+              "subType": "function",
+              "name": "*",
+              "description": "Returns the product of two values."
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "[Item-level Units Sold]",
+            "type": "object_reference",
+            "target": {
+              "versionId": "A12925F54D9BD676604865B918885E22",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "62AA362011D3E4EC1000E887EC6DE8A4",
+              "subType": "fact",
+              "name": "Item-level Units Sold"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": ")",
+            "type": "character"
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "/",
+            "type": "character",
+            "target": {
+              "versionId": "7A0CB506D84B9B41FC7C78ABDCA44B53",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8107C313DD9911D3B98100C04F2233EA",
+              "subType": "function",
+              "name": "/",
+              "description": "Returns the quotient when one value is divided by another."
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "[Order-level Units Sold]",
+            "type": "object_reference",
+            "target": {
+              "versionId": "A12925F54D9BD676604865B918885E22",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "62AA364F11D3E4EC1000E887EC6DE8A4",
+              "subType": "fact",
+              "name": "Order-level Units Sold"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      }
+    }
+  ],
+  "entryLevel": [
+    {
+      "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+      "subType": "attribute",
+      "name": "Day"
+    },
+    {
+      "objectId": "3F58258B437F5CE376CB658F89ADB3AB",
+      "subType": "attribute",
+      "name": "Days to Ship"
+    },
+    {
+      "objectId": "8D679D3F11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Employee"
+    },
+    {
+      "objectId": "8D679D4611D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Order"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "57B71C2B4DCFEA5EFA316FB37C7D738E",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Freight",
+  "id": "8D67958311D3E4981000E787EC6DE8A4"
+}

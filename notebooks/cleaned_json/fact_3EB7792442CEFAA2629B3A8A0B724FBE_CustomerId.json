@@ -1,0 +1,108 @@
+{
+  "dataType": {
+    "type": "integer",
+    "precision": 2,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "4CC2D9C8C3B8462C90ED88DDA43AF838",
+      "expression": {
+        "text": "customer_id",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "customer_id",
+            "type": "column_reference",
+            "target": {
+              "versionId": "D04D0EC24E1AC9BF4102F5A039D462A6",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8D6791C611D3E4981000E787EC6DE8A4",
+              "subType": "column",
+              "name": "customer_id"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D67935611D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_CUSTOMER"
+        },
+        {
+          "objectId": "374BEA694C70098E7549BCAF98272A66",
+          "subType": "logical_table",
+          "name": "LU_CUSTOMER_TELCO"
+        },
+        {
+          "objectId": "8D6793CE11D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "ORDER_DETAIL"
+        },
+        {
+          "objectId": "8D6793D411D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "ORDER_FACT"
+        },
+        {
+          "objectId": "54D82D5B4BD115DA313C03A5742900AE",
+          "subType": "logical_table",
+          "name": "CUSTOMER_SLS"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "96ED3EC811D5B117C000E78A4CC5F24F",
+      "subType": "attribute",
+      "name": "Day"
+    },
+    {
+      "objectId": "3F58258B437F5CE376CB658F89ADB3AB",
+      "subType": "attribute",
+      "name": "Days to Ship"
+    },
+    {
+      "objectId": "8D679D3F11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Employee"
+    },
+    {
+      "objectId": "8D679D4211D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Item"
+    },
+    {
+      "objectId": "8D679D4611D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Order"
+    },
+    {
+      "objectId": "BD19156D468084094B34FDAE0D9BDB2B",
+      "subType": "attribute",
+      "name": "Phone Plan"
+    },
+    {
+      "objectId": "95FA2DC34EC9063FD6C400B4FA8570E0",
+      "subType": "attribute",
+      "name": "Phone Usage"
+    }
+  ],
+  "versionId": "DAC32F3F47767DD26EE8AF9232890AF2",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "Customer Id",
+  "id": "3EB7792442CEFAA2629B3A8A0B724FBE"
+}

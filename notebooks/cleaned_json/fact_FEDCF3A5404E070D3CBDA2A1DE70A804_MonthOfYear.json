@@ -1,0 +1,63 @@
+{
+  "dataType": {
+    "type": "integer",
+    "precision": 2,
+    "scale": -2147483648
+  },
+  "expressions": [
+    {
+      "expressionId": "B1164882B02E4B9481384A5BE69236BB",
+      "expression": {
+        "text": "month_of_year",
+        "tokens": [
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "month_of_year",
+            "type": "column_reference",
+            "target": {
+              "versionId": "95FE534F7D47900B1E3ABBBD18D36883",
+              "acg": 255,
+              "primaryLocale": "en-US",
+              "objectId": "8D67923711D3E4981000E787EC6DE8A4",
+              "subType": "column",
+              "name": "month_of_year"
+            }
+          },
+          {
+            "level": "resolved",
+            "state": "initial",
+            "value": "",
+            "type": "end_of_text"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "objectId": "8D67938011D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_MONTH"
+        },
+        {
+          "objectId": "8D67938611D3E4981000E787EC6DE8A4",
+          "subType": "logical_table",
+          "name": "LU_MONTH_OF_YEAR"
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "entryLevel": [
+    {
+      "objectId": "8D679D4411D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Month"
+    }
+  ],
+  "versionId": "612411234E238E5A2D28599D3BDAF05A",
+  "acg": 255,
+  "primaryLocale": "en-US",
+  "subType": "fact",
+  "name": "MonthOfYear",
+  "id": "FEDCF3A5404E070D3CBDA2A1DE70A804"
+}

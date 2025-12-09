@@ -1,0 +1,24 @@
+{
+  "information": {
+    "versionId": "EEA4E06746EF11202DC1E4A33F2C50F5",
+    "acg": 255,
+    "primaryLocale": "en-US",
+    "objectId": "EBCB12A0469E6FA5D49800B25B33E0D3",
+    "subType": "prompt_elements",
+    "name": "Elements of Employee"
+  },
+  "title": "Employee",
+  "instruction": "Choose elements of Employee.",
+  "question": {
+    "attribute": {
+      "objectId": "8D679D3F11D3E4981000E787EC6DE8A4",
+      "subType": "attribute",
+      "name": "Employee"
+    },
+    "listAllElements": true
+  },
+  "restriction": {
+    "required": false,
+    "allowPersonalAnswers": "none"
+  }
+}
