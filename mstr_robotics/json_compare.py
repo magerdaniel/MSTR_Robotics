@@ -13,7 +13,6 @@ from mstr_robotics.read_out_prj_obj import read_gen
 #from mstr_robotics.redis_db import redis_mstr_json
 from mstr_robotics.mstr_classes import mstr_global
 from mstr_robotics._helper import msic
-from mstr_robotics._connectors import mstr_api
 from mstr_robotics.mstr_classes import mstr_global
 
 
@@ -24,6 +23,332 @@ i_read_gen=read_gen()
 #i_redis_mstr_json=redis_mstr_json()
 i_mstr_global=mstr_global()
 i_msic=msic()
+
+
+# ==================== UTILITY FUNCTIONS ====================
+
+def remove_after_last_dot_if_bracket(text):
+    """Remove everything after the last dot if preceded by a bracket
+
+    Args:
+        text: String to process
+
+    Returns:
+        Processed string
+    """
+    if isinstance(text, str):
+        last_dot = text.rfind('.')
+        if last_dot > 0 and text[last_dot - 1] == ']':
+            return text[:last_dot]
+    return text
+
+
+# ==================== JSON PATH UTILITIES ====================
+
+class JSONPathHelper:
+    """Helper class for JSON path operations"""
+
+    @staticmethod
+    def parse_path_string(path_str):
+        """Parse dot notation path string into list
+
+        Args:
+            path_str: Path string in dot notation
+
+        Returns:
+            List of path components
+
+        Examples:
+            'chapters[0].pages[1].name' -> ['chapters', 0, 'pages', 1, 'name']
+            'advancedProperties.vldbProperties["VLDB Select"]' -> ['advancedProperties', 'vldbProperties', 'VLDB Select']
+        """
+
+        parts = re.split(r'\.', path_str)
+        result = []
+
+        for part in parts:
+            if '[' in part:
+                # Match both numeric indices [0] and quoted keys ["key name"]
+                matches = re.findall(r'([^\[\]]+)|\[(\d+)\]|\["([^"]+)"\]', part)
+                for match in matches:
+                    if match[0]:  # Regular key name
+                        result.append(match[0])
+                    elif match[1]:  # Numeric index [0]
+                        result.append(int(match[1]))
+                    elif match[2]:  # Quoted key ["key name"]
+                        result.append(match[2])
+            else:
+                if part:  # Only append non-empty parts
+                    result.append(part)
+
+        return result
+
+    @staticmethod
+    def get_nested_value(data, path):
+        """Navigate to a nested value using a path list
+
+        Args:
+            data: The JSON data to navigate
+            path: List of keys/indices to navigate (e.g., ['advancedProperties', 'vldbProperties', 'VLDB Select'])
+
+        Returns:
+            The value at the path, or None if path doesn't exist
+        """
+        current = data
+        for key in path:
+            if isinstance(current, dict):
+                if key in current:
+                    current = current[key]
+                else:
+                    return None
+            elif isinstance(current, list) and isinstance(key, int):
+                if key < len(current):
+                    current = current[key]
+                else:
+                    return None
+            else:
+                return None
+        return current
+
+    @staticmethod
+    def extract_all_paths(data, max_depth=3, current_path=None, current_depth=0, path_labels=None):
+        """Recursively extract all paths from JSON up to max_depth
+
+        Args:
+            data: JSON data to extract paths from
+            max_depth: Maximum depth to traverse
+            current_path: Current path being built (for recursion)
+            current_depth: Current recursion depth
+            path_labels: Display labels for path components
+
+        Returns:
+            List of tuples: (numeric_path, display_path)
+        """
+        if current_path is None:
+            current_path = []
+        if path_labels is None:
+            path_labels = []
+
+        paths = []
+
+        if current_depth >= max_depth:
+            return paths
+
+        if isinstance(data, dict):
+            for key, value in data.items():
+                new_path = current_path + [key]
+                new_labels = path_labels + [key]
+
+                if isinstance(value, (dict, list)):
+                    numeric_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_path)
+                    numeric_path = numeric_path.replace(".[", "[")
+
+                    display_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_labels)
+                    display_path = display_path.replace(".[", "[")
+
+                    paths.append((numeric_path, display_path))
+                    paths.extend(JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels))
+
+        elif isinstance(data, list) and len(data) > 0:
+            for idx in range(min(3, len(data))):
+                new_path = current_path + [idx]
+                value = data[idx]
+
+                label = str(idx)
+                if isinstance(value, dict):
+                    if "name" in value:
+                        label = str(value['name'])[:30]
+                    elif "text" in value:
+                        label = str(value['text'])[:30]
+                    else:
+                        keys = sorted(value.keys())
+                        if keys:
+                            first_val = value[keys[0]]
+                            if isinstance(first_val, str):
+                                label = first_val[:30]
+
+                new_labels = path_labels + [label]
+
+                if isinstance(value, (dict, list)):
+                    numeric_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_path)
+                    numeric_path = numeric_path.replace(".[", "[")
+
+                    display_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_labels)
+                    display_path = display_path.replace(".[", "[")
+
+                    paths.append((numeric_path, display_path))
+                    paths.extend(JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels))
+
+        return paths
+
+
+class JSONFilterUtils:
+    """Utility class for JSON filtering and comparison operations"""
+
+    @staticmethod
+    def get_content_hash(obj, ignore_keys=None):
+        """Calculate hash of an object ignoring specified keys
+
+        Args:
+            obj: Object to hash
+            ignore_keys: Keys to ignore in comparison
+
+        Returns:
+            MD5 hash of the object
+        """
+        if ignore_keys is None:
+            ignore_keys = ["predicateId", "versionId", "dateModified", "dateCreated"]
+
+        def remove_ignored_keys(obj, ignore_keys):
+            if isinstance(obj, dict):
+                return {k: remove_ignored_keys(v, ignore_keys)
+                       for k, v in obj.items()
+                       if k not in ignore_keys}
+            elif isinstance(obj, list):
+                return [remove_ignored_keys(item, ignore_keys) for item in obj]
+            else:
+                return obj
+
+        cleaned = remove_ignored_keys(obj, ignore_keys)
+        try:
+            json_str = json.dumps(cleaned, sort_keys=True, default=str)
+            return hashlib.md5(json_str.encode()).hexdigest()
+        except:
+            return hashlib.md5(str(cleaned).encode()).hexdigest()
+
+    @staticmethod
+    def build_path_str(path_list):
+        """Build path string from path list
+
+        Args:
+            path_list: List of path components
+
+        Returns:
+            Dot-notation path string
+        """
+        result = []
+        for p in path_list:
+            if isinstance(p, int):
+                if result:
+                    result[-1] = result[-1] + f'[{p}]'
+                else:
+                    result.append(f'[{p}]')
+            else:
+                result.append(str(p))
+        return '.'.join(result)
+
+    @staticmethod
+    def has_relevant_child_path(current_path_str, filter_paths):
+        """Check if any filter path contains this path as a prefix
+
+        Args:
+            current_path_str: Current path string
+            filter_paths: List of filter paths
+
+        Returns:
+            True if any filter path starts with current path
+        """
+        if not current_path_str:
+            return True
+
+        return any(
+            p.startswith(current_path_str + '.') or
+            p.startswith(current_path_str + '[') or
+            p == current_path_str
+            for p in filter_paths
+        )
+
+    @staticmethod
+    def filter_json_by_paths(obj, filter_paths, current_path=[], ignore_keys=None):
+        """Create a filtered copy of JSON object that only includes specified paths
+
+        Args:
+            obj: JSON object to filter
+            filter_paths: List of paths to include
+            current_path: Current path in recursion
+            ignore_keys: Keys to ignore
+
+        Returns:
+            Filtered JSON object
+        """
+        if ignore_keys is None:
+            ignore_keys = ["predicateId", "versionId", "dateModified", "dateCreated"]
+
+        current_path_str = JSONFilterUtils.build_path_str(current_path)
+
+        if current_path_str and not JSONFilterUtils.has_relevant_child_path(current_path_str, filter_paths):
+            return None
+
+        if isinstance(obj, dict):
+            filtered = {}
+            for key, value in obj.items():
+                if key in ignore_keys:
+                    continue
+                new_path = current_path + [key]
+                filtered_value = JSONFilterUtils.filter_json_by_paths(value, filter_paths, new_path, ignore_keys)
+                if filtered_value is not None:
+                    filtered[key] = filtered_value
+            return filtered if filtered else None
+
+        elif isinstance(obj, list):
+            filtered = []
+            for i, item in enumerate(obj):
+                new_path = current_path + [i]
+                filtered_value = JSONFilterUtils.filter_json_by_paths(item, filter_paths, new_path, ignore_keys)
+                if filtered_value is not None:
+                    filtered.append(filtered_value)
+            return filtered if filtered else None
+        else:
+            return obj
+
+    @staticmethod
+    def extract_different_value_paths(diff_paths, diff_types, obj_def_1, obj_def_2):
+        """Extract paths that have different values (excluding ignored keys)
+
+        The diff_types parameter is used to filter differences by type.
+        It distinguishes between paths that have "different" values vs other types
+        of differences (like missing keys, added keys, etc.). This allows showing
+        only the differences where values actually differ, excluding differences
+        that are only due to ignored keys or list ordering.
+
+        Args:
+            diff_paths: List of difference paths
+            diff_types: List of difference types
+            obj_def_1: First object
+            obj_def_2: Second object
+
+        Returns:
+            List of paths with different values
+        """
+        different_value_paths = []
+
+        for path, dtype in zip(diff_paths, diff_types):
+            parsed_path = JSONPathHelper.parse_path_string(path)
+            val1 = JSONPathHelper.get_nested_value(obj_def_1, parsed_path)
+            val2 = JSONPathHelper.get_nested_value(obj_def_2, parsed_path)
+
+            if dtype == "different":
+                if isinstance(val1, list) and isinstance(val2, list):
+                    try:
+                        hashes1 = set(JSONFilterUtils.get_content_hash(item) for item in val1)
+                        hashes2 = set(JSONFilterUtils.get_content_hash(item) for item in val2)
+                        if hashes1 != hashes2:
+                            different_value_paths.append(path)
+                    except:
+                        different_value_paths.append(path)
+                elif val1 is not None and val2 is not None:
+                    try:
+                        if JSONFilterUtils.get_content_hash(val1) != JSONFilterUtils.get_content_hash(val2):
+                            different_value_paths.append(path)
+                    except:
+                        different_value_paths.append(path)
+                else:
+                    different_value_paths.append(path)
+
+        return different_value_paths
+
+
+# ==================== JSON COMPARISON CLASSES ====================
 
 class JSONComparator:
     def __init__(self):

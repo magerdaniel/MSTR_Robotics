@@ -1,5 +1,7 @@
 
 class lu_mstr_md:
+    # object types and object subtypes are a pain
+    # we have difference in the MD, in PA and REST API
 
     def lu_object_type(self):
         return [

@@ -57,6 +57,8 @@ json_compare/system2_json/
 config/*_d.json
 config/*.yml
 !config/example*.yml
+config/streamlit.env
+!config/streamlit.env.example
 
 # Backups
 *_BAK/

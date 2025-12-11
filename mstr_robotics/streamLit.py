@@ -1,132 +1,41 @@
 import streamlit as st
 import yaml
 from mstr_robotics.redis_db import redis_bi_analysis
+from mstr_robotics.json_compare import JSONPathHelper, JSONFilterUtils, remove_after_last_dot_if_bracket
 import requests
 import uuid
 import json
-import re
 import pandas as pd
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# ==================== CONFIGURATION ====================
+
+# Load environment variables from config/streamlit.env
+config_dir = Path(__file__).parent.parent / 'config'
+env_file = config_dir / 'streamlit.env'
+if env_file.exists():
+    load_dotenv(env_file)
+
+# Configuration with fallback defaults
+class StreamlitConfig:
+    """Centralized configuration for Streamlit app"""
+
+    # API Server
+    API_SERVER_HOST = os.getenv('API_SERVER_HOST', 'localhost')
+    API_SERVER_PORT = os.getenv('API_SERVER_PORT', '8000')
+    API_SERVER_BASE_URL = os.getenv('API_SERVER_BASE_URL', f'http://{API_SERVER_HOST}:{API_SERVER_PORT}')
+
+    # MicroStrategy
+    MSTR_BASE_URL = os.getenv('MSTR_BASE_URL', 'http://217.154.213.84:8080/MicroStrategyLibrary/api')
+    MSTR_USERNAME = os.getenv('MSTR_USERNAME', 'Administrator')
+    MSTR_PASSWORD = os.getenv('MSTR_PASSWORD', '[REMOVED-PASSWORD]')
+
+    # Default Object Loader
+    DEFAULT_REDIS_KEY = os.getenv('DEFAULT_REDIS_KEY', 'DOCUMENT_DEFINITION:98EB31B54122FFB738E6E08A2F29421A')
 
 # ==================== UTILITY CLASSES ====================
-
-class JSONPathHelper:
-    """Helper class for JSON path operations"""
-
-    @staticmethod
-    def parse_path_string(path_str):
-        """Parse dot notation path string into list
-        Example: 'chapters[0].pages[1].name' -> ['chapters', 0, 'pages', 1, 'name']
-        Example: 'advancedProperties.vldbProperties["VLDB Select"]' -> ['advancedProperties', 'vldbProperties', 'VLDB Select']
-        """
-        
-        parts = re.split(r'\.', path_str)
-        result = []
-
-        for part in parts:
-            if '[' in part:
-                # Match both numeric indices [0] and quoted keys ["key name"]
-                matches = re.findall(r'([^\[\]]+)|\[(\d+)\]|\["([^"]+)"\]', part)
-                for match in matches:
-                    if match[0]:  # Regular key name
-                        result.append(match[0])
-                    elif match[1]:  # Numeric index [0]
-                        result.append(int(match[1]))
-                    elif match[2]:  # Quoted key ["key name"]
-                        result.append(match[2])
-            else:
-                if part:  # Only append non-empty parts
-                    result.append(part)
-
-        return result
-
-    @staticmethod
-    def get_nested_value(data, path):
-        """Navigate to a nested value using a path list
-
-        Args:
-            data: The JSON data to navigate
-            path: List of keys/indices to navigate (e.g., ['advancedProperties', 'vldbProperties', 'VLDB Select'])
-
-        Returns:
-            The value at the path, or None if path doesn't exist
-        """
-        current = data
-        for key in path:
-            if isinstance(current, dict):
-                if key in current:
-                    current = current[key]
-                else:
-                    return None
-            elif isinstance(current, list) and isinstance(key, int):
-                if key < len(current):
-                    current = current[key]
-                else:
-                    return None
-            else:
-                return None
-        return current
-
-    @staticmethod
-    def extract_all_paths(data, max_depth=3, current_path=None, current_depth=0, path_labels=None):
-        """Recursively extract all paths from JSON up to max_depth
-        Returns list of tuples: (numeric_path, display_path)
-        """
-        if current_path is None:
-            current_path = []
-        if path_labels is None:
-            path_labels = []
-
-        paths = []
-
-        if current_depth >= max_depth:
-            return paths
-
-        if isinstance(data, dict):
-            for key, value in data.items():
-                new_path = current_path + [key]
-                new_labels = path_labels + [key]
-
-                if isinstance(value, (dict, list)):
-                    numeric_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_path)
-                    numeric_path = numeric_path.replace(".[", "[")
-
-                    display_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_labels)
-                    display_path = display_path.replace(".[", "[")
-
-                    paths.append((numeric_path, display_path))
-                    paths.extend(JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels))
-
-        elif isinstance(data, list) and len(data) > 0:
-            for idx in range(min(3, len(data))):
-                new_path = current_path + [idx]
-                value = data[idx]
-
-                label = str(idx)
-                if isinstance(value, dict):
-                    if "name" in value:
-                        label = str(value['name'])[:30]
-                    elif "text" in value:
-                        label = str(value['text'])[:30]
-                    else:
-                        keys = sorted(value.keys())
-                        if keys:
-                            first_val = value[keys[0]]
-                            if isinstance(first_val, str):
-                                label = first_val[:30]
-
-                new_labels = path_labels + [label]
-
-                if isinstance(value, (dict, list)):
-                    numeric_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_path)
-                    numeric_path = numeric_path.replace(".[", "[")
-
-                    display_path = ".".join(str(p) if not isinstance(p, int) else f"[{p}]" for p in new_labels)
-                    display_path = display_path.replace(".[", "[")
-
-                    paths.append((numeric_path, display_path))
-                    paths.extend(JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels))
-
-        return paths
 
 
 class UIComponents:
@@ -142,10 +51,10 @@ class UIComponents:
         with col_button:
             if st.button("📄 Show Complete", help="Reload objects and display complete definition", use_container_width=True):
                 # Clear all session state objects and navigation to force reload
-                if 'obj_def_1' in st.session_state:
-                    del st.session_state.obj_def_1
-                if 'obj_def_2' in st.session_state:
-                    del st.session_state.obj_def_2
+                if 'org_obj_def' in st.session_state:
+                    del st.session_state.org_obj_def
+                if 'comp_obj_def' in st.session_state:
+                    del st.session_state.comp_obj_def
                 st.session_state.path = []
                 if 'selected_diff_paths' in st.session_state:
                     st.session_state.selected_diff_paths = []
@@ -170,7 +79,7 @@ class UIComponents:
             )
 
     @staticmethod
-    def render_manual_path_input(obj_def_1, obj_def_2):
+    def render_manual_path_input(org_obj_def, comp_obj_def):
         """Render manual path input section"""
         st.write("Enter a comma-separated path (e.g., `advancedProperties, drillOptions, drillingEnableReportDrilling`)")
 
@@ -197,8 +106,8 @@ class UIComponents:
                             parsed_path.append(p)
 
                     # Validate path exists in object(s)
-                    test_1 = JSONPathHelper.get_nested_value(obj_def_1, parsed_path)
-                    test_2 = JSONPathHelper.get_nested_value(obj_def_2, parsed_path) if obj_def_2 else None
+                    test_1 = JSONPathHelper.get_nested_value(org_obj_def, parsed_path)
+                    test_2 = JSONPathHelper.get_nested_value(comp_obj_def, parsed_path) if comp_obj_def else None
 
                     if test_1 is not None or test_2 is not None:
                         st.session_state.path = parsed_path
@@ -250,18 +159,18 @@ class UIComponents:
 class ThreeLevelNavigator:
     """Handles 3-level hierarchical navigation with up/down buttons"""
 
-    def __init__(self, key_prefix, data_dict, obj_def_1, obj_def_2):
+    def __init__(self, key_prefix, data_dict, org_obj_def, comp_obj_def):
         """
         Args:
             key_prefix: Unique prefix for session state keys (e.g., 'struct', 'diff')
             data_dict: Dictionary of {category: [(path, label), ...]} or {category: [path, ...]}
-            obj_def_1: First JSON object for validation
-            obj_def_2: Second JSON object for validation
+            org_obj_def: First JSON object for validation
+            comp_obj_def: Second JSON object for validation
         """
         self.key_prefix = key_prefix
         self.data_dict = data_dict
-        self.obj_def_1 = obj_def_1
-        self.obj_def_2 = obj_def_2
+        self.org_obj_def = org_obj_def
+        self.comp_obj_def = comp_obj_def
         self._init_session_state()
 
     def _init_session_state(self):
@@ -474,12 +383,6 @@ class ThreeLevelNavigator:
             return item[0]  # Return numeric path from (numeric_path, display_path)
         return item  # Return string path directly
 
-def remove_after_last_dot_if_bracket(text):
-    if isinstance(text, str):
-        last_dot = text.rfind('.')
-        if last_dot > 0 and text[last_dot - 1] == ']':
-            return text[:last_dot]
-    return text
 
 # ==================== MANAGER CLASSES ====================
 
@@ -523,7 +426,7 @@ class RedisManager:
 
         obj_1 = i_redis.fetch_key_value(redis_key_1)
         if obj_1:
-            st.session_state.obj_def_1 = obj_1["value"]
+            st.session_state.org_obj_def = obj_1["value"]
             st.session_state.path = []
         else:
             st.error(f"Key not found: {redis_key_1}")
@@ -534,7 +437,7 @@ class RedisManager:
             redis_key_2 = f"{prefix_2}:{redis_key}"
             obj_2 = i_redis.fetch_key_value(redis_key_2)
             if obj_2:
-                st.session_state.obj_def_2 = obj_2["value"]
+                st.session_state.comp_obj_def = obj_2["value"]
             else:
                 st.error(f"Key not found: {redis_key_2}")
                 obj_2 = None
@@ -579,23 +482,24 @@ class ComparisonManager:
             "base_url": base_url
         }
         session_id = str(uuid.uuid4())
+        api_base_url = StreamlitConfig.API_SERVER_BASE_URL
 
         # Login to MSTR
-        requests.post("http://localhost:8000/login", json={
+        requests.post(f"{api_base_url}/login", json={
             "session_id": session_id,
             "conn_params": conn_params
             }
         )
 
         # Connect to Redis
-        requests.post("http://localhost:8000/connect_redis", json={
+        requests.post(f"{api_base_url}/connect_redis", json={
             "session_id": session_id,
             "redis_config": redis_config,
             "selected_env": selected_redis_env
             }
         )
 
-        response = requests.post("http://localhost:8000/run_comparison",
+        response = requests.post(f"{api_base_url}/run_comparison",
             json={"session_id": session_id,
                   "play_compare_d": playbook_d}
         )
@@ -717,7 +621,7 @@ class DifferencesRenderer:
 
         base_url = st.text_input(
             "Base URL:",
-            value="http://217.154.213.84:8080/MicroStrategyLibrary/api",
+            value=StreamlitConfig.MSTR_BASE_URL,
             placeholder="Enter MicroStrategy API base URL"
         )
 
@@ -725,14 +629,14 @@ class DifferencesRenderer:
         with col_user:
             username = st.text_input(
                 "Username:",
-                value="Administrator",
+                value=StreamlitConfig.MSTR_USERNAME,
                 placeholder="Enter username"
             )
 
         with col_pass:
             password = st.text_input(
                 "Password:",
-                value="[REMOVED-PASSWORD]",
+                value=StreamlitConfig.MSTR_PASSWORD,
                 type="password",
                 placeholder="Enter password"
             )
@@ -795,10 +699,10 @@ class DifferencesRenderer:
             redis_key = obj_key
 
         # Purge existing form values
-        if 'obj_def_1' in st.session_state:
-            del st.session_state.obj_def_1
-        if 'obj_def_2' in st.session_state:
-            del st.session_state.obj_def_2
+        if 'org_obj_def' in st.session_state:
+            del st.session_state.org_obj_def
+        if 'comp_obj_def' in st.session_state:
+            del st.session_state.comp_obj_def
 
         st.session_state.path = []
         st.session_state.selected_diff_paths = diff_paths
@@ -857,9 +761,9 @@ class ObjectLoaderRenderer:
         """Render prefix input fields and return values"""
         # Initialize widgets in session state if not present
         if 'prefix_1_widget' not in st.session_state:
-            st.session_state.prefix_1_widget = "mstr_dev"
+            st.session_state.prefix_1_widget = ''
         if 'prefix_2_widget' not in st.session_state:
-            st.session_state.prefix_2_widget = "mstr_test"
+            st.session_state.prefix_2_widget = ''
 
         # Check if we're auto-loading and should update prefix_1
         auto_load = st.session_state.get('auto_load_comparison', False)
@@ -892,7 +796,7 @@ class ObjectLoaderRenderer:
         auto_load = st.session_state.get('auto_load_comparison', False)
 
         if 'redis_key_widget' not in st.session_state:
-            st.session_state.redis_key_widget = "DOCUMENT_DEFINITION:98EB31B54122FFB738E6E08A2F29421A"
+            st.session_state.redis_key_widget = StreamlitConfig.DEFAULT_REDIS_KEY
 
         if auto_load:
             selected_key = st.session_state.get('selected_redis_key', '')
@@ -917,11 +821,11 @@ class ObjectLoaderRenderer:
         """Render status indicators for loaded objects"""
         col_status1, col_status2 = st.columns(2)
         with col_status1:
-            if 'obj_def_1' in st.session_state:
+            if 'org_obj_def' in st.session_state:
                 st.success(f"✅ Connected to Redis ({prefix_1})")
 
         with col_status2:
-            if prefix_2 and 'obj_def_2' in st.session_state:
+            if prefix_2 and 'comp_obj_def' in st.session_state:
                 st.success(f"✅ Connected to Redis ({prefix_2})")
 
 
@@ -929,12 +833,12 @@ class NavigationRenderer:
     """Handles rendering of navigation UI components"""
 
     @staticmethod
-    def render_structure_navigator(obj_def_1, obj_def_2, structure_depth):
+    def render_structure_navigator(org_obj_def, comp_obj_def, structure_depth):
         """Render structure navigation panel"""
         st.write("**📊 Structure**")
 
-        paths_obj1 = extract_all_paths(obj_def_1, max_depth=structure_depth)
-        paths_obj2 = extract_all_paths(obj_def_2, max_depth=structure_depth) if obj_def_2 else []
+        paths_obj1 = extract_all_paths(org_obj_def, max_depth=structure_depth)
+        paths_obj2 = extract_all_paths(comp_obj_def, max_depth=structure_depth) if comp_obj_def else []
 
         all_paths_dict = {}
         for numeric_path, display_path in paths_obj1 + paths_obj2:
@@ -951,20 +855,20 @@ class NavigationRenderer:
             structure_categories[top_key].append((numeric_path, display_path))
 
         if structure_categories:
-            navigator = ThreeLevelNavigator('structure', structure_categories, obj_def_1, obj_def_2)
+            navigator = ThreeLevelNavigator('structure', structure_categories, org_obj_def, comp_obj_def)
             selected_path_str = navigator.render()
 
             if st.button("📍 Go", key="struct_go", use_container_width=True):
                 if selected_path_str:
                     parsed_path = parse_path_string(selected_path_str)
                     parsed_path = remove_after_last_dot_if_bracket(parsed_path)
-                    get_nested_value(obj_def_1, parsed_path)
-                    if obj_def_2:
-                        get_nested_value(obj_def_2, parsed_path)
+                    get_nested_value(org_obj_def, parsed_path)
+                    if comp_obj_def:
+                        get_nested_value(comp_obj_def, parsed_path)
                     st.rerun()
 
     @staticmethod
-    def render_differences_navigator(obj_def_1, obj_def_2):
+    def render_differences_navigator(org_obj_def, comp_obj_def):
         """Render differences navigation panel"""
         st.write("**🔍 Differences**")
 
@@ -978,14 +882,14 @@ class NavigationRenderer:
         else:
             path_categories = {}
 
-        navigator = ThreeLevelNavigator('diff', path_categories, obj_def_1, obj_def_2)
+        navigator = ThreeLevelNavigator('diff', path_categories, org_obj_def, comp_obj_def)
         selected_path_str = navigator.render()
 
         if st.button("📍 Go", key="diff_go", use_container_width=True):
             if selected_path_str:
                 parsed_path = parse_path_string(selected_path_str)
-                test_1 = get_nested_value(obj_def_1, parsed_path)
-                test_2 = get_nested_value(obj_def_2, parsed_path) if obj_def_2 else None
+                test_1 = get_nested_value(org_obj_def, parsed_path)
+                test_2 = get_nested_value(comp_obj_def, parsed_path) if comp_obj_def else None
 
                 if test_1 is not None and not isinstance(test_1, (dict, list)):
                     parsed_path = parsed_path[:-1]
@@ -1024,132 +928,6 @@ class NavigationRenderer:
         # Display JSON with synchronized expand state
         # Using expand_depth from session state for synchronized depth control
         st.json(current_data, expanded=st.session_state.expand_depth)
-
-
-class JSONFilterUtils:
-    """Utility class for JSON filtering and comparison operations"""
-
-    @staticmethod
-    def get_content_hash(obj, ignore_keys=None):
-        """Calculate hash of an object ignoring specified keys"""
-        if ignore_keys is None:
-            ignore_keys = ["predicateId", "versionId", "dateModified", "dateCreated"]
-
-        def remove_ignored_keys(obj, ignore_keys):
-            if isinstance(obj, dict):
-                return {k: remove_ignored_keys(v, ignore_keys)
-                       for k, v in obj.items()
-                       if k not in ignore_keys}
-            elif isinstance(obj, list):
-                return [remove_ignored_keys(item, ignore_keys) for item in obj]
-            else:
-                return obj
-
-        cleaned = remove_ignored_keys(obj, ignore_keys)
-        try:
-            import hashlib
-            json_str = json.dumps(cleaned, sort_keys=True, default=str)
-            return hashlib.md5(json_str.encode()).hexdigest()
-        except:
-            import hashlib
-            return hashlib.md5(str(cleaned).encode()).hexdigest()
-
-    @staticmethod
-    def build_path_str(path_list):
-        """Build path string from path list"""
-        result = []
-        for p in path_list:
-            if isinstance(p, int):
-                if result:
-                    result[-1] = result[-1] + f'[{p}]'
-                else:
-                    result.append(f'[{p}]')
-            else:
-                result.append(str(p))
-        return '.'.join(result)
-
-    @staticmethod
-    def has_relevant_child_path(current_path_str, filter_paths):
-        """Check if any filter path contains this path as a prefix"""
-        if not current_path_str:
-            return True
-
-        return any(
-            p.startswith(current_path_str + '.') or
-            p.startswith(current_path_str + '[') or
-            p == current_path_str
-            for p in filter_paths
-        )
-
-    @staticmethod
-    def filter_json_by_paths(obj, filter_paths, current_path=[], ignore_keys=None):
-        """Create a filtered copy of JSON object that only includes specified paths"""
-        if ignore_keys is None:
-            ignore_keys = ["predicateId", "versionId", "dateModified", "dateCreated"]
-
-        current_path_str = JSONFilterUtils.build_path_str(current_path)
-
-        if current_path_str and not JSONFilterUtils.has_relevant_child_path(current_path_str, filter_paths):
-            return None
-
-        if isinstance(obj, dict):
-            filtered = {}
-            for key, value in obj.items():
-                if key in ignore_keys:
-                    continue
-                new_path = current_path + [key]
-                filtered_value = JSONFilterUtils.filter_json_by_paths(value, filter_paths, new_path, ignore_keys)
-                if filtered_value is not None:
-                    filtered[key] = filtered_value
-            return filtered if filtered else None
-
-        elif isinstance(obj, list):
-            filtered = []
-            for i, item in enumerate(obj):
-                new_path = current_path + [i]
-                filtered_value = JSONFilterUtils.filter_json_by_paths(item, filter_paths, new_path, ignore_keys)
-                if filtered_value is not None:
-                    filtered.append(filtered_value)
-            return filtered if filtered else None
-        else:
-            return obj
-
-    @staticmethod
-    def extract_different_value_paths(diff_paths, diff_types, obj_def_1, obj_def_2):
-        """Extract paths that have different values (excluding ignored keys)
-
-        The diff_types parameter is used to filter differences by type.
-        It distinguishes between paths that have "different" values vs other types
-        of differences (like missing keys, added keys, etc.). This allows showing
-        only the differences where values actually differ, excluding differences
-        that are only due to ignored keys or list ordering.
-        """
-        different_value_paths = []
-
-        for path, dtype in zip(diff_paths, diff_types):
-            parsed_path = parse_path_string(path)
-            val1 = get_nested_value(obj_def_1, parsed_path)
-            val2 = get_nested_value(obj_def_2, parsed_path)
-
-            if dtype == "different":
-                if isinstance(val1, list) and isinstance(val2, list):
-                    try:
-                        hashes1 = set(JSONFilterUtils.get_content_hash(item) for item in val1)
-                        hashes2 = set(JSONFilterUtils.get_content_hash(item) for item in val2)
-                        if hashes1 != hashes2:
-                            different_value_paths.append(path)
-                    except:
-                        different_value_paths.append(path)
-                elif val1 is not None and val2 is not None:
-                    try:
-                        if JSONFilterUtils.get_content_hash(val1) != JSONFilterUtils.get_content_hash(val2):
-                            different_value_paths.append(path)
-                    except:
-                        different_value_paths.append(path)
-                else:
-                    different_value_paths.append(path)
-
-        return different_value_paths
 
 
 class ComparisonViewRenderer:
@@ -1206,12 +984,12 @@ class ComparisonViewRenderer:
                         st.dataframe(df_comp, use_container_width=True)
 
     @staticmethod
-    def render_different_values_view(different_value_paths, obj_def_1, obj_def_2):
+    def render_different_values_view(different_value_paths, org_obj_def, comp_obj_def):
         """Render the different values expander view"""
         with st.expander(f"📌 Different Values ({len(different_value_paths)} paths)", expanded=False):
             if different_value_paths:
-                filtered_obj1 = JSONFilterUtils.filter_json_by_paths(obj_def_1, different_value_paths, [])
-                filtered_obj2 = JSONFilterUtils.filter_json_by_paths(obj_def_2, different_value_paths, [])
+                filtered_obj1 = JSONFilterUtils.filter_json_by_paths(org_obj_def, different_value_paths, [])
+                filtered_obj2 = JSONFilterUtils.filter_json_by_paths(comp_obj_def, different_value_paths, [])
 
                 if st.session_state.path:
                     filtered_obj1 = get_nested_value(filtered_obj1, st.session_state.path) if filtered_obj1 else None
@@ -1231,23 +1009,23 @@ class ComparisonViewRenderer:
                 st.info("ℹ️ No paths found with different values")
 
     @staticmethod
-    def render_side_by_side_comparison(obj_def_1, obj_def_2):
+    def render_side_by_side_comparison(org_obj_def, comp_obj_def):
         """Render side-by-side comparison of two objects"""
-        if obj_def_2:
+        if comp_obj_def:
             with st.expander("📊 Side-by-Side Comparison", expanded=True):
                 col1, col2 = st.columns(2)
 
                 with col1:
                     st.subheader("📂 Object 1")
-                    NavigationRenderer.render_navigation(obj_def_1, st.session_state.path)
+                    NavigationRenderer.render_navigation(org_obj_def, st.session_state.path)
 
                 with col2:
                     st.subheader("📂 Object 2")
-                    NavigationRenderer.render_navigation(obj_def_2, st.session_state.path)
+                    NavigationRenderer.render_navigation(comp_obj_def, st.session_state.path)
         else:
             with st.expander("📊 Object View", expanded=True):
                 st.subheader("📂 Object 1")
-                NavigationRenderer.render_navigation(obj_def_1, st.session_state.path)
+                NavigationRenderer.render_navigation(org_obj_def, st.session_state.path)
 
 st.set_page_config(page_title="MSTR JSON Analyzer", layout="wide")
 st.title("MSTR Object Definition Analyzer")
@@ -1285,8 +1063,8 @@ parse_path_string = JSONPathHelper.parse_path_string
 extract_all_paths = JSONPathHelper.extract_all_paths
 
 # Fetch from Redis
-obj_def_1 = None
-obj_def_2 = None
+org_obj_def = None
+comp_obj_def = None
 
 # Upload Redis Configuration
 redis_config = DifferencesRenderer.render_redis_config_uploader()
@@ -1364,12 +1142,12 @@ if redis_config is not None:
                     st.error(f"Error fetching objects: {e}")
 
 # Load objects from session state
-if 'obj_def_1' in st.session_state:
-    obj_def_1 = st.session_state.obj_def_1
-if 'obj_def_2' in st.session_state:
-    obj_def_2 = st.session_state.obj_def_2
+if 'org_obj_def' in st.session_state:
+    org_obj_def = st.session_state.org_obj_def
+if 'comp_obj_def' in st.session_state:
+    comp_obj_def = st.session_state.comp_obj_def
 
-if obj_def_1:
+if org_obj_def:
     # Quick path navigation
     st.divider()
     with st.expander("🎯 Quick Path Navigation", expanded=True):
@@ -1380,20 +1158,20 @@ if obj_def_1:
         structure_depth = st.session_state.structure_depth
 
         with col_structure:
-            NavigationRenderer.render_structure_navigator(obj_def_1, obj_def_2, structure_depth)
+            NavigationRenderer.render_structure_navigator(org_obj_def, comp_obj_def, structure_depth)
 
         with col_differences:
-            NavigationRenderer.render_differences_navigator(obj_def_1, obj_def_2)
+            NavigationRenderer.render_differences_navigator(org_obj_def, comp_obj_def)
 
         st.divider()
-        UIComponents.render_manual_path_input(obj_def_1, obj_def_2 if obj_def_2 else None)
+        UIComponents.render_manual_path_input(org_obj_def, comp_obj_def if comp_obj_def else None)
         structure_depth = UIComponents.render_structure_depth_control()
 
     st.divider()
     UIComponents.render_expand_depth_control()
 
     # ==================== FILTERED DIFFERENCE VIEWS ====================
-    if obj_def_2 and 'selected_diff_types' in st.session_state and st.session_state.selected_diff_types:
+    if comp_obj_def and 'selected_diff_types' in st.session_state and st.session_state.selected_diff_types:
         st.divider()
         st.header("📊 Compare JSON - Files")
 
@@ -1402,11 +1180,11 @@ if obj_def_1:
         diff_paths = st.session_state.selected_diff_paths
         diff_types = st.session_state.selected_diff_types
 
-        different_value_paths = JSONFilterUtils.extract_different_value_paths(diff_paths, diff_types, obj_def_1, obj_def_2)
-        ComparisonViewRenderer.render_different_values_view(different_value_paths, obj_def_1, obj_def_2)
+        different_value_paths = JSONFilterUtils.extract_different_value_paths(diff_paths, diff_types, org_obj_def, comp_obj_def)
+        ComparisonViewRenderer.render_different_values_view(different_value_paths, org_obj_def, comp_obj_def)
 
     # Side-by-side comparison
-    ComparisonViewRenderer.render_side_by_side_comparison(obj_def_1, obj_def_2 if obj_def_2 else None)
+    ComparisonViewRenderer.render_side_by_side_comparison(org_obj_def, comp_obj_def if comp_obj_def else None)
 
 
 # ==================== MAIN ENTRY POINT ====================
