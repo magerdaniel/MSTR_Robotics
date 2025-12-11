@@ -5,7 +5,7 @@ import warnings
 import uuid
 from mstr_robotics.report import rep, prompts, cube
 from mstr_robotics.report import rep,prompts,cube
-from mstr_robotics.dossier import doss_read_out,doss_read_out_det,dossier_global
+#from mstr_robotics.dossier import doss_read_out,doss_read_out_det,dossier_global
 from mstr_robotics._helper import msic
 from mstr_robotics.mstr_classes import mstr_global, get_conn
 from mstr_robotics.read_out_prj_obj import read_out_hierarchy,io_attributes
@@ -57,20 +57,6 @@ class regam_jobs():
 
                 )
         return pa_jobs_df
-
-    def ZZZ_read_regam_job_doss_vis(self, conn, dossier_l):
-        for dossier_id in dossier_l:
-            doss_hier_df = i_dossiers.doss_hier_to_df(conn=conn, dossier_l=dossier_l)
-            filtered_df = doss_hier_df[doss_hier_df['visual_name'].str.contains("REGAM", case=False)]
-            rep_job_l = []
-            for vis in filtered_df.itertuples():
-                instance_id = i_dossiers.create_dossier_instance(conn=conn, dossier_id=dossier_id, body={}).json()["mid"]
-                rep_job_l.extend(
-                    i_mstr_api._get_vis_raw_metric_val(conn=conn, dossier_id=dossier_id, instance_id=instance_id,
-                                                       chapter_key=vis.chapter_key, visual_key=vis.visual_key)
-                    )
-        return rep_job_l
-
 
     def get_att_from_job_metric(self,conn,job_metrics_l,job_prp_ans_d):
         att_d=job_prp_ans_d
