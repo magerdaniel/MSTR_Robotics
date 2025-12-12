@@ -28,7 +28,7 @@ i_prompts = prompts()
 i_msic = msic()
 i_cube=cube()
 i_file_io=file_io()
-i_load_master_data = read_out_hierarchy()
+
 i_run_prp_ans_bld = run_prp_ans_bld()
 i_parse_pa = parse_pa()
 pd.set_option('display.max_rows', 500)
@@ -143,6 +143,9 @@ class regam():
     this class controls the extraction and parsing of
     the PA raw data
     """
+    def __init__(self, run_prop_d={}):
+        self.run_prop_d=run_prop_d
+        self.i_load_master_data = read_out_hierarchy(self.run_prop_d)
 
     def fetch_pa_rep_jobs(self, pa_conn,  pa_report_id,prompt_answ=None):
         # PA report to fetch the user executions
@@ -162,8 +165,8 @@ class regam():
         #to avoid reading out attribute / hierarchies on each execution
         #the information is cubed. To keep consistancy the cube must
         #be updated from time to time
-        hier_att_df = i_load_master_data.read_out_sys_hier(conn=conn)
-        print(hier_att_df)
+        
+        hier_att_df = self.i_load_master_data.read_out_sys_hier(conn=conn)
         tbl_upd_dict=[{"tbl_name":"hier_att_df", "df":hier_att_df,"update_policy":"REPLACE"}]
         #print(tbl_upd_dict)
         hier_att_cube_id = i_cube.upload_cube_mult_table(conn, mtdi_id=hier_att_cube_id, tbl_upd_dict=tbl_upd_dict,

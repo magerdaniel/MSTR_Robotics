@@ -20,8 +20,8 @@ i_mstr_api=mstr_api()
 
 class read_out_hierarchy():
 
-    def __init__(self):
-        self.run_prop_d={}
+    def __init__(self,run_prop_d={}):
+        self.run_prop_d=run_prop_d
 
     def _read_hier_in_prp(self, conn):
         #reads out hierarchies used in prompts
@@ -45,7 +45,7 @@ class read_out_hierarchy():
         return proj_prp_hier_l
 
     def read_out_hier_att_df(self, conn, proj_hier_l) :
-        all_hier_att_col=self.run_prop_d.keys()
+        all_hier_att_col=list(self.run_prop_d.keys())
         all_hier_att_col.extend(["project_id","hier_id","hier_subType","hier_name","att_id","att_name",
                           "att_form_id","att_form_name","att_form_data_type"])
         all_hier_att_l=[]
@@ -58,7 +58,7 @@ class read_out_hierarchy():
 
             for att in hier_att_l[0]["attributes"]:
                 for af in att["forms"]:
-                    run_prop_val=list(self.run_prop_d.keys().values())
+                    run_prop_val=list(self.run_prop_d.keys())
                     ahl_l=run_prop_val
                     ahl_l.extend([conn.headers["X-MSTR-ProjectID"],
                                            hier["id"],
@@ -76,7 +76,6 @@ class read_out_hierarchy():
         proj_hier_l = i_md_searches.search_for_type_l(conn=conn, obj_l=["14"],
                                                       name="System Hierarchy",
                                                       info_level="base")
-        print("WWWW " + str(proj_hier_l ))
         sys_hier_att_df = self.read_out_hier_att_df(conn=conn
                                                 , proj_hier_l=proj_hier_l)
         return sys_hier_att_df
