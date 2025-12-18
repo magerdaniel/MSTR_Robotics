@@ -763,7 +763,7 @@ class ObjectLoaderRenderer:
         if 'prefix_1_widget' not in st.session_state:
             st.session_state.prefix_1_widget = ''
         if 'prefix_2_widget' not in st.session_state:
-            st.session_state.prefix_2_widget = ''
+            st.session_state.prefix_2_widget = 'mstr_test'
 
         # Check if we're auto-loading and should update prefix_1
         auto_load = st.session_state.get('auto_load_comparison', False)
@@ -784,7 +784,7 @@ class ObjectLoaderRenderer:
         with col2:
             prefix_2 = st.text_input(
                 "Prefix 2:",
-                placeholder="mstr_test (optional)",
+                placeholder="mstr_test",
                 key="prefix_2_widget"
             )
 

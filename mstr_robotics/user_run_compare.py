@@ -107,6 +107,7 @@ class run_compare():
 
     def run_comparison(self,play_compare_d):
         #set variables
+        print(play_compare_d)
         org_project_id=play_compare_d["org_project_id"]
         comp_project_id=play_compare_d["comp_project_id"]
         obj_list_type = list(play_compare_d["obj_list_type"].keys())[0]
