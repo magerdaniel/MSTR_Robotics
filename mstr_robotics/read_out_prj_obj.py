@@ -330,6 +330,15 @@ class read_gen():
         obj_depn_df=pd.DataFrame.from_dict(obj_l)
         return obj_depn_df
 
+    def get_obj_def_by_id_l(self,conn,obj_id_l):
+        obj_def_d_l=[]
+        obj_id_d_l=i_mstr_api.get_proj_obj_by_id_l(conn=conn, obj_id_l=obj_id_l)
+        for o in obj_id_d_l:
+            obj_def_d_l.append(self.get_obj_def(conn=conn,object_id=o["id"],
+                                              obj_type=o["obj_type"],
+                                              obj_sub_type=o["subtype"]))
+        return obj_def_d_l
+    
     def get_obj_def(self,conn, object_id, obj_type=None, obj_sub_type=None):
         obj_def = {}
         #print(obj_type)

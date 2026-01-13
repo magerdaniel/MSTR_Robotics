@@ -292,7 +292,7 @@ class fetch_it_all:
         for root_object_key in root_object_l:
             objects_to_process = deque([root_object_key])  # O(1) operations instead of O(n)
             visited_objects = set()
-            
+            recursive_cnt=0
             while objects_to_process:
                 # Collect a batch of keys to fetch
                 batch_keys = []
@@ -343,6 +343,12 @@ class fetch_it_all:
                                 child_keys = self.extract_child_object_keys(obj_def)
                                 
                                 # Add child keys to processing queue
+                                for child_key in child_keys:
+                                    if child_key not in visited_objects:
+                                        objects_to_process.append(child_key)
+                            elif recursive_fg==False and recursive_cnt==0:
+                                recursive_cnt=1
+                                child_keys = self.extract_child_object_keys(obj_def)
                                 for child_key in child_keys:
                                     if child_key not in visited_objects:
                                         objects_to_process.append(child_key)
