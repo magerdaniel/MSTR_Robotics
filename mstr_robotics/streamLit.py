@@ -1185,11 +1185,3 @@ if org_obj_def:
 
     # Side-by-side comparison
     ComparisonViewRenderer.render_side_by_side_comparison(org_obj_def, comp_obj_def if comp_obj_def else None)
-
-
-# ==================== MAIN ENTRY POINT ====================
-
-if __name__ == "__main__":
-    # Application is already running through Streamlit's execution model
-    # All UI code above is executed when this module is loaded
-    pass

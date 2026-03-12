@@ -317,6 +317,7 @@ class fetch_it_all:
                     
                     # Process batch results
                     for i, current_key in enumerate(batch_keys):
+
                         try:
                             obj_def = results[i]
                             

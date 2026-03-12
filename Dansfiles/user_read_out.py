@@ -23,13 +23,13 @@ server = ""
 port = "8443"
 pa_server = ""
 # project /folder where new cubes are stored
-cube_project_id = "81D05F2D424C210FCC04C5B8F93E20DA"
-cube_folder_id = "DF2158D24B28235E2F6A989D0EC4C5B8"
+cube_project_id = ""
+cube_folder_id = ""
 mtdi_id = None
 # data source for cube user_all_groups
 
-pa_project_id = "4DFD1AE74BDB0A0E671D239F7824FA66"
-pa_report_id = "65362F1241F365685D31F88FED885D70"
+pa_project_id = ""
+pa_report_id = ""
 
 folder_l = ["D3C7D461F69C4610AA6BAA5EF51F4125"]
 base_url = "https://" + server + ":" + port + "/MicroStrategyLibrary/api"

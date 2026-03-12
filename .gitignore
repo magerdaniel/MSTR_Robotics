@@ -60,6 +60,11 @@ config/*.yml
 config/streamlit.env
 !config/streamlit.env.example
 
+# BigQuery credentials — never commit
+config/bq_sa_key.json
+config/bq_user_token.json
+config/bq_oauth_client.json
+
 # Backups
 *_BAK/
 *.bak

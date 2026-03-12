@@ -115,6 +115,13 @@ class msic():
            key_l.append(d[key])
         return key_l
 
+    def select_dict_cols(self, original_dict, keys_list):
+        filtered_dict = {}
+        for key, value in original_dict.items():
+            if key in keys_list:
+                filtered_dict[key] = value
+        return filtered_dict
+
     def get_comon_val_l(self,list_1,list_2):
        #return list(set(list_1).intersection(list_2))
         matches = []
