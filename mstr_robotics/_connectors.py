@@ -21,7 +21,7 @@ class mstr_api():
         prp_l = conn.get(endpoint=endpoint).json()
         return prp_l
 
-    def get_proj_obj_by_id_l(self,conn,obj_id_l):
+    def get_proj_obj_by_id_l(self,conn,obj_id_l,org_def_fg=False):
         obj_prop_path_d_l=[]
         endpoint = f'{conn.base_url}/api/searches/objects?includeAncestors=true&showNavigationPath=true'
         obj_id_l=list(set(obj_id_l))
@@ -38,27 +38,34 @@ class mstr_api():
         response = conn.post(endpoint, data=body_d)
         #print(response.text)
         response_d = response.json()
-        if response_d["totalItems"]>0:
-            for prop in response_d["result"]:
-                obj_prop_path_d={}
+        try:
+            if response_d["totalItems"]>0:
 
-                obj_prop_path_d["id"]=prop["id"]
-                obj_prop_path_d["name"]=prop["name"]            
-                obj_prop_path_d["obj_type"]=prop["type"]
-                #obj_prop_path_d["description"]=prop["description"]    
-                obj_prop_path_d["subtype"]=prop["subtype"]
-                obj_prop_path_d["dateCreated"]=prop["dateCreated"]    
-                obj_prop_path_d["dateModified"]=prop["dateModified"]
-                obj_prop_path_d["version"]=prop["version"]
-                obj_prop_path_d["dateModified"]=prop["dateModified"]
-                obj_prop_path_d["owner"]=prop["owner"]["name"]
-                fold_path= ""
-                for fold in prop["ancestors"]:
-                    fold_path+="/"+fold["name"]
-                        
-                obj_prop_path_d["fold_path"]=fold_path
-                obj_prop_path_d_l.append(obj_prop_path_d)
-            return obj_prop_path_d_l
+                for prop in response_d["result"]:
+                    if org_def_fg==False:
+                        obj_prop_path_d={}
+
+                        obj_prop_path_d["id"]=prop["id"]
+                        obj_prop_path_d["name"]=prop["name"]            
+                        obj_prop_path_d["obj_type"]=prop["type"]
+                        #obj_prop_path_d["description"]=prop["description"]    
+                        obj_prop_path_d["subtype"]=prop["subtype"]
+                        obj_prop_path_d["dateCreated"]=prop["dateCreated"]    
+                        obj_prop_path_d["dateModified"]=prop["dateModified"]
+                        obj_prop_path_d["version"]=prop["version"]
+                        obj_prop_path_d["dateModified"]=prop["dateModified"]
+                        obj_prop_path_d["owner"]=prop["owner"]["name"]
+                        fold_path= ""
+                        for fold in prop["ancestors"]:
+                            fold_path+="/"+fold["name"]
+                                
+                        obj_prop_path_d["fold_path"]=fold_path
+                        obj_prop_path_d_l.append(obj_prop_path_d)
+                    else:
+                        obj_prop_path_d_l.append(prop)
+                return obj_prop_path_d_l
+        except Exception as e:
+            print(e)
         return {}
 
     def get_ele_prp_ans(self,conn,report_id,instance_id,prompt_id,att_form_str=None,offset=0, limit=200):
@@ -253,7 +260,7 @@ class mstr_api():
 
     def get_dossier_detail(self, conn, dossier_id, instance_id, chapter_key, vis_id):
         url = f"{conn.base_url}/api/v2/dossiers/{dossier_id}/instances/"
-        url += f"{instance_id}/chapters/{chapter_key}/visualizations/{vis_id}?offset=0&limit=1000"
+        url += f"{instance_id}/chapters/{chapter_key}/visualizations/{vis_id}?offset=0&limit=100000"
         return conn.get(url).json()
 
     def get_v2_cube_instance(self,conn,cube_id,offset_val,limit_val):

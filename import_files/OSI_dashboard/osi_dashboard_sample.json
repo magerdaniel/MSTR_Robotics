@@ -1,0 +1,409 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OSI Dashboards Extension",
+  "description": "Extension to OSI specification for dashboard and report definitions",
+  
+  "definitions": {
+    
+    "Dashboard": {
+      "type": "object",
+      "description": "A dashboard containing organized visualizations and reports",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the dashboard"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name for the dashboard"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the dashboard purpose and content"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "Additional context for AI tools and agents"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Tags for categorization and discovery"
+        },
+        "filters": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Filter"},
+          "description": "Dashboard-level filters affecting all content"
+              },
+        "chapters": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Chapter"},
+          "description": "Organizational chapters within the dashboard"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional vendor-specific or custom metadata"
+        }
+      }
+    },
+    
+    "Chapter": {
+      "type": "object",
+      "description": "A logical grouping of related pages within a dashboard",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the chapter"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name for the chapter"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "Additional context for AI tools and agents"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Display order within the dashboard"
+        },
+        "filters": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Filter"},
+          "description": "Chapter-level filters affecting all pages in this chapter"
+        },
+        "pages": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Page"},
+          "description": "Pages within this chapter"
+        }
+      }
+    },
+    
+    "Page": {
+      "type": "object",
+      "description": "A single page containing visualizations",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the page"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name for the page"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "Additional context for AI tools and agents"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Display order within the chapter"
+        },
+        "filters": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Filter"},
+          "description": "Page-level filters affecting all visualizations"
+        },
+        "visualizations": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Visualization"},
+          "description": "Visualizations displayed on this page"
+        }
+      }
+    },
+    
+    "Visualization": {
+      "type": "object",
+      "description": "An individual chart, table, or visual element",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the visualization"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable title for the visualization"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "Additional context for AI tools and agents"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "bar_chart",
+            "line_chart",
+            "pie_chart",
+            "scatter_plot",
+            "table",
+            "pivot_table",
+            "heatmap",
+            "treemap",
+            "gauge",
+            "kpi_card",
+            "geo_map",
+            "waterfall",
+            "funnel",
+            "custom"
+          ],
+          "description": "Type of visualization"
+        },
+        "dataset": {
+          "type": "array",
+          "description": "Reference to the dataset(s) from the semantic model"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "References to metrics from the semantic model"
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "References to dimensions from the semantic model"
+        },
+        "filters": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Filter"},
+          "description": "Visualization-level filters"
+        }
+      }
+    },
+    
+    "Filter": {
+      "type": "object",
+      "description": "A filter that can be applied at various levels",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the filter"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name shown in UI"
+        },
+        "ai_context": {
+          "type": "string",
+          "description": "Additional context for AI tools and agents"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "qualification",
+            "element_selection",
+            "object_selection",
+            "date_range"
+          ],
+          "description": "Type of filter"
+        },
+        "target": {
+          "$ref": "#/definitions/FilterTarget",
+          "description": "What this filter applies to"
+        },
+        "definition": {
+          "oneOf": [
+            {"$ref": "#/definitions/QualificationFilter"},
+            {"$ref": "#/definitions/ElementSelectionFilter"},
+            {"$ref": "#/definitions/ObjectSelectionFilter"},
+            {"$ref": "#/definitions/DateRangeFilter"}
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether user must provide a value"
+        },
+        "default_value": {
+          "description": "Default filter value"
+        }
+      }
+    },
+    
+    "FilterTarget": {
+      "type": "object",
+      "description": "Defines what the filter applies to",
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": ["dashboard", "chapter", "page", "visualization"],
+          "description": "Level at which the filter operates"
+        },
+        "specific_targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific visualization/page IDs this filter applies to (optional)"
+        }
+      }
+    },
+    
+    "QualificationFilter": {
+      "type": "object",
+      "description": "Filter based on metric or attribute qualification",
+      "required": ["expression"],
+      "properties": {
+        "expression": {
+          "type": "string",
+          "description": "Filter expression (e.g., 'revenue > 500', 'name LIKE \"%mag%\"')"
+        },
+        "dialect": {
+          "type": "string",
+          "enum": ["ANSI_SQL", "SNOWFLAKE", "DATABRICKS", "TABLEAU"],
+          "description": "Expression language dialect"
+        },
+        "applies_to": {
+          "type": "object",
+          "properties": {
+            "metric": {
+              "type": "string",
+              "description": "Metric reference if filtering on aggregated data"
+            },
+            "attribute": {
+              "type": "string",
+              "description": "Attribute reference if filtering on row-level data"
+            },
+            "grain": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Dimensional grain for metric-based filters (e.g., ['customer', 'year'])"
+            }
+          }
+        }
+      }
+    },
+    
+    "ElementSelectionFilter": {
+      "type": "object",
+      "description": "Filter by selecting specific attribute elements",
+      "required": ["attribute"],
+      "properties": {
+        "attribute": {
+          "type": "string",
+          "description": "Reference to the attribute/dimension being filtered"
+        },
+        "selection_type": {
+          "type": "string",
+          "enum": ["include", "exclude"],
+          "default": "include",
+          "description": "Whether to include or exclude selected elements"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "boolean"}
+            ]
+          },
+          "description": "Specific element values (e.g., ['Germany', 'France'])"
+        },
+        "dynamic_selection": {
+          "type": "object",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "Dynamic expression to select elements (e.g., 'TOP 10 BY revenue')"
+            }
+          },
+          "description": "Alternative to static element list"
+        }
+      }
+    },
+    
+    "ObjectSelectionFilter": {
+      "type": "object",
+      "description": "Filter by selecting which metrics/attributes to display",
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": ["metric", "dimension", "attribute"],
+          "description": "Type of objects being selected"
+        },
+        "available_objects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of available object references"
+        },
+        "selected_objects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Currently selected object references"
+        },
+        "allow_multiple": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether multiple objects can be selected"
+        }
+      }
+    },
+    
+    "DateRangeFilter": {
+      "type": "object",
+      "description": "Time-based filter",
+      "properties": {
+        "date_attribute": {
+          "type": "string",
+          "description": "Reference to the date/time attribute"
+        },
+        "range_type": {
+          "type": "string",
+          "enum": ["absolute", "relative", "dynamic"],
+          "description": "Type of date range"
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start date for absolute ranges"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "End date for absolute ranges"
+        },
+        "relative_range": {
+          "type": "string",
+          "description": "Relative expression (e.g., 'LAST_30_DAYS', 'THIS_QUARTER')"
+        }
+      }
+    },
+    
+    "DateRange": {
+      "type": "object",
+      "properties": {
+        "start": {"type": "string", "format": "date-time"},
+        "end": {"type": "string", "format": "date-time"}
+      }
+    }
+    
+  },
+  
+  "properties": {
+    "dashboards": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Dashboard"},
+      "description": "Collection of dashboards in this semantic model"
+    }
+  }
+}

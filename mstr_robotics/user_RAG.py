@@ -289,7 +289,11 @@ class perplexity():
             json_t_cont = self.extract_json(json_t["choices"][0]["message"]["content"])
             json_t_cont_s = self.clean_json(json_t_cont)
 
-            json_t_cont_d = ast.literal_eval(json_t_cont_s)
+            try:
+                json_t_cont_d = ast.literal_eval(json_t_cont_s)
+            except:
+                json_t_cont_d = json.loads(json_t_cont_s)
+
 
             message_check_d["llm_msg"] = str(messages)
             message_check_d["llm_ans"] = json_t["choices"][0]["message"]["content"]

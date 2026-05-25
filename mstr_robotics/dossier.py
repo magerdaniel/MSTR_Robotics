@@ -171,7 +171,7 @@ class doss_read_out():
         selector_target_obj_d_l = []
         for s in page_j_l:
 
-            selector_d = chapt_page_d
+            selector_d = chapt_page_d.copy()
             selector_d["sel_filt_key"] = s["key"]
             selector_d["sel_filt_name"] = s["name"]
             selector_d["summary"] = s["summary"]
@@ -225,15 +225,43 @@ class doss_read_out():
 
         return selector_target_obj_d_l
 
-    def read_doss_hier_selectors(self,chapter_d,doss_filt_select_d):
-        chapt_page_select_d_l=[]
+    def read_viz_as_filter_selectors(self, page_d, chapt_page_d):
+        viz_sel_d_l = []
+        for v in page_d.get("visualizations", []):
+            if "selector" not in v:
+                continue
+            sel = v["selector"]
+            base_d = chapt_page_d.copy()
+            base_d["sel_filt_key"]       = v["key"]
+            base_d["sel_filt_name"]      = v["name"]
+            base_d["summary"]            = ""
+            base_d["selector_type"]      = sel["selectorType"]
+            base_d["display_style"]      = v["visualizationType"]
+            base_d["has_all_option"]     = False
+            base_d["target_object_id"]   = v["key"]
+            base_d["target_object_name"] = v["name"]
+            base_d["target_object_type"] = "visualization"
+            for t in sel.get("targets", []):
+                row = base_d.copy()
+                row["target_key"] = t["key"]
+                viz_sel_d_l.append(row)
+        return viz_sel_d_l
+
+    def read_doss_hier_selectors(self, chapter_d, doss_filt_select_d):
+        chapt_page_select_d_l = []
         for page_d in chapter_d["pages"]:
             doss_filt_select_d["page_key"] = page_d["key"]
             doss_filt_select_d["page_name"] = page_d["name"]
 
             if "selectors" in page_d.keys():
-                page_select_l=self.read_out_fil_selector(page_j_l=page_d["selectors"], chapt_page_d=doss_filt_select_d)
+                page_select_l = self.read_out_fil_selector(
+                    page_j_l=page_d["selectors"], chapt_page_d=doss_filt_select_d)
                 chapt_page_select_d_l.extend(page_select_l)
+
+            viz_sel_l = self.read_viz_as_filter_selectors(
+                page_d=page_d, chapt_page_d=doss_filt_select_d.copy())
+            chapt_page_select_d_l.extend(viz_sel_l)
+
         return chapt_page_select_d_l
 
 

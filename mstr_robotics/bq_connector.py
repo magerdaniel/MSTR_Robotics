@@ -87,12 +87,16 @@ def login_browser(oauth_client_secret_file: str = None) -> bigquery.Client:
     creds = _load_cached_token()
     if creds:
         from google.auth.transport.requests import Request
-        if creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            _save_token(creds)
-            print("[bq_connector] token refreshed from cache")
-        elif not creds.expired:
+        if not creds.expired:
             print("[bq_connector] using cached user token")
+        elif creds.refresh_token:
+            try:
+                creds.refresh(Request())
+                _save_token(creds)
+                print("[bq_connector] token refreshed from cache")
+            except Exception:
+                print("[bq_connector] refresh token expired — re-opening browser login")
+                creds = None   # force fresh browser login
         else:
             creds = None   # force re-login
 
