@@ -1,6 +1,7 @@
 import pandas as pd
 from mstr_robotics._connectors import mstr_api
 from mstr_robotics.read_out_prj_obj import read_report
+
 i_mstr_api=mstr_api()
 i_read_report=read_report()
 
@@ -14,14 +15,22 @@ class doss_read_out_det():
     #doss_filt_d_l = []
     #doss_filt_select_d_l = []
 
-
-
     def __init__(self):
         self.vis_obj_l = []
         self.load_d={}
 
-
-
+    def get_definition_and_results_of_visualization(self, conn, dossier_id, instance_id, chapter_key, vis_key):
+        # mstrio's documents.get_definition_and_results_of_visualization passes
+        # headers={'X-MSTR-ProjectID': None}, which strips the project header and
+        # causes a 403. Use get_dossier_detail from _connectors instead — same
+        # endpoint, correct headers.
+        return i_mstr_api.get_dossier_detail(
+            conn=conn,
+            dossier_id=dossier_id,
+            instance_id=instance_id,
+            chapter_key=chapter_key,
+            vis_id=vis_key,
+        )
 
     def read_out_vis_d(self,conn, vis_def_d):
         vis_d = {

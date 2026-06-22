@@ -13,7 +13,6 @@ from mstr_robotics.read_out_prj_obj import read_gen
 #from mstr_robotics.redis_db import redis_mstr_json
 from mstr_robotics.mstr_classes import mstr_global
 from mstr_robotics._helper import msic
-from mstr_robotics.mstr_classes import mstr_global
 
 
 import pandas as pd

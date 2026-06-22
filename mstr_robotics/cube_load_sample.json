@@ -1,0 +1,30 @@
+[
+  {
+    "project_id": "PROJECT_GUID",
+    "cube_id": "CUBE_A_GUID",
+    "run_any_time": "True"
+  },
+  {
+    "project_id": "PROJECT_GUID",
+    "cube_id": "CUBE_B_GUID",
+    "run_any_time": "True",
+    "follow_up": { "max_time_s": "30" }
+  },
+  {
+    "project_id": "PROJECT_GUID",
+    "cube_id": "CUBE_C_GUID",
+    "run_any_time": "True",
+    "follow_up": { "cube_id": "CUBE_D_GUID" }
+  },
+  {
+    "project_id": "PROJECT_GUID",
+    "cube_id": "CUBE_D_GUID",
+    "run_any_time": "False",
+    "follow_up": { "cube_id": "CUBE_E_GUID" }
+  },
+  {
+    "project_id": "PROJECT_GUID",
+    "cube_id": "CUBE_E_GUID",
+    "run_any_time": "False"
+  }
+]

@@ -508,6 +508,60 @@ class read_gen():
             mstr_ai_obj_group="UNKNOWN"
         return mstr_ai_obj_group
 
+    def get_obj_id_by_path(self, conn, path_str,
+                           top_folder_id="D3C7D461F69C4610AA6BAA5EF51F4125"):
+        """
+        Resolve a semicolon-separated MSTR folder path to its leaf object.
+
+        Parameters
+        ----------
+        conn               : MSTR connection
+        path_str           : segments separated by ' ; ', first segment must be
+                             'Shared Reports' (or another root whose GUID is
+                             passed via top_folder_id).
+                             Example:
+                             "Shared Reports ; MSTR_Robotics ; Ontologies ; Regional Marketing Ofensive 2024"
+        top_folder_id      : GUID of the root folder (default = Shared Reports)
+
+        Returns
+        -------
+        dict  { id, type, subtype, name }  of the resolved object,
+        or None if any segment along the path is not found.
+        """
+        segments = [s.strip() for s in path_str.split(";")]
+
+        # first segment is the known root — start traversal from its GUID
+        current_folder_id = top_folder_id
+        matched_obj = None
+
+        for segment in segments[1:]:
+            folder_contents = i_mstr_global.get_folder_obj_l(
+                conn=conn, folder_id=current_folder_id)
+
+            match = next(
+                (obj for obj in folder_contents if obj.get("name") == segment),
+                None,
+            )
+            if match is None:
+                return None
+
+            # shortcuts (type 18) point to their real target
+            if match.get("type") == 18:
+                match = match.get("target_info", match)
+
+            matched_obj        = match
+            current_folder_id  = match["id"]
+
+        if matched_obj is None:
+            return None
+
+        return {
+            "id":      matched_obj.get("id"),
+            "type":    matched_obj.get("type"),
+            "subtype": matched_obj.get("subtype"),
+            "name":    matched_obj.get("name"),
+        }
+
 
 class read_prompts():
 

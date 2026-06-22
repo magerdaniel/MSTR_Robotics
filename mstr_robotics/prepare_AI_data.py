@@ -517,7 +517,7 @@ class parse_json():
     
 class map_objects():
 
-    def zzz_get_doss_rep_prp(self,conn, object_l):
+    def get_doss_rep_prp(self,conn, object_l):
         prp_rep_l = []
         prp_rep_err_l = []
         for rep_dos in object_l:
