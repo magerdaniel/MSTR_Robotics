@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mstr-robotics"
+version = "0.5.0"
+description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG and OSI export."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Daniel Mager", email = "danielmager@gmx.de" }]
+dependencies = [
+    "mstrio-py>=11.6",
+    "pandas>=2.2",
+    "numpy>=2.0",
+    "requests>=2.31",
+    "PyYAML>=6.0",
+    "redis>=5.0",
+    "openai>=1.0",
+    "flashtext>=2.7",
+    "langchain-community>=0.3",
+    "faiss-cpu>=1.8",
+    "ruamel.yaml>=0.18",
+    "python-dotenv>=1.0",
+    "SQLAlchemy>=2.0",
+    "azure-storage-blob>=12.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+# Standalone servers (api_server.py, streamlit_app.py, MCP servers) — not needed for the notebooks.
+servers = [
+    "fastapi",
+    "uvicorn",
+    "httpx",
+    "mcp",
+    "streamlit",
+]
+# BigQuery connector (bq_connector.py) — not needed for the notebooks.
+bigquery = [
+    "google-cloud-bigquery",
+    "google-auth-oauthlib",
+]
+dev = [
+    "ruff",
+    "vulture",
+    "jupyter",
+]
+
+[tool.setuptools.packages.find]
+include = ["mstr_robotics*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [
+    ".venv",
+    "alt",
+    "Dansfiles",
+    "notebooks_BAK",
+    "notebooks_dev",
+    "OSI_Produktion",
+]
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: import sorting, N: pep8-naming, B: bugbear (mutable defaults etc.)
+select = ["E", "F", "W", "I", "N", "B"]
