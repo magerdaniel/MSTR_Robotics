@@ -5,7 +5,7 @@ import redis
 import json
 import os
 from mstr_robotics._helper import msic,str_func
-from mstr_robotics.prepare_AI_data import mstr_to_json
+from mstr_robotics.prepare_ai_data import mstr_to_json
 from mstr_robotics._connectors import mstr_api
 from mstr_robotics.read_out_prj_obj import read_gen
 from mstr_robotics.json_compare import json_checksum_handler

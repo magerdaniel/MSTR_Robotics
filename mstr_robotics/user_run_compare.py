@@ -4,7 +4,7 @@ import sys
 import os
 from pathlib import Path
 from mstr_robotics.report import cube
-from mstr_robotics.prepare_AI_data import parse_json
+from mstr_robotics.prepare_ai_data import parse_json
 from mstr_robotics.mstr_classes import mstr_global
 #from mstr_robotics.json_checksum_handler import json_checksum_handler
 from mstr_robotics.json_compare import JSONComparator,compare_mstr_objects
@@ -12,7 +12,7 @@ from mstr_robotics.read_out_prj_obj import read_gen
 from mstr_robotics.redis_db import  redis_bi_analysis
 from mstr_robotics._helper import msic
 from mstr_robotics._connectors import mstr_api
-from mstr_robotics.prepare_AI_data import export_mstr_md,mstr_to_json
+from mstr_robotics.prepare_ai_data import export_mstr_md,mstr_to_json
 from mstr_robotics.redis_db import redis_mstr_json
 from mstr_robotics.redis_db import fetch_it_all
 

@@ -9,7 +9,7 @@ import json
 import hashlib
 from pathlib import Path
 from mstr_robotics.read_out_prj_obj import read_gen
-#from mstr_robotics.prepare_AI_data import redis_mstr_json
+#from mstr_robotics.prepare_ai_data import redis_mstr_json
 #from mstr_robotics.redis_db import redis_mstr_json
 from mstr_robotics.mstr_classes import mstr_global
 from mstr_robotics._helper import msic

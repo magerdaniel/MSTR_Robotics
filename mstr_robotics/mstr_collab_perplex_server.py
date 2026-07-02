@@ -21,7 +21,7 @@ from mstrio.connection import Connection
 
 from mstr_robotics.navigation import answer_prompts, mstr_objects
 from mstr_robotics.report import rep as MstrRep, prompts
-from mstr_robotics.user_RAG import keyword_processor, perplexity
+from mstr_robotics.user_rag import keyword_processor, perplexity
 
 # ---------------------------------------------------------------------------
 # Static configuration

@@ -4,7 +4,7 @@ import json
 from mstr_robotics._connectors import mstr_api
 from mstrio.api import browsing
 from mstr_robotics.read_out_prj_obj import read_gen
-from mstr_robotics.user_RAG import perplexity
+from mstr_robotics.user_rag import perplexity
 from dotenv import load_dotenv
 from ruamel.yaml import YAML as RuamelYAML
 from ruamel.yaml.comments import CommentedMap
@@ -465,7 +465,7 @@ def add_ai_context(osi_d: dict, path: str, ai_context: str, out_path: str = None
 
     Examples
     --------
-    from mstr_robotics.osi_expoter.export_dashboard import add_ai_context
+    from mstr_robotics.osi_exporter.export_dashboard import add_ai_context
 
     # top-level semantic model
     add_ai_context(osi_d, "semantic_model", "Retail KPI model – brand & item analysis.")

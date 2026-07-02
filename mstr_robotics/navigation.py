@@ -3,7 +3,7 @@ import json
 from mstr_robotics.report import prompts,cube,rep
 from mstr_robotics.mstr_pandas import df_helper
 from mstr_robotics._helper import msic
-from mstr_robotics.prepare_AI_data import map_objects
+from mstr_robotics.prepare_ai_data import map_objects
 from mstr_robotics.read_out_prj_obj import read_gen
 import ast
 
