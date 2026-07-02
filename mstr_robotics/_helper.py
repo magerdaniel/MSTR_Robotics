@@ -1,14 +1,10 @@
-from sqlalchemy import text
-
-
 class StrFunc:
-
-    def web_base_url(self,base_url):
+    def web_base_url(self, base_url):
         url_start = base_url.split("/")  # Split by backslash
-        web_base_url=f'{url_start[0]+"//"+url_start[2]}/MicroStrategy/servlet/mstrWeb?'
+        web_base_url = f"{url_start[0] + '//' + url_start[2]}/MicroStrategy/servlet/mstrWeb?"
         return web_base_url
 
-    def get_server_base_url(self,base_url):
+    def get_server_base_url(self, base_url):
         url_parts = base_url.split("/")
         server = url_parts[2].split(":")
         return server[0]
@@ -17,7 +13,7 @@ class StrFunc:
         return project_name.replace(" ", "+")
 
     def rem_braket(self, exp):
-        if exp[:1] =="(":
+        if exp[:1] == "(":
             exp = exp.replace("(", "")
             exp = exp.replace(")", "")
         return exp
@@ -36,25 +32,25 @@ class StrFunc:
 
     def _rem_last_char(self, str_, i=1):
         return str_[:-i]
-    
-    def get_after_last_colon(self,str_):
-        return str_.rsplit(':', 1)[-1]
 
-    def replace_val_by_prefix(self,dict, prefix, obj_val):
+    def get_after_last_colon(self, str_):
+        return str_.rsplit(":", 1)[-1]
+
+    def replace_val_by_prefix(self, dict, prefix, obj_val):
         for key in list(dict.keys()):
             if key.startswith(prefix):
                 dict[key] = obj_val
-                dict[key[len(prefix):]] =dict.pop(key)
+                dict[key[len(prefix) :]] = dict.pop(key)
         return dict
-    
+
     # @logger
     def bld_mstr_obj_guid_sql_server(self, obj_md_id=None):
         # if you running your meta data on an MS SQL Server
         # object_id are stored in a strange way
-        #this function transforns it into
-        #a the orignal object string
-        #from: 2276AC06-7A55-473C-9AC4-35A4E28C8021
-        #to: 2276AC06473C7A55A435C49A21808CE2
+        # this function transforns it into
+        # a the orignal object string
+        # from: 2276AC06-7A55-473C-9AC4-35A4E28C8021
+        # to: 2276AC06473C7A55A435C49A21808CE2
         mstr_obj_guid = obj_md_id[0:8]
         mstr_obj_guid += obj_md_id[14:18]
         mstr_obj_guid += obj_md_id[9:13]
@@ -69,7 +65,7 @@ class StrFunc:
         return mstr_obj_guid
 
     def bld_mstr_obj_md_guid(self, obj_md_id=None):
-        #transforms an object_guid into SQL Server unique string
+        # transforms an object_guid into SQL Server unique string
         # in the MSTR MD, for what ever reason, they're changin
         # 35F616224B5A80B5 FDCA6BA77BC799F9
         # ist: '35F61622-4B5A-80B5-FD-CA-6B-A7-C7-99-F9
@@ -89,30 +85,30 @@ class StrFunc:
 
         return mstr_obj_guid
 
-class Misc():
 
-    def get_dict_with_id_in_l(self,dict_l,search_l,key="id"):
-        #this function extracts dicts within in a list
-        #where a (key)- column is an element
-        #of the list search_l
+class Misc:
+    def get_dict_with_id_in_l(self, dict_l, search_l, key="id"):
+        # this function extracts dicts within in a list
+        # where a (key)- column is an element
+        # of the list search_l
         new_dict_l = []
         for d in dict_l:
             if d[key] in search_l:
                 new_dict_l.append(d)
         return new_dict_l
 
-    def get_obj_id_by_type_l(self,dict_l, obj_type_l):
+    def get_obj_id_by_type_l(self, dict_l, obj_type_l):
         obj_type_l = self.get_dict_with_id_in_l(dict_l=dict_l, search_l=obj_type_l, key="type")
         obj_id_l = self.get_key_form_dict_l(dict_l=obj_type_l, key="id")
         return obj_id_l
 
-    def get_key_form_dict_l(self,dict_l,key="id"):
-        #if you communicating over REST with MSTR, you of often
-        #get list of dictionary, where you only need the object_id's.
-        #this function parses the id values and returns the as a list
-        key_l=[]
+    def get_key_form_dict_l(self, dict_l, key="id"):
+        # if you communicating over REST with MSTR, you of often
+        # get list of dictionary, where you only need the object_id's.
+        # this function parses the id values and returns the as a list
+        key_l = []
         for d in dict_l:
-           key_l.append(d[key])
+            key_l.append(d[key])
         return key_l
 
     def select_dict_cols(self, original_dict, keys_list):
@@ -122,15 +118,15 @@ class Misc():
                 filtered_dict[key] = value
         return filtered_dict
 
-    def get_comon_val_l(self,list_1,list_2):
-       #return list(set(list_1).intersection(list_2))
+    def get_comon_val_l(self, list_1, list_2):
+        # return list(set(list_1).intersection(list_2))
         matches = []
         for item in list_1:
-           if item in list_2:
-               matches.append(item)
+            if item in list_2:
+                matches.append(item)
         return matches
 
-    def keep_cols_from_dict_l(self,list_l,keep_cols):
+    def keep_cols_from_dict_l(self, list_l, keep_cols):
         clean_l = []
         for e in list_l:
             new_d = {}
@@ -140,11 +136,11 @@ class Misc():
             clean_l.append(new_d.copy())
         return clean_l
 
-    def list_to_dict(self,list_in_l, col_l):
-        #merge do lists into one dict
-        #col_l are gonne be the keys
-        #the elements of list_in_l are the values
-        #matchin criteria is the order
+    def list_to_dict(self, list_in_l, col_l):
+        # merge do lists into one dict
+        # col_l are gonne be the keys
+        # the elements of list_in_l are the values
+        # matchin criteria is the order
         dict_l = []
         dict_d = {}
         for row in list_in_l:
@@ -155,52 +151,52 @@ class Misc():
             dict_l.append(dict_d.copy())
         return dict_l
 
-    def get_vals_from_dict_l(self,dict_l, key="id",value_col="value"):
+    def get_vals_from_dict_l(self, dict_l, key="id", value_col="value"):
         val_l = []
         for d in dict_l:
             val_l.append(d[value_col])
         return val_l
 
-    def add_prefix_to_dict_keys(self,dict, dpn_prefix, dict_cols= []):
-        #adds a prefix to the keys of a dict
+    def add_prefix_to_dict_keys(self, dict, dpn_prefix, dict_cols=None):
+        # adds a prefix to the keys of a dict
         # use case here is to distinct i.e. between the object_id and the depn_object_id
+        if dict_cols is None:
+            dict_cols = []
         new_dict = {}
-        include=0
-        if dpn_prefix==None:
+        include = 0
+        if dpn_prefix is None:
             return dict
         for key, value in dict.items():
-            if dict_cols==[]:
-                include=1
+            if dict_cols == []:
+                include = 1
 
             if key in dict_cols:
                 include = 1
 
-            if include==1:
-               new_key = dpn_prefix + key
-               new_dict[new_key] = value
+            if include == 1:
+                new_key = dpn_prefix + key
+                new_dict[new_key] = value
 
         return new_dict
 
-    def rem_dbl_dict_in_l (self,dict_l):
+    def rem_dbl_dict_in_l(self, dict_l):
 
         tuple_l = set(tuple(sorted(d.items())) for d in dict_l)
         unique_dict_l = [dict(t) for t in tuple_l]
 
         return unique_dict_l
-    
-    def get_key_from_dict(self,dict,val):
+
+    def get_key_from_dict(self, dict, val):
         for k in dict.keys():
-            if dict[k]==val:
+            if dict[k] == val:
                 return k
 
-    def list_elements_to_str(self,list_l):
+    def list_elements_to_str(self, list_l):
         return [str(element) for element in list_l]
 
-    def rem_dbl_in_l(self,list_l):
+    def rem_dbl_in_l(self, list_l):
         list_l = list(set(list_l))
         return list_l
 
-    def sort_dict_by_key_in_l(self,dict_l,sort_key, reverse=False):
+    def sort_dict_by_key_in_l(self, dict_l, sort_key, reverse=False):
         return sorted(dict_l, key=lambda x: x.get(sort_key, None), reverse=reverse)
-
-

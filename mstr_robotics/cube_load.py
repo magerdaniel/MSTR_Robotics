@@ -4,8 +4,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
-_BIT_LOADED     = 0x01   # EnumDSSCubeStates: cube is in memory
-_BIT_REFRESHING = 0x08   # EnumDSSCubeStates: publish in progress
+_BIT_LOADED = 0x01  # EnumDSSCubeStates: cube is in memory
+_BIT_REFRESHING = 0x08  # EnumDSSCubeStates: publish in progress
 
 
 def _proj_header(project_id: str) -> dict:
@@ -53,8 +53,9 @@ def _run_chain(conn, item, index, poll_interval_s) -> list[dict]:
 
         # chain to the follow-up only if this cube finished cleanly
         next_id = follow_up.get("cube_id")
-        item = index.get(next_id, {"cube_id": next_id, "project_id": project_id}) \
-            if status == "done" and next_id else None
+        item = (
+            index.get(next_id, {"cube_id": next_id, "project_id": project_id}) if status == "done" and next_id else None
+        )
     return results
 
 
@@ -76,50 +77,47 @@ def handle_cube_load(conn, execution_list, max_cube_parallel=10, poll_interval_s
     Status values: 'done', 'failed', 'timeout', 'publish_failed'
     """
     index = {str(item["cube_id"]): item for item in execution_list}
-    immediate = [item for item in execution_list
-                 if str(item.get("run_any_time", "True")).strip().lower() == "true"]
+    immediate = [item for item in execution_list if str(item.get("run_any_time", "True")).strip().lower() == "true"]
 
     if not immediate:
         logger.warning("No cubes with run_any_time=True — nothing to execute.")
         return []
 
-    with ThreadPoolExecutor(max_workers=max_cube_parallel,
-                            thread_name_prefix="cube_load") as executor:
-        chains = [executor.submit(_run_chain, conn, item, index, poll_interval_s)
-                  for item in immediate]
+    with ThreadPoolExecutor(max_workers=max_cube_parallel, thread_name_prefix="cube_load") as executor:
+        chains = [executor.submit(_run_chain, conn, item, index, poll_interval_s) for item in immediate]
         return [result for future in chains for result in future.result()]
-    
 
-if __name__=="__main__":
-    load_json_d_l=[
-  {
-    "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
-    "cube_id": "C751D2654E00039F8F2EA2886E3255B4",
-    "run_any_time": "True"
-  },
-  {
-    "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
-    "cube_id": "FCD44FCF44541D9632056DAC1814A1FC",
-    "run_any_time": "True",
-    "follow_up": { "max_time_s": "30" }
-  },
-  {
-    "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
-    "cube_id": "604A34174813EB0FDBE256B49D0EEC76",
-    "run_any_time": "True",
-    "follow_up": { "cube_id": "0287179B4CB6C203D21CC7BEE0371409" }
-  },
-  {
-    "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
-    "cube_id": "0287179B4CB6C203D21CC7BEE0371409",
-    "run_any_time": "False",
-    "follow_up": { "cube_id": "4701E4F54E94022FDFF369A81DB726C7" }
-  },
-  {
-    "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
-    "cube_id": "4701E4F54E94022FDFF369A81DB726C7",
-    "run_any_time": "False"
-  }
-]
+
+if __name__ == "__main__":
+    load_json_d_l = [
+        {
+            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "cube_id": "C751D2654E00039F8F2EA2886E3255B4",
+            "run_any_time": "True",
+        },
+        {
+            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "cube_id": "FCD44FCF44541D9632056DAC1814A1FC",
+            "run_any_time": "True",
+            "follow_up": {"max_time_s": "30"},
+        },
+        {
+            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "cube_id": "604A34174813EB0FDBE256B49D0EEC76",
+            "run_any_time": "True",
+            "follow_up": {"cube_id": "0287179B4CB6C203D21CC7BEE0371409"},
+        },
+        {
+            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "cube_id": "0287179B4CB6C203D21CC7BEE0371409",
+            "run_any_time": "False",
+            "follow_up": {"cube_id": "4701E4F54E94022FDFF369A81DB726C7"},
+        },
+        {
+            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "cube_id": "4701E4F54E94022FDFF369A81DB726C7",
+            "run_any_time": "False",
+        },
+    ]
 
 handle_cube_load(load_json_d_l)

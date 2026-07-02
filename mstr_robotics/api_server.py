@@ -1,12 +1,13 @@
-import httpx
-import sys
 import asyncio
-from fastapi import FastAPI
-from pydantic import BaseModel
+import sys
+
 import uvicorn
+from fastapi import FastAPI
 from mcp.server.fastmcp import FastMCP
-from mstr_robotics import user_run_compare
 from mstrio.connection import Connection
+from pydantic import BaseModel
+
+from mstr_robotics import user_run_compare
 
 mcp = FastMCP("poke")
 
@@ -21,14 +22,15 @@ ARG_PARAMETER_INDEX = 3
 # Minimum argument count to have a mode
 MIN_ARGS_WITH_MODE = 2
 
+
 # --- Tool: List popular Pokémon ---
 @mcp.tool()
 async def list_popular_pokemon(test_string: str) -> str:
     """List popular tournament-ready Pokémon."""
-    return "\n".join([test_string,
-        "Charizard", "Garchomp", "Lucario",
-        "Dragonite", "Metagross", "Gardevoir","danTheMan"
-    ])
+    return "\n".join(
+        [test_string, "Charizard", "Garchomp", "Lucario", "Dragonite", "Metagross", "Gardevoir", "danTheMan"]
+    )
+
 
 # --- Entry point ---
 if __name__ == "__main__":
@@ -46,6 +48,7 @@ if __name__ == "__main__":
 
         app = FastAPI(title="MSTR_ROBOTICS_MCP")
         user_connections = {}
+
         class LoginRequest(BaseModel):
             session_id: str
             conn_params: dict
@@ -54,15 +57,15 @@ if __name__ == "__main__":
         async def login(request: LoginRequest):
             """Initialize connection with user credentials"""
             try:
-                #print(request.conn_params)
+                # print(request.conn_params)
                 conn = Connection(**request.conn_params)
-                conn.headers['Content-type'] = "application/json"
+                conn.headers["Content-type"] = "application/json"
                 print(conn.headers)
                 user_connections[request.session_id] = {
                     "conn": conn,
                     "conn_params": request.conn_params,
                     "redis_config": None,
-                    "selected_redis_env": None
+                    "selected_redis_env": None,
                 }
                 return {"result": "Connection established", "session_id": request.session_id}
             except Exception as e:
@@ -87,7 +90,7 @@ if __name__ == "__main__":
                 return {
                     "result": "Redis configuration stored",
                     "session_id": request.session_id,
-                    "selected_env": request.selected_env
+                    "selected_env": request.selected_env,
                 }
             except Exception as e:
                 return {"error": str(e)}
@@ -101,12 +104,12 @@ if __name__ == "__main__":
                 return {"result": "Session closed"}
             return {"error": "Session not found"}
 
-        class comparison_run(BaseModel):
+        class ComparisonRun(BaseModel):
             session_id: str
             play_compare_d: dict
 
         @app.post("/run_comparison")
-        async def run_comparison(request: comparison_run):
+        async def run_comparison(request: ComparisonRun):
             if request.session_id not in user_connections:
                 return {"error": "Not logged in. Please call /login first"}
 
@@ -118,9 +121,7 @@ if __name__ == "__main__":
             # Create run_compare instance with Redis config if available
             if redis_config and selected_redis_env:
                 i_user_run_compare = user_run_compare.RunCompare(
-                    conn=conn,
-                    redis_config=redis_config,
-                    selected_redis_env=selected_redis_env
+                    conn=conn, redis_config=redis_config, selected_redis_env=selected_redis_env
                 )
             else:
                 # Fallback to default behavior (loads from file)

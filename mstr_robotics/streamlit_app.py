@@ -1,39 +1,43 @@
+import json
+import os
+import uuid
+from pathlib import Path
+
+import pandas as pd
+import requests
 import streamlit as st
 import yaml
-from mstr_robotics.redis_db import RedisBiAnalysis
-from mstr_robotics.json_compare import JSONPathHelper, JSONFilterUtils, remove_after_last_dot_if_bracket
-import requests
-import uuid
-import json
-import pandas as pd
-import os
-from pathlib import Path
 from dotenv import load_dotenv
+
+from mstr_robotics.json_compare import JSONFilterUtils, JSONPathHelper, remove_after_last_dot_if_bracket
+from mstr_robotics.redis_db import RedisBiAnalysis
 
 # ==================== CONFIGURATION ====================
 
 # Load environment variables from config/streamlit.env
-config_dir = Path(__file__).parent.parent / 'config'
-env_file = config_dir / 'streamlit.env'
+config_dir = Path(__file__).parent.parent / "config"
+env_file = config_dir / "streamlit.env"
 if env_file.exists():
     load_dotenv(env_file)
+
 
 # Configuration with fallback defaults
 class StreamlitConfig:
     """Centralized configuration for Streamlit app"""
 
     # API Server
-    API_SERVER_HOST = os.getenv('API_SERVER_HOST', 'localhost')
-    API_SERVER_PORT = os.getenv('API_SERVER_PORT', '8000')
-    API_SERVER_BASE_URL = os.getenv('API_SERVER_BASE_URL', f'http://{API_SERVER_HOST}:{API_SERVER_PORT}')
+    API_SERVER_HOST = os.getenv("API_SERVER_HOST", "localhost")
+    API_SERVER_PORT = os.getenv("API_SERVER_PORT", "8000")
+    API_SERVER_BASE_URL = os.getenv("API_SERVER_BASE_URL", f"http://{API_SERVER_HOST}:{API_SERVER_PORT}")
 
     # MicroStrategy
-    MSTR_BASE_URL = os.getenv('MSTR_BASE_URL', 'http://217.154.213.84:8080/MicroStrategyLibrary/api')
-    MSTR_USERNAME = os.getenv('MSTR_USERNAME', 'Administrator')
-    MSTR_PASSWORD = os.getenv('MSTR_PASSWORD', '[REMOVED-PASSWORD]')
+    MSTR_BASE_URL = os.getenv("MSTR_BASE_URL", "http://217.154.213.84:8080/MicroStrategyLibrary/api")
+    MSTR_USERNAME = os.getenv("MSTR_USERNAME", "Administrator")
+    MSTR_PASSWORD = os.getenv("MSTR_PASSWORD", "[REMOVED-PASSWORD]")
 
     # Default Object Loader
-    DEFAULT_REDIS_KEY = os.getenv('DEFAULT_REDIS_KEY', 'DOCUMENT_DEFINITION:98EB31B54122FFB738E6E08A2F29421A')
+    DEFAULT_REDIS_KEY = os.getenv("DEFAULT_REDIS_KEY", "DOCUMENT_DEFINITION:98EB31B54122FFB738E6E08A2F29421A")
+
 
 # ==================== UTILITY CLASSES ====================
 
@@ -49,16 +53,18 @@ class UIComponents:
         col_button, col_label, col_slider = st.columns([1, 1, 3])
 
         with col_button:
-            if st.button("📄 Show Complete", help="Reload objects and display complete definition", use_container_width=True):
+            if st.button(
+                "📄 Show Complete", help="Reload objects and display complete definition", use_container_width=True
+            ):
                 # Clear all session state objects and navigation to force reload
-                if 'org_obj_def' in st.session_state:
+                if "org_obj_def" in st.session_state:
                     del st.session_state.org_obj_def
-                if 'comp_obj_def' in st.session_state:
+                if "comp_obj_def" in st.session_state:
                     del st.session_state.comp_obj_def
                 st.session_state.path = []
-                if 'selected_diff_paths' in st.session_state:
+                if "selected_diff_paths" in st.session_state:
                     st.session_state.selected_diff_paths = []
-                if 'selected_diff_types' in st.session_state:
+                if "selected_diff_types" in st.session_state:
                     st.session_state.selected_diff_types = []
                 # Set flag to trigger auto-reload
                 st.session_state.auto_reload_requested = True
@@ -75,28 +81,26 @@ class UIComponents:
                 value=st.session_state.expand_depth,
                 key="expand_depth",
                 label_visibility="collapsed",
-                help="Controls how many levels deep the JSON is expanded. 0=collapsed, 5=deeply expanded. Both viewers will sync to this depth."
+                help="Controls how many levels deep the JSON is expanded. 0=collapsed, 5=deeply expanded. Both viewers will sync to this depth.",
             )
 
     @staticmethod
     def render_manual_path_input(org_obj_def, comp_obj_def):
         """Render manual path input section"""
-        st.write("Enter a comma-separated path (e.g., `advancedProperties, drillOptions, drillingEnableReportDrilling`)")
+        st.write(
+            "Enter a comma-separated path (e.g., `advancedProperties, drillOptions, drillingEnableReportDrilling`)"
+        )
 
         col_input, col_buttons = st.columns([3, 1])
 
         with col_input:
-            path_input = st.text_input(
-                "Path:",
-                placeholder="key1, key2, key3",
-                label_visibility="collapsed"
-            )
+            path_input = st.text_input("Path:", placeholder="key1, key2, key3", label_visibility="collapsed")
 
         with col_buttons:
             if st.button("Navigate to Path", use_container_width=True):
                 if path_input:
                     # Parse the path
-                    new_path = [p.strip() for p in path_input.split(',')]
+                    new_path = [p.strip() for p in path_input.split(",")]
                     # Try to convert numeric strings to integers for list indices
                     parsed_path = []
                     for p in new_path:
@@ -125,7 +129,7 @@ class UIComponents:
         with depth_col1:
             st.write("**Structure Discovery Depth:**")
         with depth_col2:
-            if 'structure_depth' not in st.session_state:
+            if "structure_depth" not in st.session_state:
                 st.session_state.structure_depth = 3
             structure_depth = st.number_input(
                 "Depth",
@@ -134,7 +138,7 @@ class UIComponents:
                 value=st.session_state.structure_depth,
                 key="structure_depth_input",
                 label_visibility="collapsed",
-                help="How deep to search in JSON structure (1-6 levels)"
+                help="How deep to search in JSON structure (1-6 levels)",
             )
         return structure_depth
 
@@ -175,12 +179,12 @@ class ThreeLevelNavigator:
 
     def _init_session_state(self):
         """Initialize session state variables"""
-        if f'{self.key_prefix}_category_index' not in st.session_state:
-            st.session_state[f'{self.key_prefix}_category_index'] = 0
-        if f'{self.key_prefix}_subcategory_index' not in st.session_state:
-            st.session_state[f'{self.key_prefix}_subcategory_index'] = 0
-        if f'{self.key_prefix}_path_index' not in st.session_state:
-            st.session_state[f'{self.key_prefix}_path_index'] = 0
+        if f"{self.key_prefix}_category_index" not in st.session_state:
+            st.session_state[f"{self.key_prefix}_category_index"] = 0
+        if f"{self.key_prefix}_subcategory_index" not in st.session_state:
+            st.session_state[f"{self.key_prefix}_subcategory_index"] = 0
+        if f"{self.key_prefix}_path_index" not in st.session_state:
+            st.session_state[f"{self.key_prefix}_path_index"] = 0
 
     def _render_level_selector(self, label, options, current_index, button_prefix, allow_blank=True):
         """Render a single level with up/down buttons and selectbox"""
@@ -196,10 +200,10 @@ class ThreeLevelNavigator:
             col_up, col_down = st.columns(2)
             with col_up:
                 if st.button("⬆️", key=f"{button_prefix}_up", help=f"Previous {label}", use_container_width=True):
-                    return (current_index - 1) % len(display_options), 'up'
+                    return (current_index - 1) % len(display_options), "up"
             with col_down:
                 if st.button("⬇️", key=f"{button_prefix}_down", help=f"Next {label}", use_container_width=True):
-                    return (current_index + 1) % len(display_options), 'down'
+                    return (current_index + 1) % len(display_options), "down"
 
         with col_select:
             selected = st.selectbox(
@@ -207,17 +211,17 @@ class ThreeLevelNavigator:
                 options=display_options,
                 index=current_index,
                 key=f"{button_prefix}_selector",
-                label_visibility="collapsed"
+                label_visibility="collapsed",
             )
             if selected:
                 new_index = display_options.index(selected)
                 if new_index != current_index:
-                    return new_index, 'select'
+                    return new_index, "select"
             elif selected == "":
                 # Blank option selected
                 new_index = 0
                 if new_index != current_index:
-                    return new_index, 'select'
+                    return new_index, "select"
 
         return current_index, None
 
@@ -231,14 +235,14 @@ class ThreeLevelNavigator:
         for item in category_items:
             # Handle both tuple (path, label) and string path
             path_str = item[0] if isinstance(item, tuple) else item
-            parts = path_str.split('.')
+            parts = path_str.split(".")
 
             # Track level 1 path
             level_1 = parts[0]
             level_1_items.add(level_1)
 
             if len(parts) >= 2:
-                subcat = '.'.join(parts[:2])
+                subcat = ".".join(parts[:2])
             else:
                 subcat = parts[0]
 
@@ -269,7 +273,7 @@ class ThreeLevelNavigator:
         path_strings = [p[0] if is_tuple_format else p for p in paths]
 
         # Extract level 1 and level 2 components
-        parts = subcategory.split('.')
+        parts = subcategory.split(".")
         level_1 = parts[0]
 
         # Check if level 1 path exists in level 3
@@ -296,20 +300,20 @@ class ThreeLevelNavigator:
 
         # Level 1: Category (with blank option)
         categories = [""] + list(self.data_dict.keys())
-        cat_index = st.session_state[f'{self.key_prefix}_category_index']
+        cat_index = st.session_state[f"{self.key_prefix}_category_index"]
 
         new_cat_index, action = self._render_level_selector(
             "Level 1", categories, cat_index, f"{self.key_prefix}_cat", allow_blank=False
         )
 
         if action:
-            st.session_state[f'{self.key_prefix}_category_index'] = new_cat_index
-            st.session_state[f'{self.key_prefix}_subcategory_index'] = 0
-            st.session_state[f'{self.key_prefix}_path_index'] = 0
-            if action in ['up', 'down']:
+            st.session_state[f"{self.key_prefix}_category_index"] = new_cat_index
+            st.session_state[f"{self.key_prefix}_subcategory_index"] = 0
+            st.session_state[f"{self.key_prefix}_path_index"] = 0
+            if action in ["up", "down"]:
                 st.rerun()
 
-        category = categories[st.session_state[f'{self.key_prefix}_category_index']]
+        category = categories[st.session_state[f"{self.key_prefix}_category_index"]]
 
         # If blank selected at level 1, stop here
         if not category or category == "":
@@ -318,19 +322,19 @@ class ThreeLevelNavigator:
         # Level 2: Subcategory (with blank option)
         subcategories = self._group_by_second_level(self.data_dict[category])
         subcat_keys = [""] + list(subcategories.keys())
-        subcat_index = st.session_state[f'{self.key_prefix}_subcategory_index']
+        subcat_index = st.session_state[f"{self.key_prefix}_subcategory_index"]
 
         new_subcat_index, action = self._render_level_selector(
             "Level 2", subcat_keys, subcat_index, f"{self.key_prefix}_subcat", allow_blank=False
         )
 
         if action:
-            st.session_state[f'{self.key_prefix}_subcategory_index'] = new_subcat_index
-            st.session_state[f'{self.key_prefix}_path_index'] = 0
-            if action in ['up', 'down']:
+            st.session_state[f"{self.key_prefix}_subcategory_index"] = new_subcat_index
+            st.session_state[f"{self.key_prefix}_path_index"] = 0
+            if action in ["up", "down"]:
                 st.rerun()
 
-        subcategory = subcat_keys[st.session_state[f'{self.key_prefix}_subcategory_index']]
+        subcategory = subcat_keys[st.session_state[f"{self.key_prefix}_subcategory_index"]]
 
         # If blank selected at level 2, return the category path
         if not subcategory or subcategory == "":
@@ -338,7 +342,7 @@ class ThreeLevelNavigator:
 
         # Level 3: Paths (with blank option)
         paths = subcategories[subcategory]
-        path_index = st.session_state[f'{self.key_prefix}_path_index']
+        path_index = st.session_state[f"{self.key_prefix}_path_index"]
 
         # Ensure level 2 path exists in level 3 paths
         paths = self._ensure_parent_paths_in_level3(paths, subcategory)
@@ -360,8 +364,8 @@ class ThreeLevelNavigator:
         )
 
         if action:
-            st.session_state[f'{self.key_prefix}_path_index'] = new_path_index
-            if action in ['up', 'down']:
+            st.session_state[f"{self.key_prefix}_path_index"] = new_path_index
+            if action in ["up", "down"]:
                 # Auto-navigate when using arrows
                 selected_item = paths[new_path_index]
                 if selected_item:
@@ -369,7 +373,7 @@ class ThreeLevelNavigator:
                 else:
                     return None
 
-        st.session_state[f'{self.key_prefix}_path_index'] = new_path_index
+        st.session_state[f"{self.key_prefix}_path_index"] = new_path_index
 
         # Return selected path (for Go button)
         if path_index < len(paths) and paths[path_index]:
@@ -386,6 +390,7 @@ class ThreeLevelNavigator:
 
 # ==================== MANAGER CLASSES ====================
 
+
 class RedisManager:
     """Handles Redis connection and data operations"""
 
@@ -394,10 +399,11 @@ class RedisManager:
         """Load Redis configuration from YAML file"""
         try:
             import os
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            config_path = os.path.join(os.path.dirname(script_dir), 'config', 'mstr_redis_y.yml')
 
-            with open(config_path, 'r') as openfile:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            config_path = os.path.join(os.path.dirname(script_dir), "config", "mstr_redis_y.yml")
+
+            with open(config_path, "r") as openfile:
                 return yaml.safe_load(openfile)
         except Exception as e:
             st.error(f"Error loading config: {e}")
@@ -412,7 +418,7 @@ class RedisManager:
                 port=redis_con_d["port"],
                 password=redis_con_d["password"],
                 username=redis_con_d["username"],
-                decode_responses=redis_con_d["decode_responses"]
+                decode_responses=redis_con_d["decode_responses"],
             )
             return i_redis
         except Exception as e:
@@ -468,40 +474,29 @@ class ComparisonManager:
         playbook_d = None
         if uploaded_file is not None:
             file_name = uploaded_file.name
-            file_extension = file_name.split('.')[-1].lower()
+            file_extension = file_name.split(".")[-1].lower()
             file_content = uploaded_file.read()
 
-            if file_extension in ['yaml', 'yml']:
+            if file_extension in ["yaml", "yml"]:
                 playbook_d = yaml.safe_load(file_content)
-            elif file_extension == 'json':
+            elif file_extension == "json":
                 playbook_d = json.loads(file_content)
 
-        conn_params = {
-            "username": username,
-            "password": password,
-            "base_url": base_url
-        }
+        conn_params = {"username": username, "password": password, "base_url": base_url}
         session_id = str(uuid.uuid4())
         api_base_url = StreamlitConfig.API_SERVER_BASE_URL
 
         # Login to MSTR
-        requests.post(f"{api_base_url}/login", json={
-            "session_id": session_id,
-            "conn_params": conn_params
-            }
-        )
+        requests.post(f"{api_base_url}/login", json={"session_id": session_id, "conn_params": conn_params})
 
         # Connect to Redis
-        requests.post(f"{api_base_url}/connect_redis", json={
-            "session_id": session_id,
-            "redis_config": redis_config,
-            "selected_env": selected_redis_env
-            }
+        requests.post(
+            f"{api_base_url}/connect_redis",
+            json={"session_id": session_id, "redis_config": redis_config, "selected_env": selected_redis_env},
         )
 
-        response = requests.post(f"{api_base_url}/run_comparison",
-            json={"session_id": session_id,
-                  "play_compare_d": playbook_d}
+        response = requests.post(
+            f"{api_base_url}/run_comparison", json={"session_id": session_id, "play_compare_d": playbook_d}
         )
 
         differences = response.json()
@@ -516,14 +511,14 @@ class ComparisonManager:
         st.session_state.found_differences = []
         st.session_state.found_differences = differences_list["result"]
 
-        if 'selected_diff_key' in st.session_state:
+        if "selected_diff_key" in st.session_state:
             del st.session_state.selected_diff_key
 
-        if 'temp_redis_key' in st.session_state:
+        if "temp_redis_key" in st.session_state:
             del st.session_state.temp_redis_key
-        if 'temp_diff_paths' in st.session_state:
+        if "temp_diff_paths" in st.session_state:
             del st.session_state.temp_diff_paths
-        if 'selected_diff_paths' in st.session_state:
+        if "selected_diff_paths" in st.session_state:
             del st.session_state.selected_diff_paths
 
 
@@ -539,18 +534,18 @@ class DifferencesRenderer:
         """
         uploaded_config_file = st.file_uploader(
             "Upload Redis Configuration (mstr_redis_y.yml):",
-            type=['yml', 'yaml', 'json'],
-            help="Upload the mstr_redis_y.yml file containing Redis environment configurations"
+            type=["yml", "yaml", "json"],
+            help="Upload the mstr_redis_y.yml file containing Redis environment configurations",
         )
 
         if uploaded_config_file is not None:
             try:
-                file_extension = uploaded_config_file.name.split('.')[-1].lower()
+                file_extension = uploaded_config_file.name.split(".")[-1].lower()
                 file_content = uploaded_config_file.read()
 
-                if file_extension in ['yaml', 'yml']:
+                if file_extension in ["yaml", "yml"]:
                     redis_config = yaml.safe_load(file_content)
-                elif file_extension == 'json':
+                elif file_extension == "json":
                     redis_config = json.loads(file_content)
                 else:
                     st.error("Unsupported file format")
@@ -570,7 +565,7 @@ class DifferencesRenderer:
                 return None
 
         # Return previously uploaded config from session state
-        return st.session_state.get('uploaded_redis_config', None)
+        return st.session_state.get("uploaded_redis_config", None)
 
     @staticmethod
     def render_redis_environment_selector(redis_config):
@@ -614,31 +609,20 @@ class DifferencesRenderer:
         st.subheader("Run Comparison")
 
         uploaded_file = st.file_uploader(
-            "Upload comparison file:",
-            type=None,
-            help="Upload a file for comparison analysis"
+            "Upload comparison file:", type=None, help="Upload a file for comparison analysis"
         )
 
         base_url = st.text_input(
-            "Base URL:",
-            value=StreamlitConfig.MSTR_BASE_URL,
-            placeholder="Enter MicroStrategy API base URL"
+            "Base URL:", value=StreamlitConfig.MSTR_BASE_URL, placeholder="Enter MicroStrategy API base URL"
         )
 
         col_user, col_pass = st.columns(2)
         with col_user:
-            username = st.text_input(
-                "Username:",
-                value=StreamlitConfig.MSTR_USERNAME,
-                placeholder="Enter username"
-            )
+            username = st.text_input("Username:", value=StreamlitConfig.MSTR_USERNAME, placeholder="Enter username")
 
         with col_pass:
             password = st.text_input(
-                "Password:",
-                value=StreamlitConfig.MSTR_PASSWORD,
-                type="password",
-                placeholder="Enter password"
+                "Password:", value=StreamlitConfig.MSTR_PASSWORD, type="password", placeholder="Enter password"
             )
 
         return uploaded_file, username, password, base_url
@@ -668,9 +652,9 @@ class DifferencesRenderer:
     @staticmethod
     def render_found_differences_row(idx, item):
         """Render a single row in the found differences table"""
-        obj_key = item['org_obj_key']
-        diff_paths = item['json_key_path']
-        no_number_paths = item.get('no_number_path', diff_paths)
+        obj_key = item["org_obj_key"]
+        diff_paths = item["json_key_path"]
+        no_number_paths = item.get("no_number_path", diff_paths)
         diff_count = len(diff_paths)
 
         if diff_count <= 3:
@@ -699,9 +683,9 @@ class DifferencesRenderer:
             redis_key = obj_key
 
         # Purge existing form values
-        if 'org_obj_def' in st.session_state:
+        if "org_obj_def" in st.session_state:
             del st.session_state.org_obj_def
-        if 'comp_obj_def' in st.session_state:
+        if "comp_obj_def" in st.session_state:
             del st.session_state.comp_obj_def
 
         st.session_state.path = []
@@ -710,7 +694,11 @@ class DifferencesRenderer:
 
         # Reset navigator indices
         for key in list(st.session_state.keys()):
-            if key.startswith('diff_category_index') or key.startswith('diff_subcategory_index') or key.startswith('diff_path_index'):
+            if (
+                key.startswith("diff_category_index")
+                or key.startswith("diff_subcategory_index")
+                or key.startswith("diff_path_index")
+            ):
                 del st.session_state[key]
 
         # Set session state and trigger auto-load
@@ -742,9 +730,7 @@ class DifferencesRenderer:
                 load_clicked = DifferencesRenderer.render_found_differences_row(idx, item)
                 if load_clicked:
                     DifferencesRenderer.handle_load_difference(
-                        item['org_obj_key'],
-                        item['json_key_path'],
-                        item.get('diff_types', [])
+                        item["org_obj_key"], item["json_key_path"], item.get("diff_types", [])
                     )
 
                 if idx < len(st.session_state.found_differences) - 1:
@@ -760,59 +746,47 @@ class ObjectLoaderRenderer:
     def get_prefix_inputs():
         """Render prefix input fields and return values"""
         # Initialize widgets in session state if not present
-        if 'prefix_1_widget' not in st.session_state:
-            st.session_state.prefix_1_widget = ''
-        if 'prefix_2_widget' not in st.session_state:
-            st.session_state.prefix_2_widget = 'mstr_test'
+        if "prefix_1_widget" not in st.session_state:
+            st.session_state.prefix_1_widget = ""
+        if "prefix_2_widget" not in st.session_state:
+            st.session_state.prefix_2_widget = "mstr_test"
 
         # Check if we're auto-loading and should update prefix_1
-        auto_load = st.session_state.get('auto_load_comparison', False)
+        auto_load = st.session_state.get("auto_load_comparison", False)
         if auto_load:
-            selected_prefix = st.session_state.get('selected_prefix_1', '')
+            selected_prefix = st.session_state.get("selected_prefix_1", "")
             if selected_prefix:
                 st.session_state.prefix_1_widget = selected_prefix
 
         col1, col2 = st.columns(2)
 
         with col1:
-            prefix_1 = st.text_input(
-                "Prefix 1:",
-                placeholder="mstr_dev",
-                key="prefix_1_widget"
-            )
+            prefix_1 = st.text_input("Prefix 1:", placeholder="mstr_dev", key="prefix_1_widget")
 
         with col2:
-            prefix_2 = st.text_input(
-                "Prefix 2:",
-                placeholder="mstr_test",
-                key="prefix_2_widget"
-            )
+            prefix_2 = st.text_input("Prefix 2:", placeholder="mstr_test", key="prefix_2_widget")
 
         return prefix_1, prefix_2
 
     @staticmethod
     def get_redis_key_input():
         """Render redis key input and handle auto-load"""
-        auto_load = st.session_state.get('auto_load_comparison', False)
+        auto_load = st.session_state.get("auto_load_comparison", False)
 
-        if 'redis_key_widget' not in st.session_state:
+        if "redis_key_widget" not in st.session_state:
             st.session_state.redis_key_widget = StreamlitConfig.DEFAULT_REDIS_KEY
 
         if auto_load:
-            selected_key = st.session_state.get('selected_redis_key', '')
+            selected_key = st.session_state.get("selected_redis_key", "")
             if selected_key:
                 st.session_state.redis_key_widget = selected_key
             st.session_state.auto_load_comparison = False
 
-        if 'temp_redis_key' in st.session_state:
+        if "temp_redis_key" in st.session_state:
             st.session_state.redis_key_widget = st.session_state.temp_redis_key
             del st.session_state.temp_redis_key
 
-        redis_key = st.text_input(
-            "Object Key:",
-            placeholder="TYPE:object_id",
-            key="redis_key_widget"
-        )
+        redis_key = st.text_input("Object Key:", placeholder="TYPE:object_id", key="redis_key_widget")
 
         return redis_key
 
@@ -821,11 +795,11 @@ class ObjectLoaderRenderer:
         """Render status indicators for loaded objects"""
         col_status1, col_status2 = st.columns(2)
         with col_status1:
-            if 'org_obj_def' in st.session_state:
+            if "org_obj_def" in st.session_state:
                 st.success(f"✅ Connected to Redis ({prefix_1})")
 
         with col_status2:
-            if prefix_2 and 'comp_obj_def' in st.session_state:
+            if prefix_2 and "comp_obj_def" in st.session_state:
                 st.success(f"✅ Connected to Redis ({prefix_2})")
 
 
@@ -849,13 +823,13 @@ class NavigationRenderer:
 
         structure_categories = {}
         for numeric_path, display_path in all_paths:
-            top_key = numeric_path.split('.')[0].split('[')[0]
+            top_key = numeric_path.split(".")[0].split("[")[0]
             if top_key not in structure_categories:
                 structure_categories[top_key] = []
             structure_categories[top_key].append((numeric_path, display_path))
 
         if structure_categories:
-            navigator = ThreeLevelNavigator('structure', structure_categories, org_obj_def, comp_obj_def)
+            navigator = ThreeLevelNavigator("structure", structure_categories, org_obj_def, comp_obj_def)
             selected_path_str = navigator.render()
 
             if st.button("📍 Go", key="struct_go", use_container_width=True):
@@ -872,17 +846,17 @@ class NavigationRenderer:
         """Render differences navigation panel"""
         st.write("**🔍 Differences**")
 
-        if 'selected_diff_paths' in st.session_state and st.session_state.selected_diff_paths:
+        if "selected_diff_paths" in st.session_state and st.session_state.selected_diff_paths:
             path_categories = {}
             for path in st.session_state.selected_diff_paths:
-                top_key = path.split('.')[0].split('[')[0]
+                top_key = path.split(".")[0].split("[")[0]
                 if top_key not in path_categories:
                     path_categories[top_key] = []
                 path_categories[top_key].append(path)
         else:
             path_categories = {}
 
-        navigator = ThreeLevelNavigator('diff', path_categories, org_obj_def, comp_obj_def)
+        navigator = ThreeLevelNavigator("diff", path_categories, org_obj_def, comp_obj_def)
         selected_path_str = navigator.render()
 
         if st.button("📍 Go", key="diff_go", use_container_width=True):
@@ -941,15 +915,15 @@ class ComparisonViewRenderer:
 
         # Find the currently loaded object based on selected_redis_key
         current_item = None
-        selected_redis_key = st.session_state.get('selected_redis_key', '')
+        selected_redis_key = st.session_state.get("selected_redis_key", "")
 
         if selected_redis_key:
             # Try to find matching object by looking at org_obj_key
             for item in st.session_state.found_differences:
-                obj_key = item.get('org_obj_key', '')
+                obj_key = item.get("org_obj_key", "")
                 # Extract just the key part after the prefix (e.g., "mstr_dev:ATTRIBUTE:ABC" -> "ATTRIBUTE:ABC")
-                if ':' in obj_key:
-                    key_part = obj_key.split(':', 1)[1]  # Get everything after first colon
+                if ":" in obj_key:
+                    key_part = obj_key.split(":", 1)[1]  # Get everything after first colon
                 else:
                     key_part = obj_key
 
@@ -962,8 +936,8 @@ class ComparisonViewRenderer:
             current_item = st.session_state.found_differences[0]
 
         if current_item:
-            org_obj_info = current_item.get('org_obj_info', None)
-            comp_obj_info = current_item.get('comp_obj_info', None)
+            org_obj_info = current_item.get("org_obj_info", None)
+            comp_obj_info = current_item.get("comp_obj_info", None)
 
             if org_obj_info and comp_obj_info:
                 with st.expander("📋 Object Information", expanded=False):
@@ -972,15 +946,15 @@ class ComparisonViewRenderer:
                     with col1:
                         st.subheader("🔷 Object 1 (Original)")
                         df_org = pd.DataFrame([org_obj_info]).T
-                        df_org.columns = ['Value']
-                        df_org.index.name = 'Property'
+                        df_org.columns = ["Value"]
+                        df_org.index.name = "Property"
                         st.dataframe(df_org, use_container_width=True)
 
                     with col2:
                         st.subheader("🔶 Object 2 (Comparison)")
                         df_comp = pd.DataFrame([comp_obj_info]).T
-                        df_comp.columns = ['Value']
-                        df_comp.index.name = 'Property'
+                        df_comp.columns = ["Value"]
+                        df_comp.index.name = "Property"
                         st.dataframe(df_comp, use_container_width=True)
 
     @staticmethod
@@ -999,10 +973,14 @@ class ComparisonViewRenderer:
                     col1, col2 = st.columns(2)
                     with col1:
                         st.subheader("📂 Object 1")
-                        NavigationRenderer.render_navigation(filtered_obj1 if filtered_obj1 else {}, [], auto_navigate=False)
+                        NavigationRenderer.render_navigation(
+                            filtered_obj1 if filtered_obj1 else {}, [], auto_navigate=False
+                        )
                     with col2:
                         st.subheader("📂 Object 2")
-                        NavigationRenderer.render_navigation(filtered_obj2 if filtered_obj2 else {}, [], auto_navigate=False)
+                        NavigationRenderer.render_navigation(
+                            filtered_obj2 if filtered_obj2 else {}, [], auto_navigate=False
+                        )
                 else:
                     st.info("ℹ️ No different values at current location")
             else:
@@ -1027,35 +1005,38 @@ class ComparisonViewRenderer:
                 st.subheader("📂 Object 1")
                 NavigationRenderer.render_navigation(org_obj_def, st.session_state.path)
 
+
 st.set_page_config(page_title="MSTR JSON Analyzer", layout="wide")
 st.title("MSTR Object Definition Analyzer")
 
 # Initialize session state for navigation
-if 'path' not in st.session_state:
+if "path" not in st.session_state:
     st.session_state.path = []
-if 'expand_depth' not in st.session_state:
+if "expand_depth" not in st.session_state:
     st.session_state.expand_depth = 2
-if 'found_differences' not in st.session_state:
+if "found_differences" not in st.session_state:
     # Initialize as empty - will be populated when comparison runs
     st.session_state.found_differences = []
 
 # Initialize session state for auto-load functionality
-if 'auto_load_comparison' not in st.session_state:
+if "auto_load_comparison" not in st.session_state:
     st.session_state.auto_load_comparison = False
-if 'selected_redis_key' not in st.session_state:
-    st.session_state.selected_redis_key = ''
-if 'selected_prefix_1' not in st.session_state:
-    st.session_state.selected_prefix_1 = ''
-if 'selected_diff_paths' not in st.session_state:
+if "selected_redis_key" not in st.session_state:
+    st.session_state.selected_redis_key = ""
+if "selected_prefix_1" not in st.session_state:
+    st.session_state.selected_prefix_1 = ""
+if "selected_diff_paths" not in st.session_state:
     st.session_state.selected_diff_paths = []
-if 'selected_diff_types' not in st.session_state:
+if "selected_diff_types" not in st.session_state:
     st.session_state.selected_diff_types = []
+
 
 # Cached wrapper for Redis config loading
 @st.cache_resource
 def load_redis_config():
     """Cached wrapper for RedisManager.load_redis_config()"""
     return RedisManager.load_redis_config()
+
 
 # Convenience aliases for backward compatibility
 get_nested_value = JSONPathHelper.get_nested_value
@@ -1092,11 +1073,11 @@ if redis_config is not None:
         st.divider()
 
         # Check for auto-load conditions BEFORE rendering the expander
-        auto_load = st.session_state.get('auto_load_comparison', False)
-        if 'temp_load_requested' in st.session_state and st.session_state.temp_load_requested:
+        auto_load = st.session_state.get("auto_load_comparison", False)
+        if "temp_load_requested" in st.session_state and st.session_state.temp_load_requested:
             auto_load = True
             st.session_state.temp_load_requested = False
-        if 'auto_reload_requested' in st.session_state and st.session_state.auto_reload_requested:
+        if "auto_reload_requested" in st.session_state and st.session_state.auto_reload_requested:
             auto_load = True
             st.session_state.auto_reload_requested = False
 
@@ -1122,14 +1103,14 @@ if redis_config is not None:
 
                     # Success message
                     if obj_1 and obj_2:
-                        st.success(f"✅ Both objects fetched successfully!")
-                        if 'temp_diff_paths' in st.session_state:
+                        st.success("✅ Both objects fetched successfully!")
+                        if "temp_diff_paths" in st.session_state:
                             st.session_state.selected_diff_paths = st.session_state.temp_diff_paths
                             del st.session_state.temp_diff_paths
                         st.rerun()
                     elif obj_1 and not prefix_2:
-                        st.success(f"✅ Object 1 fetched successfully!")
-                        if 'temp_diff_paths' in st.session_state:
+                        st.success("✅ Object 1 fetched successfully!")
+                        if "temp_diff_paths" in st.session_state:
                             st.session_state.selected_diff_paths = st.session_state.temp_diff_paths
                             del st.session_state.temp_diff_paths
                         st.rerun()
@@ -1142,9 +1123,9 @@ if redis_config is not None:
                     st.error(f"Error fetching objects: {e}")
 
 # Load objects from session state
-if 'org_obj_def' in st.session_state:
+if "org_obj_def" in st.session_state:
     org_obj_def = st.session_state.org_obj_def
-if 'comp_obj_def' in st.session_state:
+if "comp_obj_def" in st.session_state:
     comp_obj_def = st.session_state.comp_obj_def
 
 if org_obj_def:
@@ -1153,7 +1134,7 @@ if org_obj_def:
     with st.expander("🎯 Quick Path Navigation", expanded=True):
         col_structure, col_differences = st.columns(2)
 
-        if 'structure_depth' not in st.session_state:
+        if "structure_depth" not in st.session_state:
             st.session_state.structure_depth = 3
         structure_depth = st.session_state.structure_depth
 
@@ -1171,7 +1152,7 @@ if org_obj_def:
     UIComponents.render_expand_depth_control()
 
     # ==================== FILTERED DIFFERENCE VIEWS ====================
-    if comp_obj_def and 'selected_diff_types' in st.session_state and st.session_state.selected_diff_types:
+    if comp_obj_def and "selected_diff_types" in st.session_state and st.session_state.selected_diff_types:
         st.divider()
         st.header("📊 Compare JSON - Files")
 
@@ -1180,7 +1161,9 @@ if org_obj_def:
         diff_paths = st.session_state.selected_diff_paths
         diff_types = st.session_state.selected_diff_types
 
-        different_value_paths = JSONFilterUtils.extract_different_value_paths(diff_paths, diff_types, org_obj_def, comp_obj_def)
+        different_value_paths = JSONFilterUtils.extract_different_value_paths(
+            diff_paths, diff_types, org_obj_def, comp_obj_def
+        )
         ComparisonViewRenderer.render_different_values_view(different_value_paths, org_obj_def, comp_obj_def)
 
     # Side-by-side comparison

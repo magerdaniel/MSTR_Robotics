@@ -5,6 +5,7 @@ Exposes a tool that accepts a natural-language BI question, runs the full
 keyword-extraction → Perplexity RAG → prompt-answering → report-execution
 pipeline, and returns the result as CSV plus a browser link.
 """
+
 import sys
 
 # Redirect stdout → stderr during init so MCP stdio protocol (pure JSON on
@@ -14,29 +15,29 @@ sys.stdout = sys.stderr
 
 import json
 import os
+
 import pandas as pd
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mstrio.connection import Connection
 
-from mstr_robotics.navigation import AnswerPrompts, MstrObjects
-from mstr_robotics.report import Rep as MstrRep, Prompts
-from mstr_robotics.user_rag import KeywordProcessor, Perplexity
-
 # ---------------------------------------------------------------------------
 # Static configuration
 # ---------------------------------------------------------------------------
-
-from mstr_robotics._paths import USER_CONFIG, ENV_FILE, MCP_DATA as _MCP_DATA
+from mstr_robotics._paths import ENV_FILE, USER_CONFIG
+from mstr_robotics._paths import MCP_DATA as _MCP_DATA
+from mstr_robotics.navigation import AnswerPrompts, MstrObjects
+from mstr_robotics.report import Rep as MstrRep
+from mstr_robotics.user_rag import KeywordProcessor, Perplexity
 
 CONFIG_PATH = str(USER_CONFIG)
-ENV_PATH    = str(ENV_FILE)
-MCP_DATA    = str(_MCP_DATA)
+ENV_PATH = str(ENV_FILE)
+MCP_DATA = str(_MCP_DATA)
 
-PROJECT_ID      = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
+PROJECT_ID = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
 TEMPLATE_REP_ID = "25D40AD444B6D51B333021ADFB219501"
-AI_REP_NAME     = "dyn_prompt_page_botstat"
-AI_REP_FOLDER   = "2F2302AE4D1C2DDDFA9CDCB46802B185"
+AI_REP_NAME = "dyn_prompt_page_botstat"
+AI_REP_FOLDER = "2F2302AE4D1C2DDDFA9CDCB46802B185"
 
 # ---------------------------------------------------------------------------
 # One-time initialisation
@@ -49,17 +50,17 @@ load_dotenv(ENV_PATH)
 
 # Load MCP data CSVs
 _attribute_form_elements_df = pd.read_csv(os.path.join(MCP_DATA, "attribute_form_elements.csv"))
-_attribute_elements_df      = pd.read_csv(os.path.join(MCP_DATA, "attribute_elements.csv"))
-_att_form_def_df            = pd.read_csv(os.path.join(MCP_DATA, "att_form_def.csv"))
-_obj_prp_rel_df             = pd.read_csv(os.path.join(MCP_DATA, "obj_prp_rel.csv"))
-_dos_rep_prp_rel_df         = pd.read_csv(os.path.join(MCP_DATA, "dos_rep_prp_rel.csv"))
-_dashboard_definitions_df   = pd.read_csv(os.path.join(MCP_DATA, "dashboard_definitions.csv"))
-_dashboard_chapter_filter_df  = pd.read_csv(os.path.join(MCP_DATA, "dashboard_chapter_filter.csv"))
+_attribute_elements_df = pd.read_csv(os.path.join(MCP_DATA, "attribute_elements.csv"))
+_att_form_def_df = pd.read_csv(os.path.join(MCP_DATA, "att_form_def.csv"))
+_obj_prp_rel_df = pd.read_csv(os.path.join(MCP_DATA, "obj_prp_rel.csv"))
+_dos_rep_prp_rel_df = pd.read_csv(os.path.join(MCP_DATA, "dos_rep_prp_rel.csv"))
+_dashboard_definitions_df = pd.read_csv(os.path.join(MCP_DATA, "dashboard_definitions.csv"))
+_dashboard_chapter_filter_df = pd.read_csv(os.path.join(MCP_DATA, "dashboard_chapter_filter.csv"))
 _dashboard_selector_filter_df = pd.read_csv(os.path.join(MCP_DATA, "dashboard_selector_filter.csv"))
 
 # RAG / AI helpers
 _keyword_proc = KeywordProcessor()
-_perplexity   = Perplexity()
+_perplexity = Perplexity()
 _mstr_objects = MstrObjects()
 _answer_prpts = AnswerPrompts(
     attribute_form_elements_df=_attribute_form_elements_df,
@@ -117,6 +118,7 @@ mcp = FastMCP("mstr_collab_perplex", host="127.0.0.1", port=8001)
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _get_conn() -> Connection:
     conn = Connection(
         base_url=MSTR_BASE_URL,
@@ -140,6 +142,7 @@ def _report_url(report_id: str) -> str:
 # MCP tool
 # ---------------------------------------------------------------------------
 
+
 @mcp.tool()
 def query_bi_report(question: str) -> str:
     """Answer a natural-language BI question against MicroStrategy.
@@ -162,7 +165,7 @@ def query_bi_report(question: str) -> str:
     key_word_l = _keyword_proc.extract_keywords(msg_t=question)
 
     att_elem_str = _mstr_objects.get_att_elem_str(_element_df_d_l, key_word_l=key_word_l)
-    bi_obj_str   = _mstr_objects.get_att_elem_str(_obj_df_d_l, key_word_l=key_word_l)
+    bi_obj_str = _mstr_objects.get_att_elem_str(_obj_df_d_l, key_word_l=key_word_l)
 
     sys_cont = _perplexity.rag_sys_cont(
         key_word_l=key_word_l,
@@ -229,7 +232,7 @@ def query_bi_report(question: str) -> str:
 
     # --- Step 5: return result ----------------------------------------------
     rows, cols = df.shape
-    url      = _report_url(new_rep_id)
+    url = _report_url(new_rep_id)
     csv_text = df.to_csv(index=False)
 
     summary = (
@@ -252,13 +255,13 @@ if __name__ == "__main__":
     sys.stdout = _real_stdout
 
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse"],
         default="sse",
-        help="MCP transport: 'stdio' for Claude Desktop subprocess mode, "
-             "'sse' for HTTP/REST mode (default: sse)",
+        help="MCP transport: 'stdio' for Claude Desktop subprocess mode, 'sse' for HTTP/REST mode (default: sse)",
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8001)

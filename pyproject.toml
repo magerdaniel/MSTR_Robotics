@@ -65,3 +65,14 @@ extend-exclude = [
 [tool.ruff.lint]
 # E/W: pycodestyle, F: pyflakes, I: import sorting, N: pep8-naming, B: bugbear (mutable defaults etc.)
 select = ["E", "F", "W", "I", "N", "B"]
+ignore = [
+    # long string literals / comments; the formatter governs code line length
+    "E501",
+    # deliberate lazy imports of optional deps (openai, google-cloud, faiss)
+    "E402",
+    # star-arg unpacking after keyword arg — widespread call pattern, defer to v0.6
+    "B026",
+    # method/argument/variable renames (open_Instance, sKey, ...) deferred to v0.6;
+    # v0.5 scope was class and module names only
+    "N802", "N803", "N806",
+]

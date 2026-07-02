@@ -1,23 +1,25 @@
 import pandas as pd
+
 from mstr_robotics._connectors import MstrApi
 from mstr_robotics.read_out_prj_obj import ReadReport
 
-i_mstr_api=MstrApi()
-i_read_report=ReadReport()
+i_mstr_api = MstrApi()
+i_read_report = ReadReport()
 
-class DossierGlobal():
 
+class DossierGlobal:
     pass
 
-class DossReadOutDet():
+
+class DossReadOutDet:
     visual_d = {}
-    visual_list=[]
-    #doss_filt_d_l = []
-    #doss_filt_select_d_l = []
+    visual_list = []
+    # doss_filt_d_l = []
+    # doss_filt_select_d_l = []
 
     def __init__(self):
         self.vis_obj_l = []
-        self.load_d={}
+        self.load_d = {}
 
     def get_definition_and_results_of_visualization(self, conn, dossier_id, instance_id, chapter_key, vis_key):
         # mstrio's documents.get_definition_and_results_of_visualization passes
@@ -32,28 +34,28 @@ class DossReadOutDet():
             vis_id=vis_key,
         )
 
-    def read_out_vis_d(self,conn, vis_def_d):
-        vis_d = {
+    def read_out_vis_d(self, conn, vis_def_d):
+        {
             "dossier_id": self.visual_d["dossier_id"],
             "chapter_key": self.visual_d["chapter_key"],
             "vis_key": vis_def_d["key"],
             "name": vis_def_d["name"],
             "isGrid": vis_def_d["isGrid"],
-            "visualizationType": vis_def_d["visualizationType"]
+            "visualizationType": vis_def_d["visualizationType"],
         }
         grid_definition = vis_def_d["definition"]["grid"]
-        #vis_cont_d=i_read_report.zread_out_grid(vis_d=vis_d, grid_definition=grid_definition,
+        # vis_cont_d=i_read_report.zread_out_grid(vis_d=vis_d, grid_definition=grid_definition,
         #                                        vis_att_l=self.vis_att_l, vis_met_l=self.vis_met_l)
-        #print(grid_definition)
-        grid_obj_l=i_read_report.read_out_grid(conn=conn,grid_definition=grid_definition)
-        vis_obj_l_temp=[]
+        # print(grid_definition)
+        grid_obj_l = i_read_report.read_out_grid(conn=conn, grid_definition=grid_definition)
+        vis_obj_l_temp = []
         for obj in grid_obj_l:
             self.visual_d.update(obj)
             vis_obj_l_temp.append(self.visual_d.copy())
         self.vis_obj_l.extend(vis_obj_l_temp)
-        #self.vis_met_l.extend(grid_cont_d["grid_met_l"])
+        # self.vis_met_l.extend(grid_cont_d["grid_met_l"])
 
-    def read_pages_hier_det(self,conn, chapter, instance_id):
+    def read_pages_hier_det(self, conn, chapter, instance_id):
         for page in chapter["pages"]:
             self.visual_d["page_key"] = page["key"]
             self.visual_d["page_name"] = page["name"]
@@ -62,36 +64,39 @@ class DossReadOutDet():
 
             self.read_visual_hier_det(conn, page=page, instance_id=instance_id)
 
-    def read_visual_hier_det(self,conn,page,instance_id):
+    def read_visual_hier_det(self, conn, page, instance_id):
         for v in page["visualizations"]:
-
             self.visual_d["visual_key"] = v["key"]
             self.visual_d["visual_name"] = v["name"]
             self.visual_d["visualizationType"] = v["visualizationType"]
-            vis_def_d=i_mstr_api.get_dossier_detail(conn=conn, dossier_id=self.visual_d["dossier_id"],
-                                          instance_id=instance_id, chapter_key=self.visual_d["chapter_key"]
-                                          , vis_id=self.visual_d["visual_key"])
+            vis_def_d = i_mstr_api.get_dossier_detail(
+                conn=conn,
+                dossier_id=self.visual_d["dossier_id"],
+                instance_id=instance_id,
+                chapter_key=self.visual_d["chapter_key"],
+                vis_id=self.visual_d["visual_key"],
+            )
             self.read_out_vis_d(conn, vis_def_d)
 
     def run_read_out_doss_hier_det(self, conn, dossier_l):
         self.visual_list = []
         for dossier_id in dossier_l:
             try:
-                instance_id=i_mstr_api.create_dossier_instance(conn,dossier_id)
+                instance_id = i_mstr_api.create_dossier_instance(conn, dossier_id)
                 doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
                 # print(doss_hier)
                 self.visual_d = {}
                 self.visual_d["dossier_id"] = dossier_id
-                self.visual_d["dossier_name"] = doss_hier['name']
-                self.visual_d["error_msg"] = ''
+                self.visual_d["dossier_name"] = doss_hier["name"]
+                self.visual_d["error_msg"] = ""
                 for chapter in doss_hier["chapters"]:
                     # print(chapter)
                     self.visual_d["chapter_key"] = chapter["key"]
                     self.visual_d["chapter_name"] = chapter["name"]
-                    self.read_pages_hier_det(conn=conn,chapter=chapter, instance_id=instance_id)
+                    self.read_pages_hier_det(conn=conn, chapter=chapter, instance_id=instance_id)
 
             except Exception as err:
-                #print(err)
+                # print(err)
                 self.visual_d["dossier_id"] = dossier_id
                 self.visual_d["dossier_name"] = ""
                 self.visual_d["chapter_key"] = ""
@@ -105,8 +110,8 @@ class DossReadOutDet():
         #   print(visual_dict)
         return self.vis_obj_l
 
-class DossReadOut():
 
+class DossReadOut:
     def __init__(self):
         self.doss_filt_d_l = []
         self.doss_filt_select_d_l = []
@@ -147,15 +152,13 @@ class DossReadOut():
     def run_read_out_doss_hier(self, conn, dossier_l):
         self.visual_list = []
         for dossier_id in dossier_l:
-
             doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
             # print(doss_hier)
             self.visual_d = {}
             self.visual_d["dossier_id"] = dossier_id
             # self.visual_dict["dossier_name"] = d.name
-            self.visual_d["error_msg"] = ''
+            self.visual_d["error_msg"] = ""
             try:
-
                 for chapter in doss_hier["chapters"]:
                     # print(chapter)
                     self.visual_d["chapter_key"] = chapter["key"]
@@ -163,7 +166,6 @@ class DossReadOut():
                     self.read_pages_hier(chapter=chapter)
 
             except Exception as err:
-
                 self.visual_d["chapter_key"] = ""
                 self.visual_d["chapter_name"] = ""
                 self.visual_d["page_key"] = ""
@@ -175,11 +177,10 @@ class DossReadOut():
         #   print(visual_dict)
         return self.visual_list
 
-    def read_out_fil_selector(self,page_j_l, chapt_page_d):
+    def read_out_fil_selector(self, page_j_l, chapt_page_d):
         selector_target_d_l = []
         selector_target_obj_d_l = []
         for s in page_j_l:
-
             selector_d = chapt_page_d.copy()
             selector_d["sel_filt_key"] = s["key"]
             selector_d["sel_filt_name"] = s["name"]
@@ -205,9 +206,9 @@ class DossReadOut():
                 # print(st)
                 sel_target_d["target_object_id"] = st["source"]["id"]
                 sel_target_d["target_object_name"] = st["source"]["name"]
-                if st["source"]["type"]==12:
+                if st["source"]["type"] == 12:
                     sel_target_d["target_object_type"] = "attribute"
-                if st["source"]["type"]==4:
+                if st["source"]["type"] == 4:
                     sel_target_d["target_object_type"] = "metric"
 
                 sel_target_d.pop("source")
@@ -241,13 +242,13 @@ class DossReadOut():
                 continue
             sel = v["selector"]
             base_d = chapt_page_d.copy()
-            base_d["sel_filt_key"]       = v["key"]
-            base_d["sel_filt_name"]      = v["name"]
-            base_d["summary"]            = ""
-            base_d["selector_type"]      = sel["selectorType"]
-            base_d["display_style"]      = v["visualizationType"]
-            base_d["has_all_option"]     = False
-            base_d["target_object_id"]   = v["key"]
+            base_d["sel_filt_key"] = v["key"]
+            base_d["sel_filt_name"] = v["name"]
+            base_d["summary"] = ""
+            base_d["selector_type"] = sel["selectorType"]
+            base_d["display_style"] = v["visualizationType"]
+            base_d["has_all_option"] = False
+            base_d["target_object_id"] = v["key"]
             base_d["target_object_name"] = v["name"]
             base_d["target_object_type"] = "visualization"
             for t in sel.get("targets", []):
@@ -264,65 +265,87 @@ class DossReadOut():
 
             if "selectors" in page_d.keys():
                 page_select_l = self.read_out_fil_selector(
-                    page_j_l=page_d["selectors"], chapt_page_d=doss_filt_select_d)
+                    page_j_l=page_d["selectors"], chapt_page_d=doss_filt_select_d
+                )
                 chapt_page_select_d_l.extend(page_select_l)
 
-            viz_sel_l = self.read_viz_as_filter_selectors(
-                page_d=page_d, chapt_page_d=doss_filt_select_d.copy())
+            viz_sel_l = self.read_viz_as_filter_selectors(page_d=page_d, chapt_page_d=doss_filt_select_d.copy())
             chapt_page_select_d_l.extend(viz_sel_l)
 
         return chapt_page_select_d_l
 
-
     def run_read_out_doss_filt_sel(self, conn, dossier_id_l):
 
         for dossier_id in dossier_id_l:
-
             doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
-            #print(doss_hier)
+            # print(doss_hier)
             try:
                 doss_filt_sel_d = {}
                 doss_filt_sel_d["dossier_id"] = dossier_id
-                doss_filt_sel_d["dossier_name"] = doss_hier['name']
-                doss_filt_sel_d["error_msg"] = ''
-                filt_list = []
+                doss_filt_sel_d["dossier_name"] = doss_hier["name"]
+                doss_filt_sel_d["error_msg"] = ""
                 for chapter_d in doss_hier["chapters"]:
                     doss_filt_sel_d["chapter_key"] = chapter_d["key"]
                     doss_filt_sel_d["chapter_name"] = chapter_d["name"]
-                    doss_filt_d=doss_filt_sel_d.copy()
+                    doss_filt_d = doss_filt_sel_d.copy()
 
                     self.doss_filt_d_l.extend(
-                            #self.read_doss_hier_filter(chapter_d=chapter_d, doss_filt_select_d=doss_filt_d)
-                            self.read_out_fil_selector(page_j_l=chapter_d["filters"],
-                                                                      chapt_page_d=doss_filt_d)
-                                    )
-                    doss_sel_d=doss_filt_sel_d.copy()
-                    self.doss_filt_select_d_l.extend(self.read_doss_hier_selectors(chapter_d=chapter_d, doss_filt_select_d=doss_sel_d)
-                                             )
+                        # self.read_doss_hier_filter(chapter_d=chapter_d, doss_filt_select_d=doss_filt_d)
+                        self.read_out_fil_selector(page_j_l=chapter_d["filters"], chapt_page_d=doss_filt_d)
+                    )
+                    doss_sel_d = doss_filt_sel_d.copy()
+                    self.doss_filt_select_d_l.extend(
+                        self.read_doss_hier_selectors(chapter_d=chapter_d, doss_filt_select_d=doss_sel_d)
+                    )
             except Exception as err:
                 print(err)
-                #print(doss_hier)
+                # print(doss_hier)
 
-        return {"dos_filt_d_l":self.doss_filt_d_l,
-                "page_selector_d_l":self.doss_filt_select_d_l}
+        return {"dos_filt_d_l": self.doss_filt_d_l, "page_selector_d_l": self.doss_filt_select_d_l}
 
-
-    def add_obj_selector_to_viz(self, conn, doss_vis_obj_df,selector_df):
+    def add_obj_selector_to_viz(self, conn, doss_vis_obj_df, selector_df):
         doss_vis_obj_df["on_grid_fg"] = True
-        df_filt_obj_filt=selector_df[selector_df["selector_type"]=="object_replacement"]
-        dos_vis_df=doss_vis_obj_df[["dossier_id", "dossier_name","error_msg", "chapter_key", "chapter_name", "page_key", "page_name","visual_key", "visual_name", "visualizationType", "project_id"]].drop_duplicates()
-        joint_df=pd.merge(dos_vis_df,
-        df_filt_obj_filt[["dossier_id", "chapter_key", "page_key", "target_key","target_object_id","target_object_name","target_object_type"]],
-                 left_on=["dossier_id", "chapter_key", "page_key", "visual_key"],
-                 right_on=["dossier_id", "chapter_key", "page_key", "target_key"],
-                 how='right'
-                )
-        joint_df=joint_df.rename(columns={"target_object_id": "object_id", "target_object_name": "object_name","target_object_type":"type"})
-        joint_df=joint_df.drop('target_key', axis=1)
-        joint_df["row_col_fg"]="row"
-        joint_df["row_col_nr"]=-1
-        joint_df["form_id"]=""
-        joint_df["form_name"]=""
+        df_filt_obj_filt = selector_df[selector_df["selector_type"] == "object_replacement"]
+        dos_vis_df = doss_vis_obj_df[
+            [
+                "dossier_id",
+                "dossier_name",
+                "error_msg",
+                "chapter_key",
+                "chapter_name",
+                "page_key",
+                "page_name",
+                "visual_key",
+                "visual_name",
+                "visualizationType",
+                "project_id",
+            ]
+        ].drop_duplicates()
+        joint_df = pd.merge(
+            dos_vis_df,
+            df_filt_obj_filt[
+                [
+                    "dossier_id",
+                    "chapter_key",
+                    "page_key",
+                    "target_key",
+                    "target_object_id",
+                    "target_object_name",
+                    "target_object_type",
+                ]
+            ],
+            left_on=["dossier_id", "chapter_key", "page_key", "visual_key"],
+            right_on=["dossier_id", "chapter_key", "page_key", "target_key"],
+            how="right",
+        )
+        joint_df = joint_df.rename(
+            columns={"target_object_id": "object_id", "target_object_name": "object_name", "target_object_type": "type"}
+        )
+        joint_df = joint_df.drop("target_key", axis=1)
+        joint_df["row_col_fg"] = "row"
+        joint_df["row_col_nr"] = -1
+        joint_df["form_id"] = ""
+        joint_df["form_name"] = ""
         joint_df["on_grid_fg"] = False
-        doss_vis_obj_df=pd.concat([doss_vis_obj_df, joint_df], ignore_index=True).drop_duplicates()
+        doss_vis_obj_df = pd.concat([doss_vis_obj_df, joint_df], ignore_index=True).drop_duplicates()
         return doss_vis_obj_df

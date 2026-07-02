@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import yaml
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -7,10 +8,7 @@ from google.oauth2 import service_account
 _SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
 # Path where browser-flow credentials are cached
-_TOKEN_CACHE = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "config", "bq_user_token.json"
-)
+_TOKEN_CACHE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "bq_user_token.json")
 
 
 def _load_bq_config(config_path: str = None) -> dict:
@@ -32,6 +30,7 @@ def _sa_key_abs(cfg: dict) -> str:
 def _load_cached_token():
     """Load a previously saved user OAuth2 token from disk."""
     from google.oauth2.credentials import Credentials
+
     if os.path.exists(_TOKEN_CACHE):
         with open(_TOKEN_CACHE, "r") as f:
             data = json.load(f)
@@ -72,11 +71,11 @@ def login_browser(oauth_client_secret_file: str = None) -> bigquery.Client:
             from GCP Console → APIs & Services → Credentials → OAuth 2.0 Client IDs.
             Defaults to config/bq_oauth_client.json
     """
-    from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
+    from google_auth_oauthlib.flow import InstalledAppFlow
 
     cfg = _load_bq_config()
-    project  = cfg["project"]
+    project = cfg["project"]
     location = cfg.get("location", "US")
 
     if oauth_client_secret_file is None:
@@ -87,6 +86,7 @@ def login_browser(oauth_client_secret_file: str = None) -> bigquery.Client:
     creds = _load_cached_token()
     if creds:
         from google.auth.transport.requests import Request
+
         if not creds.expired:
             print("[bq_connector] using cached user token")
         elif creds.refresh_token:
@@ -96,9 +96,9 @@ def login_browser(oauth_client_secret_file: str = None) -> bigquery.Client:
                 print("[bq_connector] token refreshed from cache")
             except Exception:
                 print("[bq_connector] refresh token expired — re-opening browser login")
-                creds = None   # force fresh browser login
+                creds = None  # force fresh browser login
         else:
-            creds = None   # force re-login
+            creds = None  # force re-login
 
     if creds is None:
         if not os.path.exists(oauth_client_secret_file):
@@ -109,9 +109,7 @@ def login_browser(oauth_client_secret_file: str = None) -> bigquery.Client:
                 "  2. Create an OAuth 2.0 Client ID (type: Desktop app)\n"
                 "  3. Download the JSON → save as config/bq_oauth_client.json\n"
             )
-        flow = InstalledAppFlow.from_client_secrets_file(
-            oauth_client_secret_file, scopes=_SCOPES
-        )
+        flow = InstalledAppFlow.from_client_secrets_file(oauth_client_secret_file, scopes=_SCOPES)
         creds = flow.run_local_server(port=0, open_browser=True)
         _save_token(creds)
         print("[bq_connector] browser login successful, token cached")
@@ -137,18 +135,14 @@ def get_bq_client(config_path: str = None) -> bigquery.Client:
         google.cloud.bigquery.Client
     """
     cfg = _load_bq_config(config_path)
-    project  = cfg["project"]
+    project = cfg["project"]
     location = cfg.get("location", "US")
 
     # ── Option 1: service account key ────────────────────────────────────────
     sa_path = _sa_key_abs(cfg)
     if sa_path and os.path.exists(sa_path):
-        credentials = service_account.Credentials.from_service_account_file(
-            sa_path, scopes=_SCOPES
-        )
-        client = bigquery.Client(
-            project=project, credentials=credentials, location=location
-        )
+        credentials = service_account.Credentials.from_service_account_file(sa_path, scopes=_SCOPES)
+        client = bigquery.Client(project=project, credentials=credentials, location=location)
         print(f"[bq_connector] service account: {credentials.service_account_email}")
         return client
 

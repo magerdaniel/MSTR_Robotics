@@ -1,30 +1,25 @@
-from mstrio.api.browsing import get_objects_from_quick_search
-import re
 import ast
-import pandas as pd
 import copy
-from typing import  Any, Dict, List, Set, Union
-from html import escape
-import json
 import hashlib
+import json
+import re
 from pathlib import Path
-from mstr_robotics.read_out_prj_obj import ReadGen
-#from mstr_robotics.prepare_ai_data import RedisMstrJson
-#from mstr_robotics.redis_db import RedisMstrJson
-from mstr_robotics.mstr_classes import MstrGlobal
-from mstr_robotics._helper import Misc
-
+from typing import Any, Dict, List, Set, Union
 
 import pandas as pd
 
-i_read_gen=ReadGen()
+from mstr_robotics._helper import Misc
+from mstr_robotics.mstr_classes import MstrGlobal
+from mstr_robotics.read_out_prj_obj import ReadGen
 
-#i_redis_mstr_json=RedisMstrJson()
-i_mstr_global=MstrGlobal()
-i_msic=Misc()
+i_read_gen = ReadGen()
+
+i_mstr_global = MstrGlobal()
+i_msic = Misc()
 
 
 # ==================== UTILITY FUNCTIONS ====================
+
 
 def remove_after_last_dot_if_bracket(text):
     """Remove everything after the last dot if preceded by a bracket
@@ -36,13 +31,14 @@ def remove_after_last_dot_if_bracket(text):
         Processed string
     """
     if isinstance(text, str):
-        last_dot = text.rfind('.')
-        if last_dot > 0 and text[last_dot - 1] == ']':
+        last_dot = text.rfind(".")
+        if last_dot > 0 and text[last_dot - 1] == "]":
             return text[:last_dot]
     return text
 
 
 # ==================== JSON PATH UTILITIES ====================
+
 
 class JSONPathHelper:
     """Helper class for JSON path operations"""
@@ -62,11 +58,11 @@ class JSONPathHelper:
             'advancedProperties.vldbProperties["VLDB Select"]' -> ['advancedProperties', 'vldbProperties', 'VLDB Select']
         """
 
-        parts = re.split(r'\.', path_str)
+        parts = re.split(r"\.", path_str)
         result = []
 
         for part in parts:
-            if '[' in part:
+            if "[" in part:
                 # Match both numeric indices [0] and quoted keys ["key name"]
                 matches = re.findall(r'([^\[\]]+)|\[(\d+)\]|\["([^"]+)"\]', part)
                 for match in matches:
@@ -146,7 +142,9 @@ class JSONPathHelper:
                     display_path = display_path.replace(".[", "[")
 
                     paths.append((numeric_path, display_path))
-                    paths.extend(JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels))
+                    paths.extend(
+                        JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels)
+                    )
 
         elif isinstance(data, list) and len(data) > 0:
             for idx in range(min(3, len(data))):
@@ -156,9 +154,9 @@ class JSONPathHelper:
                 label = str(idx)
                 if isinstance(value, dict):
                     if "name" in value:
-                        label = str(value['name'])[:30]
+                        label = str(value["name"])[:30]
                     elif "text" in value:
-                        label = str(value['text'])[:30]
+                        label = str(value["text"])[:30]
                     else:
                         keys = sorted(value.keys())
                         if keys:
@@ -176,7 +174,9 @@ class JSONPathHelper:
                     display_path = display_path.replace(".[", "[")
 
                     paths.append((numeric_path, display_path))
-                    paths.extend(JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels))
+                    paths.extend(
+                        JSONPathHelper.extract_all_paths(value, max_depth, new_path, current_depth + 1, new_labels)
+                    )
 
         return paths
 
@@ -200,9 +200,7 @@ class JSONFilterUtils:
 
         def remove_ignored_keys(obj, ignore_keys):
             if isinstance(obj, dict):
-                return {k: remove_ignored_keys(v, ignore_keys)
-                       for k, v in obj.items()
-                       if k not in ignore_keys}
+                return {k: remove_ignored_keys(v, ignore_keys) for k, v in obj.items() if k not in ignore_keys}
             elif isinstance(obj, list):
                 return [remove_ignored_keys(item, ignore_keys) for item in obj]
             else:
@@ -212,7 +210,7 @@ class JSONFilterUtils:
         try:
             json_str = json.dumps(cleaned, sort_keys=True, default=str)
             return hashlib.md5(json_str.encode()).hexdigest()
-        except:
+        except Exception:
             return hashlib.md5(str(cleaned).encode()).hexdigest()
 
     @staticmethod
@@ -229,12 +227,12 @@ class JSONFilterUtils:
         for p in path_list:
             if isinstance(p, int):
                 if result:
-                    result[-1] = result[-1] + f'[{p}]'
+                    result[-1] = result[-1] + f"[{p}]"
                 else:
-                    result.append(f'[{p}]')
+                    result.append(f"[{p}]")
             else:
                 result.append(str(p))
-        return '.'.join(result)
+        return ".".join(result)
 
     @staticmethod
     def has_relevant_child_path(current_path_str, filter_paths):
@@ -251,14 +249,12 @@ class JSONFilterUtils:
             return True
 
         return any(
-            p.startswith(current_path_str + '.') or
-            p.startswith(current_path_str + '[') or
-            p == current_path_str
+            p.startswith(current_path_str + ".") or p.startswith(current_path_str + "[") or p == current_path_str
             for p in filter_paths
         )
 
     @staticmethod
-    def filter_json_by_paths(obj, filter_paths, current_path=[], ignore_keys=None):
+    def filter_json_by_paths(obj, filter_paths, current_path=None, ignore_keys=None):
         """Create a filtered copy of JSON object that only includes specified paths
 
         Args:
@@ -270,6 +266,8 @@ class JSONFilterUtils:
         Returns:
             Filtered JSON object
         """
+        if current_path is None:
+            current_path = []
         if ignore_keys is None:
             ignore_keys = ["predicateId", "versionId", "dateModified", "dateCreated"]
 
@@ -321,7 +319,7 @@ class JSONFilterUtils:
         """
         different_value_paths = []
 
-        for path, dtype in zip(diff_paths, diff_types):
+        for path, dtype in zip(diff_paths, diff_types, strict=False):
             parsed_path = JSONPathHelper.parse_path_string(path)
             val1 = JSONPathHelper.get_nested_value(obj_def_1, parsed_path)
             val2 = JSONPathHelper.get_nested_value(obj_def_2, parsed_path)
@@ -333,13 +331,13 @@ class JSONFilterUtils:
                         hashes2 = set(JSONFilterUtils.get_content_hash(item) for item in val2)
                         if hashes1 != hashes2:
                             different_value_paths.append(path)
-                    except:
+                    except Exception:
                         different_value_paths.append(path)
                 elif val1 is not None and val2 is not None:
                     try:
                         if JSONFilterUtils.get_content_hash(val1) != JSONFilterUtils.get_content_hash(val2):
                             different_value_paths.append(path)
-                    except:
+                    except Exception:
                         different_value_paths.append(path)
                 else:
                     different_value_paths.append(path)
@@ -349,62 +347,80 @@ class JSONFilterUtils:
 
 # ==================== JSON COMPARISON CLASSES ====================
 
+
 class JSONComparator:
     def __init__(self):
         self.differences = []
         self.comp_det_d = {}
 
-
-    def remove_bracket_numbers(self,path_list):
+    def remove_bracket_numbers(self, path_list):
         # Check for NaN/None FIRST - use 'is None' or check scalar NaN
         if path_list is None or (isinstance(path_list, float) and pd.isna(path_list)):
             return path_list
-        
+
         if isinstance(path_list, str):
             try:
                 path_list = ast.literal_eval(path_list)
             except (ValueError, SyntaxError):
                 return path_list
-        
+
         # If it's not a list, try to convert it
         if not isinstance(path_list, list):
             try:
                 path_list = list(path_list)
             except (TypeError, ValueError):
                 return path_list
-        
-        return [elem for elem in path_list if not re.match(r'^\[\d+\]$', str(elem))]
 
+        return [elem for elem in path_list if not re.match(r"^\[\d+\]$", str(elem))]
 
-    def remove_no_interest_fields(self, json_obj, remove_key_l=["child_obj_d_l","checksum_obj_def","checksum_full","destinationFolderId",
-                                            "ai_grid_objects","ai_report_filter","versionId","dateModified","dateCreated","obj_uploaded","uploaded"],
-                                json_path=None):
+    def remove_no_interest_fields(
+        self,
+        json_obj,
+        remove_key_l=None,
+        json_path=None,
+    ):
         """
         Remove specified fields from JSON object recursively at all nested levels
-        
+
         Args:
             json_obj: JSON object to clean
             remove_key_l: List of keys to remove
             json_path: Optional path constraint - only remove keys if they are under this path
                     Format: "dataSource.filter.tree" or ["dataSource", "filter", "tree"]
-            
+
         Returns:
             Cleaned JSON object
         """
-        
+        if remove_key_l is None:
+            remove_key_l = [
+                "child_obj_d_l",
+                "checksum_obj_def",
+                "checksum_full",
+                "destinationFolderId",
+                "ai_grid_objects",
+                "ai_report_filter",
+                "versionId",
+                "dateModified",
+                "dateCreated",
+                "obj_uploaded",
+                "uploaded",
+            ]
+
         # Create a deep copy to avoid modifying the original
         cleaned_json = copy.deepcopy(json_obj)
-        
+
         # Convert json_path to list if it's a string
         if json_path is not None:
             if isinstance(json_path, str):
-                target_path = json_path.split('.')
+                target_path = json_path.split(".")
             else:
                 target_path = json_path
         else:
             target_path = None
-        
-        def remove_keys_recursive(obj, current_path=[]):
+
+        def remove_keys_recursive(obj, current_path=None):
+            if current_path is None:
+                current_path = []
             if isinstance(obj, dict):
                 # Check if we should remove keys at this level
                 should_remove = True
@@ -412,36 +428,36 @@ class JSONComparator:
                     # Only remove if we're under the specified path
                     if len(current_path) >= len(target_path):
                         # Check if current path starts with target path
-                        should_remove = current_path[:len(target_path)] == target_path
+                        should_remove = current_path[: len(target_path)] == target_path
                     else:
                         should_remove = False
-                
+
                 # Remove keys from current level if conditions are met
                 if should_remove:
                     keys_to_remove = [key for key in obj.keys() if key in remove_key_l]
                     for key in keys_to_remove:
                         del obj[key]
-                
+
                 # Recursively process remaining values
                 for key, value in obj.items():
                     new_path = current_path + [key]
-                    #print(new_path)
+                    # print(new_path)
                     remove_keys_recursive(value, new_path)
-                    
+
             elif isinstance(obj, list):
                 # Process each item in the list
                 for index, item in enumerate(obj):
                     new_path = current_path + [f"[{index}]"]
                     remove_keys_recursive(item, new_path)
-        
+
         remove_keys_recursive(cleaned_json)
         return cleaned_json
 
     def clean_json(self, json_obj_def):
         # Implement cleaning logic for JSON object here
-        obj_subtype=""
+        obj_subtype = ""
         if "information" in json_obj_def.keys():
-            obj_subtype=json_obj_def["information"]["subType"]
+            obj_subtype = json_obj_def["information"]["subType"]
             self.comp_det_d["name"] = json_obj_def["information"]["name"]
         elif "subType" in json_obj_def.keys():
             obj_subtype = json_obj_def["subType"]
@@ -449,54 +465,54 @@ class JSONComparator:
         elif "subtype" in json_obj_def.keys():
             obj_subtype = json_obj_def["subtype"]
             self.comp_det_d["name"] = json_obj_def["name"]
-        #i.e. metrics appear as type
+        # i.e. metrics appear as type
         elif "type" in json_obj_def.keys():
             obj_subtype = json_obj_def["type"]
             self.comp_det_d["name"] = json_obj_def["name"]
         else:
             print("no subtype in " + str(json_obj_def))
-        
+
         self.comp_det_d["obj_subtype"] = i_read_gen.child_obj_type_handler(subtype=str(obj_subtype))
 
-        if str(obj_subtype) in ["257","custom_group"]:
-            json_obj_def = self.remove_no_interest_fields(json_obj_def, 
-                                                        remove_key_l=["predicateId","id"],
-                                                        json_path="elements")
+        if str(obj_subtype) in ["257", "custom_group"]:
+            json_obj_def = self.remove_no_interest_fields(
+                json_obj_def, remove_key_l=["predicateId", "id"], json_path="elements"
+            )
         elif str(obj_subtype) in ["report_grid"]:
             # FIX: Assign the result back to json_obj_def
-            json_obj_def = self.remove_no_interest_fields(json_obj_def, 
-                                                        remove_key_l=["predicateId"],
-                                                        json_path="dataSource")
-        #else:
+            json_obj_def = self.remove_no_interest_fields(
+                json_obj_def, remove_key_l=["predicateId"], json_path="dataSource"
+            )
+        # else:
         #    print(obj_subtype)
 
         return json_obj_def
 
-    def compare_json_data(self, comp_det_d:dict, json1: Any, json2: Any) -> List[Dict]:
+    def compare_json_data(self, comp_det_d: dict, json1: Any, json2: Any) -> List[Dict]:
         """
         Compare two JSON data structures
-        
+
         Args:
             json1: First JSON data structure
             json2: Second JSON data structure
-            
+
         Returns:
             List of dictionaries containing differences
         """
         self.differences = []
         self.comp_det_d = comp_det_d
-        
+
         json1 = self.remove_no_interest_fields(json1).copy()
         json2 = self.remove_no_interest_fields(json2).copy()
         json1 = self.clean_json(json1)
         json2 = self.clean_json(json2)
         self._compare_recursive(json1, json2, [])
         return self.differences
-    
+
     def _compare_recursive(self, obj1: Any, obj2: Any, path: List[str]):
         """
         Recursively compare two objects and track differences
-        
+
         Args:
             obj1: First object to compare
             obj2: Second object to compare
@@ -511,25 +527,25 @@ class JSONComparator:
         elif obj2 is None:
             self._add_difference(path, "only_in_comp", obj1, None)
             return
-        
+
         # Handle different types
-        if type(obj1) != type(obj2):
+        if type(obj1) is not type(obj2):
             self._add_difference(path, "different", obj1, obj2)
             return
-        
+
         # Handle dictionaries
         if isinstance(obj1, dict):
             self._compare_dicts(obj1, obj2, path)
-        
+
         # Handle lists
         elif isinstance(obj1, list):
             self._compare_lists(obj1, obj2, path)
-        
+
         # Handle primitive types
         else:
             if obj1 != obj2:
                 self._add_difference(path, "different", obj1, obj2)
-    
+
     def _compare_dicts(self, dict1: Dict, dict2: Dict, path: List[str]):
         """Compare two dictionaries"""
         # Check for only_in_org keys in dict2
@@ -539,31 +555,31 @@ class JSONComparator:
                 self._add_difference(new_path, "only_in_org", dict1[key], None)
             else:
                 self._compare_recursive(dict1[key], dict2[key], new_path)
-        
+
         # Check for extra keys in dict2
         for key in dict2:
             if key not in dict1:
                 new_path = path + [key]
                 self._add_difference(new_path, "only_in_comp", None, dict2[key])
-    
+
     def _compare_lists(self, list1: List, list2: List, path: List[str]):
         """Compare two lists"""
         max_len = max(len(list1), len(list2))
-        
+
         for i in range(max_len):
             new_path = path + [f"[{i}]"]
-            
+
             if i >= len(list1):
                 self._add_difference(new_path, "only_in_comp", None, list2[i])
             elif i >= len(list2):
                 self._add_difference(new_path, "only_in_org", list1[i], None)
             else:
                 self._compare_recursive(list1[i], list2[i], new_path)
-    
+
     def _add_difference(self, path: List[str], diff_type: str, value1: Any, value2: Any):
         """
         Add a difference to the results
-        
+
         Args:
             path: Path to the difference
             diff_type: Type of difference (only_in_org, only_in_comp, different)
@@ -577,10 +593,10 @@ class JSONComparator:
         difference["path_list"] = path.copy()
         difference["diff_type"] = diff_type
         difference["value1"] = value1
-        difference["value2"] = value2 
-        if diff_type:      
+        difference["value2"] = value2
+        if diff_type:
             self.differences.append(difference)
-    
+
     def _format_path(self, path: List[str]) -> str:
         """Format path list into a readable string with proper handling of keys with spaces
 
@@ -598,7 +614,7 @@ class JSONComparator:
                 result += part
             else:
                 # Check if key contains spaces or special characters that need quoting
-                if " " in part or any(c in part for c in ['.', '(', ')', '-', '/', '\\']):
+                if " " in part or any(c in part for c in [".", "(", ")", "-", "/", "\\"]):
                     # Use bracket notation for keys with spaces/special chars
                     if result:  # Add to existing path
                         result += f'["{part}"]'
@@ -606,22 +622,23 @@ class JSONComparator:
                         result = f'["{part}"]'
                 else:
                     # Regular key without special characters
-                    if result and not result.endswith(']'):
+                    if result and not result.endswith("]"):
                         # Add dot separator if previous wasn't a bracket
-                        result += f'.{part}'
-                    elif result and result.endswith(']'):
+                        result += f".{part}"
+                    elif result and result.endswith("]"):
                         # Previous was a bracket, add dot then key
-                        result += f'.{part}'
+                        result += f".{part}"
                     else:
                         # First element
                         result = part
 
         return result
-    
-class CompareMstrObjects():
+
+
+class CompareMstrObjects:
     """
     def bld_redis_key(self,conn,object_id,env_prefix):
-        
+
         search_d={
                 "projectIdAndObjectIds": [
                                     {"projectId": conn.project_id,
@@ -648,17 +665,17 @@ class CompareMstrObjects():
             project_id=json_comp["org_j_f"]["project_id"]
             conn.select_project(project_id)
             object_id=[json_comp["org_j_f"]["object_id"]]
-            env_prefix=redis_mstr_d["project_prefix"][project_id]       
+            env_prefix=redis_mstr_d["project_prefix"][project_id]
             n_json_comp["redis_key"]=self.bld_redis_key(conn,object_id,env_prefix)
             n_json_comp["org_obj_def_j"]=i_redis_bi_analysis.fetch_key_value( key=n_json_comp["redis_key"])
-            
+
             project_id=json_comp["comp_j_f"]["project_id"]
             conn.select_project(project_id)
             object_id=[json_comp["comp_j_f"]["object_id"]]
             env_prefix=redis_mstr_d["project_prefix"][project_id]
             n_json_comp["redis_key"]=self.bld_redis_key(conn,object_id,env_prefix)
             n_json_comp["comp_obj_def_j"]=self.bld_redis_key(conn,object_id,env_prefix)
-            
+
             comp_result_list.append(n_json_comp.copy())
 
         return comp_result_list
@@ -682,46 +699,56 @@ class CompareMstrObjects():
             comp_json_d["comp_j_f"]["project_id"]=org_project_id
             comp_json_d["comp_j_f"]["object_id"]=o
             comp_json_d_l.append(comp_json_d.copy())
-        
-        return comp_json_d_l
-    
-    """
-    def compare_objects(self, all_org_objects_df, all_comp_objects_df):
-        df=pd.merge(all_org_objects_df,
-                all_comp_objects_df,
-                on=["root_obj_id","obj_id"],
-                how="outer"
-        )
-        df_filtered = df.query('checksum_full_x != checksum_full_y')
-        diff_d_l=[]
-        print(df_filtered.columns)
-        for i,comp in df_filtered.iterrows():
-            comp_det_d={}
-            comp_det_d["org_root_obj_key"]=comp["root_obj_key_x"]
-            comp_det_d["org_obj_id"]=comp["obj_id"]
-            comp_det_d["comp_obj_id"]=comp["obj_id"]
-            comp_det_d["org_obj_key"]=comp["obj_key_x"]
-            comp_det_d["comp_root_obj_key"]=comp["root_obj_key_y"]
-            comp_det_d["comp_obj_key"]=comp["obj_key_y"]
-            comp_det_d["org_obj_def"]=comp["definition_x"]
-            comp_det_d["comp_obj_def"]=comp["definition_y"]
-            differences=None
-            if (isinstance(comp_det_d["org_obj_def"] , dict)
-                and isinstance(comp_det_d["comp_obj_def"] , dict)):
-                differences = JSONComparator().compare_json_data(comp_det_d=comp_det_d,
-                                                            json1=comp["definition_x"] 
-                                                        , json2=comp["definition_y"] )
-            elif (isinstance(comp_det_d["org_obj_def"] , dict)
-                  and not isinstance(comp_det_d["comp_obj_def"] , dict)):
-                differences = [{"json_key_path":"json_key_path","path_list":"path_list","diff_type":"Compare OBJECT is missing","value1":"value1",	"value2":"value2"}]
-            elif (not isinstance(comp_det_d["org_obj_def"] , dict)
-                  and isinstance(comp_det_d["comp_obj_def"] , dict)):
-                differences = [{"json_key_path":"json_key_path","path_list":"path_list","diff_type":"Aditional OBJECT","value1":"value1",	"value2":"value2"}]
-            if len (differences)>0:
 
+        return comp_json_d_l
+
+    """
+
+    def compare_objects(self, all_org_objects_df, all_comp_objects_df):
+        df = pd.merge(all_org_objects_df, all_comp_objects_df, on=["root_obj_id", "obj_id"], how="outer")
+        df_filtered = df.query("checksum_full_x != checksum_full_y")
+        diff_d_l = []
+        print(df_filtered.columns)
+        for _i, comp in df_filtered.iterrows():
+            comp_det_d = {}
+            comp_det_d["org_root_obj_key"] = comp["root_obj_key_x"]
+            comp_det_d["org_obj_id"] = comp["obj_id"]
+            comp_det_d["comp_obj_id"] = comp["obj_id"]
+            comp_det_d["org_obj_key"] = comp["obj_key_x"]
+            comp_det_d["comp_root_obj_key"] = comp["root_obj_key_y"]
+            comp_det_d["comp_obj_key"] = comp["obj_key_y"]
+            comp_det_d["org_obj_def"] = comp["definition_x"]
+            comp_det_d["comp_obj_def"] = comp["definition_y"]
+            differences = None
+            if isinstance(comp_det_d["org_obj_def"], dict) and isinstance(comp_det_d["comp_obj_def"], dict):
+                differences = JSONComparator().compare_json_data(
+                    comp_det_d=comp_det_d, json1=comp["definition_x"], json2=comp["definition_y"]
+                )
+            elif isinstance(comp_det_d["org_obj_def"], dict) and not isinstance(comp_det_d["comp_obj_def"], dict):
+                differences = [
+                    {
+                        "json_key_path": "json_key_path",
+                        "path_list": "path_list",
+                        "diff_type": "Compare OBJECT is missing",
+                        "value1": "value1",
+                        "value2": "value2",
+                    }
+                ]
+            elif not isinstance(comp_det_d["org_obj_def"], dict) and isinstance(comp_det_d["comp_obj_def"], dict):
+                differences = [
+                    {
+                        "json_key_path": "json_key_path",
+                        "path_list": "path_list",
+                        "diff_type": "Aditional OBJECT",
+                        "value1": "value1",
+                        "value2": "value2",
+                    }
+                ]
+            if len(differences) > 0:
                 diff_d_l.extend(differences)
-            #diff_d_l.append(comp_det_d)
+            # diff_d_l.append(comp_det_d)
         return diff_d_l
+
 
 class JsonChecksumHandler:
     """
@@ -760,7 +787,9 @@ class JsonChecksumHandler:
         else:
             return data
 
-    def json_checksum(self, data: Union[Dict, List, str, Path], ignore_keys: List[str] = None, algorithm: str = "sha256") -> str:
+    def json_checksum(
+        self, data: Union[Dict, List, str, Path], ignore_keys: List[str] = None, algorithm: str = "sha256"
+    ) -> str:
         """
         Generate a checksum for JSON data with option to ignore specific keys.
 
@@ -785,7 +814,7 @@ class JsonChecksumHandler:
         if isinstance(data, (str, Path)):
             path = Path(data)
             if path.exists() and path.is_file():
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
             else:
                 # Try to parse as JSON string
@@ -799,18 +828,18 @@ class JsonChecksumHandler:
 
         # Generate checksum
         hash_func = hashlib.new(algorithm)
-        hash_func.update(canonical_json.encode('utf-8'))
+        hash_func.update(canonical_json.encode("utf-8"))
 
         return hash_func.hexdigest()
 
     def generate_object_checksums(self, obj_data: Dict, ignore_keys: List[str] = None) -> Dict[str, str]:
         """
         Generate checksums for MicroStrategy object data with different levels of detail.
-        
+
         Args:
             obj_data: MicroStrategy object data
             ignore_keys: Keys to ignore when generating checksums
-            
+
         Returns:
             Dictionary with different checksum types
 
@@ -819,35 +848,42 @@ class JsonChecksumHandler:
             >>> checksums = handler.generate_object_checksums(mstr_object_data)
             >>> print(checksums["checksum_no_timestamps"])
         """
-        default_ignore = ["dateModified", "dateCreated", "version", "checksum_obj_def", "checksum_obj_ACL", "obj_uploaded"]
+        default_ignore = [
+            "dateModified",
+            "dateCreated",
+            "version",
+            "checksum_obj_def",
+            "checksum_obj_ACL",
+            "obj_uploaded",
+        ]
         if ignore_keys:
             ignore_keys = list(set(default_ignore + ignore_keys))
         else:
             ignore_keys = default_ignore
-            
+
         return {
             "checksum_full": self.json_checksum(obj_data),
             "checksum_definition_only": self.json_checksum(obj_data.get("definition", {}), ignore_keys=ignore_keys),
-            #"checksum_acl_only": self.json_checksum(obj_data.get("acl", {}), ignore_keys=ignore_keys)
+            # "checksum_acl_only": self.json_checksum(obj_data.get("acl", {}), ignore_keys=ignore_keys)
         }
 
     def add_checksums_to_object(self, obj_data: Dict, ignore_keys: List[str] = None) -> Dict:
         """
         Add checksum fields to a MicroStrategy object data structure.
-        
+
         Args:
             obj_data: MicroStrategy object data (will be modified)
             ignore_keys: Additional keys to ignore beyond defaults
-            
+
         Returns:
             Modified object data with checksum fields added
         """
         checksums = self.generate_object_checksums(obj_data, ignore_keys)
-        
+
         # Add checksums to the object data
         obj_data["checksum_obj_def"] = checksums["checksum_definition_only"]
-        #obj_data["checksum_obj_ACL"] = checksums["checksum_acl_only"]
+        # obj_data["checksum_obj_ACL"] = checksums["checksum_acl_only"]
         obj_data["checksum_full"] = checksums["checksum_full"]
-        #obj_data["checksum_no_timestamps"] = checksums["checksum_no_timestamps"]
-        
+        # obj_data["checksum_no_timestamps"] = checksums["checksum_no_timestamps"]
+
         return obj_data

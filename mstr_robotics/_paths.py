@@ -13,6 +13,7 @@ Notebooks and modules should import the constants they need from here, e.g.::
     with open(USER_CONFIG, "r") as fh:
         user_d = json.load(fh)
 """
+
 from __future__ import annotations
 
 import os

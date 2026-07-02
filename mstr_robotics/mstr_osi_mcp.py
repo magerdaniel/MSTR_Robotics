@@ -2,23 +2,25 @@
 mstr_robotics MCP Server
 
 """
-from dotenv import load_dotenv
+
+import contextlib
 import json
 import os
-import re
-import pandas as pd
+import sys
 from pathlib import Path
+
+import pandas as pd
+import requests
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mstrio.connection import Connection
-from mstr_robotics.report import Rep as MstrRep
-from mstr_robotics.read_out_prj_obj import ReadGen
+from ruamel.yaml import YAML
+
 from mstr_robotics._connectors import MstrApi
 from mstr_robotics.dossier import DossReadOutDet
+from mstr_robotics.read_out_prj_obj import ReadGen
+from mstr_robotics.report import Rep as MstrRep
 
-from ruamel.yaml import YAML as RuamelYAML
-import requests
-import contextlib
-import sys
 _mstr_api = MstrApi()
 
 WIKIDATA_USER_AGENT = "Mstrrobotics/1.0 (mstr_robotics MCP tool; https://www.wikidata.org/wiki/User:Mstrrobotics)"
@@ -28,14 +30,14 @@ WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 # Configuration – override via environment variables
 # ---------------------------------------------------------------------------
 
-from mstr_robotics._paths import USER_CONFIG, ENV_FILE, OSI_PRODUKTION
+from mstr_robotics._paths import ENV_FILE, OSI_PRODUKTION, USER_CONFIG
 
-with open(USER_CONFIG, 'r') as openfile:
+with open(USER_CONFIG, "r") as openfile:
     user_d = json.load(openfile)
 
-ENV_PATH    = str(ENV_FILE)
+ENV_PATH = str(ENV_FILE)
 
-#set user credentials and open a connection to the i-server
+# set user credentials and open a connection to the i-server
 MSTR_USERNAME = user_d["conn_params"]["username"]
 MSTR_PASSWORD = user_d["conn_params"]["password"]
 MSTR_BASE_URL = user_d["conn_params"]["base_url"]
@@ -43,15 +45,16 @@ MSTR_BASE_URL = user_d["conn_params"]["base_url"]
 load_dotenv(ENV_PATH)
 
 MSTR_PROJECT_ID = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
-#MSTR_PROJECT_ID = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
+# MSTR_PROJECT_ID = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
 
-#REPORT_ID = "89FFB2AE475653785E693DBA32A5E6F3"
+# REPORT_ID = "89FFB2AE475653785E693DBA32A5E6F3"
 
 mcp = FastMCP("mstr_robotics")
 
 # ---------------------------------------------------------------------------
 # Helper
 # ---------------------------------------------------------------------------
+
 
 def _report_url(report_id: str, project_id: str | None = None) -> str:
     """Build a MicroStrategy Library web URL to open the report in the browser."""
@@ -75,11 +78,9 @@ def _get_conn(project_id: str | None = None) -> Connection:
     conn.headers["Content-type"] = "application/json"
     return conn
 
+
 @mcp.tool()
-def export_report_tabular(
-    report_id: str,
-    project_id: str = ""
-) -> str:
+def export_report_tabular(report_id: str, project_id: str = "") -> str:
     """Export a MicroStrategy report and return the data as CSV text.
 
     Args:
@@ -101,7 +102,6 @@ def export_report_tabular(
 
     if df is None or df.empty:
         return f"Report {report_id} returned no data."
-
 
     rows, cols = df.shape
     csv_text = df.to_csv(index=False)
@@ -188,7 +188,7 @@ def resolve_object_by_path(
     return json.dumps(result, indent=2, ensure_ascii=False, default=str)
 
 
-def _bld_item_sel (item_filt_l):
+def _bld_item_sel(item_filt_l):
 
     items_str = "".join(item_filt_l)  # e.g. "wd:Q58444 wd:Q832086 wd:Q2263"
     sparql_query = f"""
@@ -200,6 +200,7 @@ def _bld_item_sel (item_filt_l):
     }}
     """.strip()
     return sparql_query
+
 
 @mcp.tool()
 def query_wikidata_sparql(item_filt_l: str) -> str:
@@ -223,14 +224,13 @@ def query_wikidata_sparql(item_filt_l: str) -> str:
     """
 
     try:
-
         sparql_query = _bld_item_sel(item_filt_l)
         resp = requests.get(
             WIKIDATA_SPARQL_URL,
             params={"query": sparql_query, "format": "json"},
             headers={
                 "User-Agent": WIKIDATA_USER_AGENT,
-                "Accept":     "application/sparql-results+json",
+                "Accept": "application/sparql-results+json",
             },
             timeout=30,
         )
@@ -300,7 +300,7 @@ def get_visualization_data(
 
 OSI_FOLDER = str(OSI_PRODUKTION)
 
-ai_sys_dashbaord_prp  = "Your goal is to show the audience the dashboard context. "
+ai_sys_dashbaord_prp = "Your goal is to show the audience the dashboard context. "
 ai_sys_dashbaord_prp += "Using the provided files, you will extract and present relevant information. "
 ai_sys_dashbaord_prp += "Overall goal is, that everything what you say, can be proved by the human colleague."
 
@@ -313,6 +313,7 @@ def _call_llm(sys_cont: str, msg_t: str, temperature: float = 0.1) -> str:
     call_perplexity when newer SDK / Pydantic versions are in use.
     """
     from openai import OpenAI
+
     client = OpenAI(
         api_key=os.environ.get("PERPLEXITY_API_KEY"),
         base_url="https://api.perplexity.ai",
@@ -321,18 +322,19 @@ def _call_llm(sys_cont: str, msg_t: str, temperature: float = 0.1) -> str:
         model="sonar-pro",
         messages=[
             {"role": "system", "content": sys_cont},
-            {"role": "user",   "content": msg_t},
+            {"role": "user", "content": msg_t},
         ],
         temperature=temperature,
     )
     return response.choices[0].message.content
+
 
 def _load_osi_files(osi_files: list[str]) -> str:
     """
     Parse a list of OSI YAML file paths and return:
       - osi_raw    : full concatenated content of all files (passed to the LLM)
     """
-    ry    = RuamelYAML()
+    YAML()
     raw_parts = []
 
     for path_str in osi_files:
@@ -341,7 +343,6 @@ def _load_osi_files(osi_files: list[str]) -> str:
             content = p.read_text(encoding="utf-8")
         except Exception:
             continue
-
 
         raw_parts.append(f"=== {p.name} ===\n{content}")
 
@@ -364,14 +365,11 @@ def _llm_select(user_message: str, osi_raw: str) -> list[dict]:
         f"\n\nFull OSI files:\n{osi_raw}"
         " As output I expect a JSON file, with a list of matching dashboards or reports, containing name and ID"
         " as well as the full OSI context for each match."
- 
     )
-    msg_t = (
-        f"User question: {user_message}\n\n"
-
-    )
+    msg_t = f"User question: {user_message}\n\n"
     raw = _call_llm(sys_cont=sys_cont, msg_t=msg_t, temperature=0.0)
     return raw
+
 
 def _load_rag_files(osi_file: str, obj_id: str) -> str:
     """
@@ -379,7 +377,7 @@ def _load_rag_files(osi_file: str, obj_id: str) -> str:
     dashboard/semantic_model's rag_files field.
     Returns the concatenated file contents.
     """
-    ry = RuamelYAML()
+    ry = YAML()
     try:
         with open(osi_file, encoding="utf-8") as f:
             doc = ry.load(f)
@@ -387,12 +385,12 @@ def _load_rag_files(osi_file: str, obj_id: str) -> str:
         return ""
 
     node = None
-    for db in (doc.get("dashboards") or []):
+    for db in doc.get("dashboards") or []:
         if str(db.get("name", "")) == obj_id:
             node = db
             break
     if node is None:
-        for sm in (doc.get("semantic_model") or []):
+        for sm in doc.get("semantic_model") or []:
             if str(sm.get("name", "")) == obj_id:
                 node = sm
                 break
@@ -429,7 +427,7 @@ def find_dashboard_for_question(
         user_message: The user's natural-language BI question.
         osi_folder:   Folder that contains the OSI .yml files.
     """
-    osi_files  = [str(p) for p in Path(osi_folder).glob("*.y*ml")]
+    osi_files = [str(p) for p in Path(osi_folder).glob("*.y*ml")]
     if not osi_files:
         return json.dumps({"error": f"No OSI YAML files found in: {osi_folder}"})
 
@@ -439,9 +437,11 @@ def find_dashboard_for_question(
 
     matches = _llm_select(user_message, osi_raw)
     if not matches:
-        return json.dumps({
-            "message": "No matching dashboard or report found for this question.",
-        })
+        return json.dumps(
+            {
+                "message": "No matching dashboard or report found for this question.",
+            }
+        )
 
     return json.dumps(matches)
 
@@ -490,12 +490,16 @@ def run_and_answer_bi_question(
     # ── 4. Load RAG files ─────────────────────────────────────────────────
     rag_content = _load_rag_files(osi_file=osi_file_path, obj_id=object_id)
 
-    return json.dumps({
-        "data_text":      data_text,
-        "object_id":   object_id,
-        "object_type": object_type,
-        "rag_content":    rag_content,
-    }, ensure_ascii=False, indent=2)
+    return json.dumps(
+        {
+            "data_text": data_text,
+            "object_id": object_id,
+            "object_type": object_type,
+            "rag_content": rag_content,
+        },
+        ensure_ascii=False,
+        indent=2,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -504,12 +508,12 @@ def run_and_answer_bi_question(
 if __name__ == "__main__":
     mcp.run(transport="stdio")
     """
-    #item_filt_l="wd:Q58444 wd:Q832086 wd:Q2263" 
+    #item_filt_l="wd:Q58444 wd:Q832086 wd:Q2263"
     oo=query_wikidata_sparql(str(item_filt_l))
     print(oo)
 
     print("JDJD")
-    item_filt_l="wd:Q58444 wd:Q832086 wd:Q2263" 
+    item_filt_l="wd:Q58444 wd:Q832086 wd:Q2263"
     sparql_query=_bld_item_sel(item_filt_l)
     print(sparql_query)
     sparql_query1='''SELECT ?item ?itemLabel ?propLabel ?value ?valueLabel WHERE {
@@ -523,7 +527,7 @@ if __name__ == "__main__":
 
     oo=query_wikidata_sparql(str(item_filt_l))
     print(oo)
-  
+
     print("JDJD")
     osi_folder=OSI_FOLDER
     user_message="Hi, please use the mcp_server mstr_robotics and search for a dashboard that can help me in ther regional Markeeting offensive"
