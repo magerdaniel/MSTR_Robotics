@@ -30,10 +30,7 @@ class MstrApi:
         obj_id_l = [x for x in obj_id_l if x is not None]
         body_d = {"projectIdAndObjectIds": [{"projectId": conn.project_id, "objectIds": obj_id_l}]}
         body_d = json.dumps(body_d)
-        # print(body_d)
-        # print(endpoint)
         response = conn.post(endpoint, data=body_d)
-        # print(response.text)
         response_d = response.json()
         try:
             if response_d["totalItems"] > 0:
@@ -191,7 +188,6 @@ class MstrApi:
         self, conn, report_id, show_expression_as="tokens", show_filter_tokens="true", show_advanced_properties="true"
     ):
         url = f"{conn.base_url}/api/model/reports/{report_id}?showExpressionAs={show_expression_as}&showFilterTokens={show_filter_tokens}&showAdvancedProperties={show_advanced_properties}"
-        # print(url)
         report_def = conn.get(url)
         return report_def.json()
 
@@ -291,37 +287,3 @@ class MstrApi:
             print(stat)
             status = 1
         return status
-
-    def zzz_fetch_cube_elements(self, conn, cube_id, attribute_id, limit_val=100):
-        all_element_l = []
-        offset_val = 0
-        tot_count = 0
-        while tot_count >= offset_val:
-            url = f"{conn.base_url}/api/cubes/{cube_id}/attributes/{attribute_id}/elements?offset={offset_val}&limit={limit_val}"
-            resp = conn.get(url)
-            tot_count = int(resp.headers["x-mstr-total-count"])
-            offset_val += limit_val
-            all_element_l.extend(resp.json())
-        return all_element_l
-
-    def ZZZ_get_cube_data(self, conn, cube_id, instance_id, offset, limit):
-        inst_u = f"{conn.base_url}/api/v2/cubes/{cube_id}/instances/{instance_id}?offset={offset}&limit={limit}"
-        cube_ds = conn.get(inst_u, headers=conn.headers)
-        return cube_ds
-
-    def ZZZ_save_rep_sat_inst_as(self, conn, report_id, instance_id, folder_id, rep_name):
-        data = {
-            "overwrite": True,
-            "name": rep_name,
-            "destinationFolderId": folder_id,
-            "promptOptions": {
-                "saveAsWithAnswers": True,
-                "saveAsFilterWithPrompts": True,
-                "saveAsTemplateWithPrompts": True,
-            },
-        }
-        conn.headers["X-MSTR-MS-Instance"] = instance_id
-        inst_u = f"{conn.base_url}/api/model/reports/{report_id}/instances/saveAs"
-        r = conn.post(inst_u, data=json.dumps(data))
-        del conn.headers["X-MSTR-MS-Instance"]
-        return r.json()

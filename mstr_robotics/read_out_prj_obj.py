@@ -141,7 +141,6 @@ class ReadTableDef:
             all_col_d["physicalTable_id"] = cols["physicalTable"]["information"]["objectId"]
             all_col_d["physicalTable_name"] = cols["physicalTable"]["information"]["name"]
             all_col_d["column_id"] = col["information"]["objectId"]
-            # print(col["information"]["name"])
             all_col_d["column_name"] = col["information"]["name"]
             all_col_d["column_versionId"] = col["information"]["versionId"]
             all_col_d["column_dateModified"] = col["information"]["dateModified"]
@@ -181,7 +180,6 @@ class IoFacts:
         all_fact_maps_l = []
         for fact_id in fact_id_l:
             fact = self.i_read_fact(connection=conn, id=fact_id, show_expression_as="tokens").json()
-            # print(facts)
             all_fact_maps_d = self.run_prop_d
             all_fact_maps_d["project_id"] = conn.headers["X-MSTR-ProjectID"]
             all_fact_maps_d["fact_id"] = fact["id"]
@@ -263,7 +261,6 @@ class IoAttributes:
                                 browse_form_nr += 1
 
                         for e in form["expressions"]:
-                            # print(e)
                             all_att_maps_d["form_expressionId"] = e["expressionId"]
                             all_att_maps_d["form_expressionText"] = e["expression"]["text"]
                             # all_att_maps_d["expression_text"]=e["expression"]["text"]
@@ -294,7 +291,6 @@ class IoAttributes:
         try:
             PK_form_id = att["keyForm"]["id"]
             for form in att["forms"]:
-                # print(form)
                 if PK_form_id == form["id"]:
                     if "childForms" in form.keys():
                         for _child in form["childForms"]:
@@ -385,7 +381,6 @@ class ReadGen:
 
     def get_obj_def(self, conn, object_id, obj_type=None, obj_sub_type=None):
         obj_def = {}
-        # print(obj_type)
         try:
             if str(obj_type) == "43":
                 obj_def = transformations.get_transformation(
@@ -647,7 +642,6 @@ class ReadPrompts:
 
         if "predefinedObjects" in prompt_def_d["question"].keys():
             for obj in prompt_def_d["question"]["predefinedObjects"]:
-                # print(obj)
                 p_obj_row_d["object_id"] = obj["objectId"]
                 p_obj_row_d["obj_type"] = obj["subType"]
 
@@ -659,7 +653,6 @@ class ReadPrompts:
                 self.prompt_obj_l.append(p_obj_row_d.copy())
 
         else:
-            # print(prompt_def_d)
             if (
                 "expressionType" in prompt_def_d.keys()
                 and prompt_def_d["expressionType"] == "hierarchy"
@@ -731,42 +724,6 @@ class ReadPrompts:
 
             except Exception as err:
                 print(f"Error processing prompt search {search_id}: {err}")
-
-        return prp_obj_rel_l
-
-    def zzz_obj_prp_search_dpn(self, conn, prp_id_l):
-        # print(prp_idType_l)
-        prp_obj_rel_l = []
-        prp_rep_l = i_md_searches.search_for_used_in_obj_direct(conn=conn, obj_l=prp_id_l, count_only_fg=False)
-        prp_id_l = i_msic.get_key_form_dict_l(prp_id_l)
-        for dpn in prp_rep_l:
-            # print(prp["id"])
-            if dpn["dpn_type"] == "3":
-                if dpn["id"] in prp_id_l:
-                    try:
-                        # print(prp["dpn_id"])
-                        instance_id = i_rep.open_Instance(conn=conn, report_id=dpn["dpn_id"])
-                        prp_l = i_mstr_api.get_prp_ans(
-                            conn=conn, report_id=dpn["dpn_id"], instance_id=instance_id, prompt_id=dpn["id"]
-                        )
-                        for obj in prp_l:
-                            prp_obj_rel_d = {}
-                            prp_obj_rel_d["project_id"] = conn.project_id
-                            prp_obj_rel_d["prompt_id"] = dpn["id"]
-                            prp_obj_rel_d["object_id"] = obj["id"]
-                            prp_obj_rel_d["obj_type"] = obj["type"]
-                            prp_obj_rel_d["obj_prp_ans"] = i_prompts.bld_obj_prp_json(
-                                object_id=obj["id"], object_type=obj["type"]
-                            )
-                            prp_obj_rel_d["object_name"] = obj["name"]
-                            prp_obj_rel_l.append(prp_obj_rel_d.copy())
-
-                        prp_id_l.remove(dpn["id"])
-                    except Exception as err:
-                        print("ERRR")
-                        print(err)
-                        print(dpn)
-                        print("RRRRRRRR")
 
         return prp_obj_rel_l
 
@@ -1198,7 +1155,6 @@ class ReadCube:
 
     def read_cube_load_info(self, conn, cube_id):
         cbe_head_d = cubes.cube_info(connection=conn, id=cube_id).json()["cubesInfos"][0]
-        # print(cbe_head_d.keys())
         cube_head_d = {}
         cube_head_d["project_id"] = conn.project_id
         cube_head_d["cube_id"] = cbe_head_d["cubeId"]
@@ -1233,13 +1189,6 @@ class ReadCube:
             cube_met_d_l.extend(cube_d["cube_met_d"])
         cube_l_d = {"cube_head_d_l": cube_head_d_l, "cube_att_d_l": cube_att_d_l, "cube_met_d_l": cube_met_d_l}
         return cube_l_d
-
-    def zzz_trans_cbe_el_prp(self, ele_str):
-
-        el_l = ele_str.split(":")
-        "h" + ":".join(el_l[-1 * (len(el_l) - 1) :])
-        el_ans_d = {"id": ":".join(el_l[-1 * (len(el_l) - 1) :]) + ";" + el_l[0]}
-        return el_ans_d
 
     def fetch_cube_att_elem(self, conn, cube_id, limit_val=10000, *args, **kwargs):
 
@@ -1276,8 +1225,6 @@ class ReadCube:
         rag_att_form_d_l = []
         for att in cube_def["definition"]["availableObjects"]["attributes"]:
             for form in att["forms"]:
-                # print(att)
-                # print(form)
                 rag_att_form_d = {}
                 rag_att_form_d["project_id"] = conn.project_id
                 rag_att_form_d["cube_id"] = cube_def["id"]

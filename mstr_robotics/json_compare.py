@@ -441,7 +441,6 @@ class JSONComparator:
                 # Recursively process remaining values
                 for key, value in obj.items():
                     new_path = current_path + [key]
-                    # print(new_path)
                     remove_keys_recursive(value, new_path)
 
             elif isinstance(obj, list):
@@ -484,7 +483,6 @@ class JSONComparator:
                 json_obj_def, remove_key_l=["predicateId"], json_path="dataSource"
             )
         # else:
-        #    print(obj_subtype)
 
         return json_obj_def
 
@@ -636,74 +634,6 @@ class JSONComparator:
 
 
 class CompareMstrObjects:
-    """
-    def bld_redis_key(self,conn,object_id,env_prefix):
-
-        search_d={
-                "projectIdAndObjectIds": [
-                                    {"projectId": conn.project_id,
-                                    "objectIds": [object_id]
-                                    }]
-                }
-        obj_properties_d_l = get_objects_from_quick_search(connection=conn,body=search_d).json()
-        key=None
-        for obj_properties_d in obj_properties_d_l["result"]:
-            subtype_text=i_read_gen.find_type_subtype(obj_properties_d["subtype"])
-    #
-            redis_obj_prefix=i_redis_mstr_json.get_redis_prefix(subtype_text=subtype_text)
-            key=f"{env_prefix}:{redis_obj_prefix}:{obj_properties_d["id"]}"
-            #obj_def_j=i_redis_bi_analysis.fetch_key_value( key=key)
-            #redis_obj_l.append(obj_def_j.copy()["value"])
-        return key
-
-    def zzz_fetch_comp_objdef_d_l(self,conn,i_redis_bi_analysis,comp_json_d_l,redis_mstr_d):
-
-        comp_result_list=[]
-
-        for json_comp in comp_json_d_l:
-            n_json_comp=json_comp.copy()
-            project_id=json_comp["org_j_f"]["project_id"]
-            conn.select_project(project_id)
-            object_id=[json_comp["org_j_f"]["object_id"]]
-            env_prefix=redis_mstr_d["project_prefix"][project_id]
-            n_json_comp["redis_key"]=self.bld_redis_key(conn,object_id,env_prefix)
-            n_json_comp["org_obj_def_j"]=i_redis_bi_analysis.fetch_key_value( key=n_json_comp["redis_key"])
-
-            project_id=json_comp["comp_j_f"]["project_id"]
-            conn.select_project(project_id)
-            object_id=[json_comp["comp_j_f"]["object_id"]]
-            env_prefix=redis_mstr_d["project_prefix"][project_id]
-            n_json_comp["redis_key"]=self.bld_redis_key(conn,object_id,env_prefix)
-            n_json_comp["comp_obj_def_j"]=self.bld_redis_key(conn,object_id,env_prefix)
-
-            comp_result_list.append(n_json_comp.copy())
-
-        return comp_result_list
-
-    def zzz_fetch_obj_id_from_sh_folder(conn,env,org_project_id,short_cut_folder_id):
-        conn.select_project(org_project_id)
-        #env_prefix=redis_mstr_d["project_prefix"][project_id]
-        all_obj_d_l=i_mstr_global.get_obj_from_sh_fold(conn,folder_id=short_cut_folder_id)
-        all_obj_d_l=i_msic.get_key_form_dict_l(dict_l=all_obj_d_l)
-
-        comp_json_d_l=[]
-        for o in all_obj_d_l:
-            comp_json_d={}
-            comp_json_d["org_j_f"]={}
-            comp_json_d["org_j_f"]["env"]=env
-            comp_json_d["org_j_f"]["project_id"]=org_project_id
-            comp_json_d["org_j_f"]["object_id"]=o
-
-            comp_json_d["comp_j_f"]={}
-            comp_json_d["comp_j_f"]["env"]=env
-            comp_json_d["comp_j_f"]["project_id"]=org_project_id
-            comp_json_d["comp_j_f"]["object_id"]=o
-            comp_json_d_l.append(comp_json_d.copy())
-
-        return comp_json_d_l
-
-    """
-
     def compare_objects(self, all_org_objects_df, all_comp_objects_df):
         df = pd.merge(all_org_objects_df, all_comp_objects_df, on=["root_obj_id", "obj_id"], how="outer")
         df_filtered = df.query("checksum_full_x != checksum_full_y")

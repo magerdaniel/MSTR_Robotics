@@ -57,7 +57,6 @@ if __name__ == "__main__":
         async def login(request: LoginRequest):
             """Initialize connection with user credentials"""
             try:
-                # print(request.conn_params)
                 conn = Connection(**request.conn_params)
                 conn.headers["Content-type"] = "application/json"
                 print(conn.headers)

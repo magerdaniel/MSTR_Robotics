@@ -156,7 +156,6 @@ class RunCompare:
         all_comp_objects_df = pd.DataFrame(
             i_fetch_it_all.fetch_all_objects_recursively(root_object_l=comp_root_object_id_l, recursive_fg=recursive_fg)
         )
-        # print(all_org_objects_df.head(2))
         diff_d_l = i_compare_mstr_objects.compare_objects(all_org_objects_df, all_comp_objects_df)
 
         if len(diff_d_l) > 0:

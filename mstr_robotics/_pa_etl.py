@@ -26,28 +26,6 @@ class ParsePa:
             att = att.replace("}", "")
         return att
 
-    def zzz_fetch_pa_data_prp(self, conn, report_id, prompt_answ):
-        # base function to fetch the raw data from PA over a simple report
-        # imput will be a uniqui job identification
-        instance_id = i_rep.open_Instance(conn=conn, report_id=report_id)
-        i_rep.set_inst_prompt_ans(conn=conn, report_id=report_id, instance_id=instance_id, prompt_answ=prompt_answ)
-        att_col_l = i_rep.get_rep_attributes(conn=conn, report_id=report_id)
-        pa_raw_data_df = i_rep.rep_to_dataframe(
-            conn=conn, report_id=report_id, instance_id=instance_id, att_col_l=att_col_l
-        )
-        return pa_raw_data_df
-
-    def ZZZ_fetch_pa_data(self, conn, report_id):
-        # base function to fetch the raw data from PA over a simple report
-        # imput will be a uniqui job identification
-        pa_regam_inst_id = i_rep.open_Instance(conn=conn, report_id=report_id)
-
-        att_col_l = i_rep.get_rep_attributes(conn=conn, report_id=report_id)
-        pa_raw_data_df = i_rep.rep_to_dataframe(
-            conn=conn, report_id=report_id, instance_id=pa_regam_inst_id, att_col_l=att_col_l
-        )
-        return pa_raw_data_df
-
     def get_pa_prp_row_ans(self, pa_raw_data_d, prompt_id):
         # select the answer for a certain prompt
         # for a report for a certain report job
@@ -218,12 +196,10 @@ class RunPrpAnsBld:
     # of a certain mstr job
     def bld_pa_job_prp_JSON(self, conn, action_prp_l, pa_raw_data_df, hier_att_df, report_id, instance_id):
         prompt_ans_JSON_l = []
-        # print("1")
         print(prompt_ans_JSON_l)
         for p in action_prp_l:
             # the first step in parsing is
             # to check the prompt type
-            # print({"prompt_id":p["id"],"prompt_type":p["type"]})
             pa_ele_prp_row_ans_str = i_parse_pa.get_pa_prp_row_ans(pa_raw_data_df, prompt_id=p["id"])
             pa_ans_prsd_l = i_pa_parse_prp.pa_parse_ele_ans(pa_raw_ans_str=pa_ele_prp_row_ans_str)
 
@@ -237,7 +213,6 @@ class RunPrpAnsBld:
                     i_prompts.frame_prp_ans(prompt_id=p["id"], prp_type="ELEMENTS", prp_ans_JSON_l=prp_ele_ans_JSON_l)
                 )
             elif p["type"] == "VALUE":
-                # print(p)
                 prp_val_ans_JSON = i_pa_parse_prp.bld_val_prp_JSON(
                     prompt_id=p["id"], dataType=p["dataType"], val_str=pa_ele_prp_row_ans_str
                 )

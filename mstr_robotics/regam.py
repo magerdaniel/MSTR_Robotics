@@ -68,7 +68,6 @@ class RegamJobs:
         att_d = job_prp_ans_d
         att_l = []
         for metric in job_metrics_l:
-            # print(metric_id)
             if not metric["derived"]:
                 url = f"{conn.base_url}/api/model/metrics/{metric['id']}?showExpressionAs=tokens&showFilterTokens=true"
                 metric_d = conn.get(url).json()
@@ -190,7 +189,6 @@ class Regam:
 
         hier_att_df = self.i_load_master_data.read_out_sys_hier(conn=conn)
         tbl_upd_dict = [{"tbl_name": "hier_att_df", "df": hier_att_df, "update_policy": "REPLACE"}]
-        # print(tbl_upd_dict)
         hier_att_cube_id = i_cube.upload_cube_mult_table(
             conn,
             mtdi_id=hier_att_cube_id,
@@ -270,13 +268,10 @@ class TestExe:
             # create instance
             # and answer prompts
             # save report
-            # print(job)
             if job["sucsess_fg"]:
-                # print(job["rep_job"])
                 prompt_answ = job["prompt_ans"]
                 report_id = job["report_id"]
                 rep_name = bld_test_rep_name(job)
-                # print(prompt_answ)
                 instance_id = i_rep.open_Instance(conn=conn, report_id=report_id)
                 i_rep.set_inst_prompt_ans(
                     conn=conn, report_id=report_id, instance_id=instance_id, prompt_answ=prompt_answ
@@ -291,4 +286,3 @@ class TestExe:
 
                 except Exception as err:
                     print("Report: " + rep_name + " creation failed. Error msg:" + str(err))
-                # print(rep_df)

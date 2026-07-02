@@ -60,13 +60,18 @@ package nor in `notebooks\`/`tools\`/`examples\`**.
 - `user_rag.py` `ChatBot`/`VectorDbFaiss`: referenced by scripts in
   `Dansfiles\` (out-of-scope personal scripts); dead from the notebooks' view.
 
-### Explicitly experimental (author-marked `zzz`/`ZZZ` prefix) — safe removals
+### Explicitly experimental (author-marked `zzz`/`ZZZ` prefix) — REMOVED
+All `zzz`/`ZZZ`-prefixed members were verified unreferenced and deleted after
+this report was first written (same for ~59 commented-out `# print(...)` debug
+lines and the disabled code block wrapped in a string literal inside
+`CompareMstrObjects`):
 - `_connectors.py`: `zzz_fetch_cube_elements`, `ZZZ_get_cube_data`, `ZZZ_save_rep_sat_inst_as`
 - `_pa_etl.py`: `zzz_fetch_pa_data_prp`, `ZZZ_fetch_pa_data`
 - `read_out_prj_obj.py`: `zzz_obj_prp_search_dpn`, `zzz_trans_cbe_el_prp`
 - `navigation.py`: `zzz_fetch_mstr_keys`
 - `report.py`: `zzz_loop_att_exp_prp`, `zzz_get_form_type`, `zzzzloop_prp_ans_bld`
-- (already removed in Phase 3: `prepare_ai_data.ZzzRedisMstrJson`)
+- `json_compare.py`: string-disabled block with `bld_redis_key`, `zzz_fetch_comp_objdef_d_l`, `zzz_fetch_obj_id_from_sh_folder`
+- (removed in Phase 3: `prepare_ai_data.ZzzRedisMstrJson`)
 
 ### Unreferenced methods/classes in notebook-relevant modules (review before deleting)
 - `_connectors.py`: `get_report_sql`, `get_report_raw`
@@ -95,13 +100,13 @@ package nor in `notebooks\`/`tools\`/`examples\`**.
 
 | Location | Issue |
 |---|---|
-| `json_compare.py` (`JsonChecksumHandler.bld_redis_key`, ~line 640 pre-format) | Uses `i_redis_mstr_json`, whose import/instantiation is impossible here (circular import with `redis_db`). Calling this method raises `NameError`. Callers construct the same key via `redis_db.RedisMstrJson.bld_redis_key` instead. Suggest moving/deleting the method in v0.6. |
+| ~~`json_compare.py` `bld_redis_key` NameError~~ | Resolved: the offending code turned out to live inside a string-literal-disabled block in `CompareMstrObjects` (dead text, not executable) and has been deleted. |
 | `examples\example_fetch_definitions.py` | Imports `mstr_robotics.fetch_obj_definitions`, a module that does not exist. The example is broken/stale (docs/fetch_obj_definitions_README.md refers to the same missing module). |
 | `report.py` | Both `open_Instance` (used) and `open_instance` (unused) exist — near-duplicate implementations; consolidate in v0.6 when method names are normalized. |
 | `regam.py` `run_read_out_job_vis` | Was referencing undefined `i_dossiers`; repaired in Phase 3 to `i_mstr_api.create_dossier_instance` (the method lives on `MstrApi`). The method is itself unreferenced (see section 2). |
 
 ## 4. Suggested v0.6 actions
-1. Delete `cube_load.py` (or move to `tools\`) and all `zzz`/`ZZZ` members.
+1. Delete `cube_load.py` (or move to `tools\`). (`zzz`/`ZZZ` members: done.)
 2. Decide the fate of the four server entry points (keep = add a `servers`
    extra install + smoke test; retire = delete together with
    `user_run_compare.py`).

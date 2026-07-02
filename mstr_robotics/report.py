@@ -58,7 +58,6 @@ class Rep:
         setCurrentAsDefaultAnswer=True,
         folder_id="1346F3614BF3E15BC090ED96B76CD7AC",
     ):
-        # print(rep_name)
 
         data = {
             "name": rep_name,
@@ -77,7 +76,6 @@ class Rep:
     def bld_export_att_names(self, rep_def_resp):
         att_col_l = []
         for col in rep_def_resp.json()["definition"]["grid"]["rows"]:
-            # print(col["name"])
             for col_form in col["forms"]:
                 att_col_l.append(str(col["name"]).replace(" ", "_") + "@" + str(col_form["name"]).replace(" ", "_"))
         return att_col_l
@@ -302,7 +300,6 @@ class Prompts:
 
     def bld_att_exp_prp_l(self, prp_job_ans_d):
 
-        # print(prp_job_ans_d["filter_val_l"])
         att_form_exp_j = {
             "operator": prp_job_ans_d["operator"],
             "operands": [
@@ -323,8 +320,6 @@ class Prompts:
         return att_form_exp_j
 
     def bld_metric_exp_prp(self, metric_exp_prp):
-
-        # print(metric_exp_prp)
 
         # metric_exp_j = {"operator": metric_exp_prp["operator"], "operands":[]}
         metric_exp_j = {
@@ -430,44 +425,3 @@ class Prompts:
             prompt_answ = self.frame_prp(prp_ans=rep_open_prp_d_l)
             Rep().set_inst_prompt_ans(conn=conn, report_id=report_id, instance_id=instance_id, prompt_answ=prompt_answ)
         return
-
-    def zzz_loop_att_exp_prp(self, prp_job_ans_l):
-        expr_JSON_l = []
-        for att_exp_prp in prp_job_ans_l:
-            # att_exp_prp["operator"]
-            # print(att_exp_prp.keys())
-            att_form_exp_j = {
-                "operator": att_exp_prp["operator"],
-                "operands": [
-                    {
-                        "type": "form",
-                        "attribute": {"id": att_exp_prp["att_id"]},
-                        "form": {"id": att_exp_prp["att_form_id"]},
-                    },
-                    {
-                        "type": "constants",
-                        "dataType": att_exp_prp["form_data_type"],
-                        "values": [att_exp_prp["filter_val_l"]],
-                    },
-                ],
-            }
-            expr_JSON_l.append(att_form_exp_j)
-
-        return expr_JSON_l
-
-    def zzz_get_form_type(self, baseFormType):
-        form_type_d = {"number": "Numeric", "big_decimal": "BigDecimal"}
-        return form_type_d[baseFormType]
-
-    def zzzzloop_prp_ans_bld(self, raw_prp_l):
-        prp_ans_l = []
-        for p in raw_prp_l:
-            if p["p_type"] == "prp_att_exp_l":
-                print(len(p["att_exp_ans_l"]))
-                prp_ans_d = self.bld_expr_prp_answ(prompt_id=p["prompt_id"], att_exp_ans_l=p["att_exp_ans_l"])
-            if p["p_type"] == "object":
-                prp_ans_d = self.frame_prp_ans(
-                    prompt_id=p["prompt_id"], prp_type="OBJECTS", prp_ans_JSON_l=p["obj_prp"]
-                )
-            prp_ans_l.append(prp_ans_d)
-        return prp_ans_l

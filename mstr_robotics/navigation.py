@@ -123,7 +123,6 @@ class AnswerPrompts:
             how="inner",
         )
         filt_df = i_df_helper.clean_double_col(df=filt_df)
-        # print(filt_df)
         filter_val_l = []
         filt_df.drop_duplicates(inplace=True)
         for _index, f_form_ele in filt_df.iterrows():
@@ -178,7 +177,6 @@ class AnswerPrompts:
         rep_dos_obj_prp_rel_df = rep_dos_obj_prp_rel_df[rep_dos_obj_prp_rel_df["rep_dos_id"] == rep_dos_id]
         prp_ans_d_l = []
         vector_store.extract_keywords(msg_t=str(b_filter_d))
-        # print(rep_dos_id)
         # filt_obj_rag_df = i_map_objects.bld_ai_prp_ans(conn, cube_id=cube_obj_prp_rel_id,
         #                                               rep_dos_id=rep_dos_id, key_word_l=key_word_l)
 
@@ -217,7 +215,6 @@ class AnswerPrompts:
                                     filter_val_l=i_msic.list_elements_to_str(b_filter_d[f]["element_list"]),
                                 )
 
-                        # print(prp_ans_d)
                         prp_ans_d_l.append(prp_ans_d.copy())
 
                     if f[:9] == "att_qual_":
@@ -335,7 +332,6 @@ class AnswerPrompts:
                     prp_ans_d_all[prp_id].append(prp_ans["prp_ans_d"])
 
         for prp_id in prp_ans_d_all:
-            # print(prp_ans_d_all[prp_id])
             prp_ans_d_all[prp_id] = i_prompts.bld_exp_operands_d(p_ans_d_d_l=prp_ans_d_all[prp_id], operator="AND")
 
         for prp_ans_id in prp_ans_d_all:
@@ -377,31 +373,6 @@ class AnswerPrompts:
 
 
 class MstrObjects:
-    def zzz_fetch_mstr_keys(self, conn, cube_id, key_word_l, key_val_l=None):
-        if key_val_l is None:
-            key_val_l = ["key"]
-
-        disp_col_ids_l = []
-        attr_elements_l = []
-        #
-        # print(mstr_rag_col_d)
-        mstr_rag_col_d = i_cube.get_mtdi_cube_col_id(conn, cube_l=[cube_id])
-        for col_name in mstr_rag_col_d[cube_id].keys():
-            # cube_disp_col_l = mstr_rag_col_d[cube_id].keys()
-            # print(col_name)
-
-            if col_name in key_val_l:
-                for key in key_word_l:
-                    prp_ans_j = mstr_rag_col_d[cube_id][col_name] + ":" + str(key)
-                    attr_elements_l.append(prp_ans_j)
-
-            disp_col_ids_l.append(mstr_rag_col_d[cube_id][col_name])
-
-        df = i_cube.quick_query_cube(
-            conn=conn, cube_id=cube_id, attribute_l=disp_col_ids_l, metric_l=None, attr_elements=attr_elements_l
-        )
-        return df
-
     def get_att_elem_str(self, element_df_d_l, key_word_l):
         element_rag_d_l = []
         for df in element_df_d_l:

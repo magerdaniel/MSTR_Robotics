@@ -412,7 +412,6 @@ class MstrToJson:
                 ai_filt_d["attribute_name"] = filt["predicateTree"]["attribute"]["name"]
                 ai_filt_d["attribute_id"] = filt["predicateTree"]["attribute"]["objectId"]
                 element_l = []
-                # print(filt["predicateTree"]["attribute"])
                 for ele in filt["predicateTree"]["elements"]:
                     element_l.append(ele["display"])
                 ai_filt_d["ai_text"] = element_l

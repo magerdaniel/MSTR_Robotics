@@ -195,7 +195,6 @@ class Perplexity:
         return rag_sys_template
 
     def call_perplexity(self, msg_t, sys_cont, message_check_d, temperature=0.1):
-        # print(msg_t)
         # key_word_l = vector_store.extract_keywords(msg_t)
         import os
 
@@ -207,16 +206,13 @@ class Perplexity:
         try:
             # Create chat completion request
             messages = [{"role": "system", "content": sys_cont}, {"role": "user", "content": msg_t}]
-            # print(messages)
             response = client.chat.completions.create(
                 model="sonar-pro",  # Official model name for Perplexity-API
                 messages=messages,
                 temperature=temperature,
             )
 
-            # print(response)
             json_t = json.loads(response.json())
-            # print(json_t.keys())
             json_t_cont = self.extract_json(json_t["choices"][0]["message"]["content"])
             json_t_cont_s = self.clean_json(json_t_cont)
 
@@ -232,7 +228,6 @@ class Perplexity:
             message_check_d["valid_d_fg"] = 1
         except Exception as err:
             print(err)
-            # print(json.loads(response.json()))
             message_check_d["llm_msg"] = messages
             message_check_d["llm_ans"] = json_t
             message_check_d["ans_d"] = None
@@ -265,8 +260,6 @@ class Perplexity:
                         clean_structure_d["other"] = m["ans_d"]["other"]
 
                 except Exception:
-                    # print(err)
-                    # print( m["ans_d"])
                     pass
 
         # m_AI_ans_fin_d = self.merge_AI_ans_d(merge_AI_ans_d_l=clean_structure_d_l)

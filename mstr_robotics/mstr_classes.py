@@ -223,7 +223,6 @@ class MdSearches:
         search_obj_l = []
         mtdi_id = None
         for obj in obj_l:
-            # print(obj)
             a += 1
             # i.e. 8D67910B11D3E4981000E787EC6DE8A4;53
             obj_type = str(obj["id"]) + ";" + str(obj["type"])
@@ -308,7 +307,6 @@ class MdSearches:
                     if count_obj > max_count:
                         offset = serach_inst["totalItems"] + 1
 
-                # print(offset)
                 offset += limit
             except Exception as err:
                 print(err)

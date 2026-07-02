@@ -46,7 +46,6 @@ class DossReadOutDet:
         grid_definition = vis_def_d["definition"]["grid"]
         # vis_cont_d=i_read_report.zread_out_grid(vis_d=vis_d, grid_definition=grid_definition,
         #                                        vis_att_l=self.vis_att_l, vis_met_l=self.vis_met_l)
-        # print(grid_definition)
         grid_obj_l = i_read_report.read_out_grid(conn=conn, grid_definition=grid_definition)
         vis_obj_l_temp = []
         for obj in grid_obj_l:
@@ -84,19 +83,16 @@ class DossReadOutDet:
             try:
                 instance_id = i_mstr_api.create_dossier_instance(conn, dossier_id)
                 doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
-                # print(doss_hier)
                 self.visual_d = {}
                 self.visual_d["dossier_id"] = dossier_id
                 self.visual_d["dossier_name"] = doss_hier["name"]
                 self.visual_d["error_msg"] = ""
                 for chapter in doss_hier["chapters"]:
-                    # print(chapter)
                     self.visual_d["chapter_key"] = chapter["key"]
                     self.visual_d["chapter_name"] = chapter["name"]
                     self.read_pages_hier_det(conn=conn, chapter=chapter, instance_id=instance_id)
 
             except Exception as err:
-                # print(err)
                 self.visual_d["dossier_id"] = dossier_id
                 self.visual_d["dossier_name"] = ""
                 self.visual_d["chapter_key"] = ""
@@ -107,7 +103,6 @@ class DossReadOutDet:
                 self.visual_d["visual_name"] = ""
                 self.visual_d["visualizationType"] = ""
                 self.visual_d["error_msg"] = err
-        #   print(visual_dict)
         return self.vis_obj_l
 
 
@@ -153,14 +148,12 @@ class DossReadOut:
         self.visual_list = []
         for dossier_id in dossier_l:
             doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
-            # print(doss_hier)
             self.visual_d = {}
             self.visual_d["dossier_id"] = dossier_id
             # self.visual_dict["dossier_name"] = d.name
             self.visual_d["error_msg"] = ""
             try:
                 for chapter in doss_hier["chapters"]:
-                    # print(chapter)
                     self.visual_d["chapter_key"] = chapter["key"]
                     self.visual_d["chapter_name"] = chapter["name"]
                     self.read_pages_hier(chapter=chapter)
@@ -174,7 +167,6 @@ class DossReadOut:
                 self.visual_d["visual_name"] = ""
                 self.visual_d["visualizationType"] = ""
                 self.visual_d["error_msg"] = err
-        #   print(visual_dict)
         return self.visual_list
 
     def read_out_fil_selector(self, page_j_l, chapt_page_d):
@@ -197,13 +189,11 @@ class DossReadOut:
                 selector_d["target_key"] = t["key"]
                 selector_target_d_l.append(selector_d.copy())
             if len(s["targets"]) == 0:
-                # print(selector_d)
                 selector_target_d_l.append(selector_d.copy())
 
         for st in selector_target_d_l:
             sel_target_d = st
             if st["selector_type"] in ["attribute_element_list", "metric_qualification"]:
-                # print(st)
                 sel_target_d["target_object_id"] = st["source"]["id"]
                 sel_target_d["target_object_name"] = st["source"]["name"]
                 if st["source"]["type"] == 12:
@@ -278,7 +268,6 @@ class DossReadOut:
 
         for dossier_id in dossier_id_l:
             doss_hier = i_mstr_api.get_dossier_def(conn, dossier_id)
-            # print(doss_hier)
             try:
                 doss_filt_sel_d = {}
                 doss_filt_sel_d["dossier_id"] = dossier_id
@@ -299,7 +288,6 @@ class DossReadOut:
                     )
             except Exception as err:
                 print(err)
-                # print(doss_hier)
 
         return {"dos_filt_d_l": self.doss_filt_d_l, "page_selector_d_l": self.doss_filt_select_d_l}
 

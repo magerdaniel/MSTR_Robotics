@@ -173,7 +173,6 @@ class RedisBiAnalysis:
 
         for i in range(0, len(files), batch_size):
             batch = files[i : i + batch_size]
-            # print(batch)
             pipe = redis.pipeline()
             try:
                 for filename in batch:
@@ -220,7 +219,6 @@ class RedisBiAnalysis:
                 d = {"prefix": k["r_key"].split(":")[0], "c_subtype": k["r_value"]["information"]["subType"]}
                 subtype_l.append(d.copy())
             else:
-                # print(k.keys())
                 if "subtype" in k["r_value"].keys():
                     d = {"prefix": k["r_key"].split(":")[0], "c_subtype": k["r_value"]["subtype"]}
                     subtype_l.append(d.copy())
