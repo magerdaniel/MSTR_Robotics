@@ -29,7 +29,7 @@ A Python toolkit for MicroStrategy automation, object comparison, and Redis-base
 
 Run the Streamlit comparison interface:
 ```powershell
-streamlit run mstr_robotics/streamLit.py
+streamlit run mstr_robotics/streamlit_app.py
 ```
 
 ## Development
