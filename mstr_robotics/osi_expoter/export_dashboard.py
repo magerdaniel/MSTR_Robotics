@@ -474,7 +474,7 @@ def add_ai_context(osi_d: dict, path: str, ai_context: str, out_path: str = None
     add_ai_context(osi_d, "dashboards.chapters", "Chapter-level context for AI routing.")
 
     # write after all paths are enriched
-    add_ai_context(osi_d, "dashboards", "Sales overview EMEA.", out_path=r"C:\\OSI_Files\\out.yml")
+    add_ai_context(osi_d, "dashboards", "Sales overview EMEA.", out_path="out.yml")
     """
     def _set(node):
         if hasattr(node, "insert"):

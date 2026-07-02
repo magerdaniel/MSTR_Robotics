@@ -27,9 +27,11 @@ from mstr_robotics.user_RAG import keyword_processor, perplexity
 # Static configuration
 # ---------------------------------------------------------------------------
 
-CONFIG_PATH = r"C:\coding\Python_environments\mstr_robotics\config\user_d.json"
-ENV_PATH    = r"C:\coding\Python_environments\mstr_robotics\config\streamlit.env"
-MCP_DATA    = r"C:\coding\python_io\output_files\MCP_data"
+from mstr_robotics._paths import USER_CONFIG, ENV_FILE, MCP_DATA as _MCP_DATA
+
+CONFIG_PATH = str(USER_CONFIG)
+ENV_PATH    = str(ENV_FILE)
+MCP_DATA    = str(_MCP_DATA)
 
 PROJECT_ID      = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
 TEMPLATE_REP_ID = "25D40AD444B6D51B333021ADFB219501"

@@ -426,8 +426,9 @@ class read_gen():
                 # SUPER_CUBE = 779
                 # SUBER_CUBE_IRR = 780
 
-                obj_def = cubes.cube_definition(connection=conn, id=object_id)
+                obj_def = cubes.cube_definition(connection=conn, id=object_id).json()
 
+                
             else:
                 if obj_sub_type not in [3074,13569,14082,781,14336,14080,3078,13568,19457,17920,17921,2816,6656,1031,1028,1027,1026,1025] :
                     print("nicht gemappt")

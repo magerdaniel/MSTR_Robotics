@@ -440,7 +440,9 @@ class mstr_to_json:
                 obj_def={}
         
         except Exception as err:
-            print(f"Error preparing objefdfddct definition: {err}")
+    
+            print(f"Error preparing {obj_def_d} definition: {err}")
+            u=1/0
 
         return obj_def
 

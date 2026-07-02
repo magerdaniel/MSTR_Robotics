@@ -208,9 +208,21 @@ class cube():
         cbe = _Cube(connection=conn, id=cube_id)
         df_cbe = cbe.to_dataframe()
         return df_cbe
+    
+    def clean_cube_datatypes(self,cube_def_df):
+        for c in cube_def_df.columns:
+            if cube_def_df[c].dtype in ["int64","int32","int8","float64","bool"]:
+                cube_def_df[c]=cube_def_df[c].astype("float64")
+            else:
+                cube_def_df[c]
+        return cube_def_df
+
+
 
     def cube_upload_1_table(self, conn, load_df, tbl_name, updatePolicy="REPLACE",
                             folder_id=None, cube_name=None, mtdi_id=None, force=False):
+        
+        self.clean_cube_datatypes(load_df)
         if mtdi_id == None or mtdi_id =="":
             ds = super_cube.SuperCube(connection=conn, name=cube_name)
             ds.add_table(name=tbl_name, data_frame=load_df, update_policy=updatePolicy)
@@ -228,14 +240,14 @@ class cube():
             ds = super_cube.SuperCube(connection=conn, name=cube_name)
             for t in tbl_upd_dict:
                 ds.add_table(name=t["tbl_name"],
-                             data_frame=t["df"],
+                             data_frame=self.clean_cube_datatypes(t["df"]),
                              update_policy=t["update_policy"])
             ds.create(folder_id=folder_id,force=force)
         else:
             ds = super_cube.SuperCube(connection=conn, id=mtdi_id)
             for t in tbl_upd_dict:
                 ds.add_table(name=t["tbl_name"],
-                             data_frame=t["df"],
+                             data_frame=self.clean_cube_datatypes(t["df"]),
                              update_policy=t["update_policy"])
             ds.update()
 

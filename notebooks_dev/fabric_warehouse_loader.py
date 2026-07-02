@@ -11,6 +11,7 @@ from pathlib import Path
 from mstrio.connection import Connection
 from mstr_robotics import report
 from mstr_robotics._connectors import mstr_api
+from mstr_robotics._paths import USER_CONFIG
 
 import platform
 
@@ -307,7 +308,7 @@ def load_mstr_reports_to_fabric(mstr_conn: Connection, fabric_loader: FabricLake
 if __name__ == "__main__":
 
     # 1. Load MicroStrategy configuration
-    config_path = "C:\\coding\\Python_environments\\mstr_robotics\\config\\user_d.json"
+    config_path = USER_CONFIG
     with open(config_path, 'r') as file:
         user_d = json.load(file)
 

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\Git\\\\cmd;$env:Path\"; git --version; git status; git checkout -b v0.5-cleanup)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\Git\\\\cmd;$env:Path\"; git add -A; git commit -m \"Baseline: work-in-progress state before v0.5 cleanup\"; git log --oneline -3)"
+    ]
+  }
+}

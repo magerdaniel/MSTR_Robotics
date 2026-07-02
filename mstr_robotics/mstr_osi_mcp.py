@@ -1,6 +1,6 @@
 """
-MicroStrategy MCP Server
-Connects to MicroStrategy and exports report 89FFB2AE475653785E693DBA32A5E6F3
+mstr_robotics MCP Server
+
 """
 from dotenv import load_dotenv
 import json
@@ -28,10 +28,12 @@ WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 # Configuration – override via environment variables
 # ---------------------------------------------------------------------------
 
-with open('C:\\coding\\Python_environments\\mstr_robotics\\config\\user_d.json', 'r') as openfile:
+from mstr_robotics._paths import USER_CONFIG, ENV_FILE, OSI_PRODUKTION
+
+with open(USER_CONFIG, 'r') as openfile:
     user_d = json.load(openfile)
 
-ENV_PATH    = r"C:\coding\Python_environments\mstr_robotics\config\streamlit.env"
+ENV_PATH    = str(ENV_FILE)
 
 #set user credentials and open a connection to the i-server
 MSTR_USERNAME = user_d["conn_params"]["username"]
@@ -296,7 +298,7 @@ def get_visualization_data(
 # OSI dashboard selector
 # ---------------------------------------------------------------------------
 
-OSI_FOLDER = r"C:\coding\Python_environments\mstr_robotics\OSI_Produktion"
+OSI_FOLDER = str(OSI_PRODUKTION)
 
 ai_sys_dashbaord_prp  = "Your goal is to show the audience the dashboard context. "
 ai_sys_dashbaord_prp += "Using the provided files, you will extract and present relevant information. "
