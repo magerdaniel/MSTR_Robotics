@@ -1,20 +1,20 @@
 import pandas as pd
 import numpy as np
 import json
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics._connectors import MstrApi
 from mstrio.api import browsing
-from mstr_robotics.read_out_prj_obj import read_gen
-from mstr_robotics.user_rag import perplexity
+from mstr_robotics.read_out_prj_obj import ReadGen
+from mstr_robotics.user_rag import Perplexity
 from dotenv import load_dotenv
 from ruamel.yaml import YAML as RuamelYAML
 from ruamel.yaml.comments import CommentedMap
 
-i_mstr_api = mstr_api()
-u_perplexity = perplexity()
+i_mstr_api = MstrApi()
+u_perplexity = Perplexity()
 env_file = "..\\config\\streamlit.env"
 
 load_dotenv(env_file)
-i_read_gen = read_gen()
+i_read_gen = ReadGen()
 
 
 # ── MSTR → OSI type mappings ──────────────────────────────────────────────────
@@ -421,11 +421,11 @@ def fetch_json_search(conn, search_instance_resp, limit=100):
         print(e)
     return full_result_d_l
 
-def read_out_obj(conn, search_instance_resp, serch_obj):
+def read_out_obj(conn, search_instance_resp, search_obj):
     osi_list = fetch_json_search(conn, search_instance_resp, limit=100)
     ol = [{"id": o["id"], "type": o["type"], "subtype": o["subtype"]}
           for o in osi_list if o["subtype"] in [3072, 768, 1024, 3840, 3328]]
-    ol.append(serch_obj)
+    ol.append(search_obj)
     return [i_read_gen.get_obj_def(conn=conn, object_id=o["id"],
                                    obj_type=o["type"], obj_sub_type=o["subtype"]) for o in ol]
 

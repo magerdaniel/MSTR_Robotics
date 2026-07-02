@@ -117,14 +117,14 @@ if __name__ == "__main__":
 
             # Create run_compare instance with Redis config if available
             if redis_config and selected_redis_env:
-                i_user_run_compare = user_run_compare.run_compare(
+                i_user_run_compare = user_run_compare.RunCompare(
                     conn=conn,
                     redis_config=redis_config,
                     selected_redis_env=selected_redis_env
                 )
             else:
                 # Fallback to default behavior (loads from file)
-                i_user_run_compare = user_run_compare.run_compare(conn)
+                i_user_run_compare = user_run_compare.RunCompare(conn)
 
             result = i_user_run_compare.run_comparison(request.play_compare_d)
             return {"result": result}

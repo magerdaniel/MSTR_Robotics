@@ -10,16 +10,16 @@ import pandas as pd
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 from mstrio.connection import Connection
-from mstr_robotics.report import rep as MstrRep
-from mstr_robotics.read_out_prj_obj import read_gen
-from mstr_robotics._connectors import mstr_api
-from mstr_robotics.dossier import doss_read_out_det
+from mstr_robotics.report import Rep as MstrRep
+from mstr_robotics.read_out_prj_obj import ReadGen
+from mstr_robotics._connectors import MstrApi
+from mstr_robotics.dossier import DossReadOutDet
 
 from ruamel.yaml import YAML as RuamelYAML
 import requests
 import contextlib
 import sys
-_mstr_api = mstr_api()
+_mstr_api = MstrApi()
 
 WIKIDATA_USER_AGENT = "Mstrrobotics/1.0 (mstr_robotics MCP tool; https://www.wikidata.org/wiki/User:Mstrrobotics)"
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
@@ -128,7 +128,7 @@ def get_object_definitions(
     except Exception as e:
         return f"ERROR – could not connect to MicroStrategy: {e}"
 
-    i_read_gen = read_gen()
+    i_read_gen = ReadGen()
     try:
         obj_def_l = i_read_gen.get_proj_obj_def_by_id_l(conn=conn, obj_id_l=guid_list)
     except Exception as e:
@@ -174,7 +174,7 @@ def resolve_object_by_path(
         return f"ERROR – could not connect to MicroStrategy: {e}"
 
     try:
-        result = read_gen().get_obj_id_by_path(
+        result = ReadGen().get_obj_id_by_path(
             conn=conn,
             path_str=path_str,
             top_folder_id=top_folder_id,
@@ -274,7 +274,7 @@ def get_visualization_data(
     except Exception as e:
         return f"ERROR – could not connect to MicroStrategy: {e}"
 
-    i_det = doss_read_out_det()
+    i_det = DossReadOutDet()
     try:
         instance_id = _mstr_api.create_dossier_instance(conn, dossier_id)
     except Exception as e:
@@ -476,7 +476,7 @@ def run_and_answer_bi_question(
         data_text = export_report_tabular(report_id=object_id, project_id=project_id)
     else:
         try:
-            i_det = doss_read_out_det()
+            i_det = DossReadOutDet()
             hier_l = i_det.run_read_out_doss_hier_det(conn, [object_id])
             df = pd.DataFrame(hier_l) if hier_l else None
             data_text = (

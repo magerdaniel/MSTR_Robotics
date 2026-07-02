@@ -6,7 +6,7 @@ from flashtext import KeywordProcessor
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import OpenAIEmbeddings
 
-class keyword_processor():
+class KeywordProcessor():
 
     def __init__(self):
         self.KeywordProcessor = KeywordProcessor()
@@ -30,7 +30,7 @@ class keyword_processor():
         keywords_l = self.KeywordProcessor.extract_keywords(filt_obj_str)
         return keywords_l
 
-class vectorDB_faisst():
+class VectorDbFaiss():
 
     def __init__(self,sKey):
         self.i_embeddings = OpenAIEmbeddings(openai_api_key=sKey)
@@ -47,7 +47,7 @@ class vectorDB_faisst():
         filter_obj_name = results[0][0].page_content
         return filter_obj_name
 
-class mstr_openAI():
+class MstrOpenAi():
 
     def __init__(self):
         pass
@@ -73,7 +73,7 @@ class mstr_openAI():
         js = json.loads(chat_completion.json())
         return js
 
-class chat_bot():
+class ChatBot():
 
     def run_chat_msg(self,msg_t,sKey,model,vector_store,max_tokens,temperature):
         key_word_l = vector_store.check_keyword_all( filt_obj_str=msg_t)
@@ -83,11 +83,11 @@ class chat_bot():
 
         messages = self.split_AI_msg(msg_t, key_word_l)
 
-        json_t = mstr_openAI().call_open_AI(sKey=sKey, messages=messages, max_tokens=max_tokens, temperature=temperature, model=model)
+        json_t = MstrOpenAi().call_open_AI(sKey=sKey, messages=messages, max_tokens=max_tokens, temperature=temperature, model=model)
         json_t_d = json.loads(json_t["choices"][0]["message"]["content"])
         msg_filter_t = json_t_d["filter"]
         messages = self.filter_RAG_l(msg_t=msg_t, key_word_l=key_word_l, msg_filter_t=msg_filter_t)
-        json_f = mstr_openAI().call_open_AI(sKey=sKey, messages=messages, max_tokens=max_tokens, temperature=temperature, model=model)
+        json_f = MstrOpenAi().call_open_AI(sKey=sKey, messages=messages, max_tokens=max_tokens, temperature=temperature, model=model)
         json_f = json_f["choices"][0]["message"]["content"]
         filter_d = ast.literal_eval(json_f)
         json_fin = json_t_d.copy()
@@ -175,7 +175,7 @@ class chat_bot():
         ]
         return messages
 
-class mstr_openAI():
+class MstrOpenAi():
 
     def __init__(self):
         pass
@@ -201,7 +201,7 @@ class mstr_openAI():
         js = json.loads(chat_completion.json())
         return js
 
-class perplexity():
+class Perplexity():
 
     def clean_json(self, bad_json):
         cleaned = bad_json.replace('\\n', '')  # Escape newline

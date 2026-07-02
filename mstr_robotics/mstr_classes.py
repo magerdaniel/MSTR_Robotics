@@ -4,10 +4,10 @@ from mstrio.types import ObjectTypes, ObjectSubTypes
 from mstrio.api import objects as api_obj
 from mstrio.object_management import folder
 import pandas as pd
-from mstr_robotics._helper import msic,str_func
-from mstr_robotics.report import cube
-from mstr_robotics._lu_data import lu_mstr_md
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics._helper import Misc,StrFunc
+from mstr_robotics.report import Cube
+from mstr_robotics._lu_data import LuMstrMd
+from mstr_robotics._connectors import MstrApi
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 
@@ -17,14 +17,14 @@ def get_conn(base_url,project_id=None, *args,**kwargs):
     return conn
 
 
-class mstr_global:
+class MstrGlobal:
 
     def __init__(self):
         self.i_api_obj = api_obj
-        self.i_str_func=str_func()
+        self.i_str_func=StrFunc()
         self.i_ObjectTypes=ObjectTypes
-        self.i_mstr_api=mstr_api()
-        self.md_searches=md_searches()
+        self.i_mstr_api=MstrApi()
+        self.md_searches=MdSearches()
 
     def get_folder_obj_l(self, conn,  folder_id):
         #reads out the content of a folder
@@ -133,13 +133,13 @@ class mstr_global:
        #obj_type = {"OBJECT_TYPE_ID": "", "OBJECT_TYPE_BEZ": "None"}
        obj_type_d={}
 
-       for t in lu_mstr_md.lu_object_type(self):
+       for t in LuMstrMd.lu_object_type(self):
 
            if str(pa_obj_id)==str(t["PA_OBJ_TYPE_ID"]):
                return t["MD_OBJ_TYPE_ID"]
 
 
-class md_searches():
+class MdSearches():
     #this class is in the middle of development
     #big challange of seaches is the execution time
     #the size of recrusive dependency searches
@@ -150,9 +150,9 @@ class md_searches():
     def __init__(self,run_prop_d={}, dpn_prefix="dpn_"):
         self.brow = browsing
         self.i_api_obj=api_obj
-        self.cube_it=cube()
-        self.i_msic=msic()
-        self.i_str_func=str_func()
+        self.cube_it=Cube()
+        self.i_msic=Misc()
+        self.i_str_func=StrFunc()
         self.run_prop_d=run_prop_d
         self.dpn_prefix=dpn_prefix
 
@@ -311,7 +311,7 @@ class md_searches():
 
                 elif kwargs["info_level"] =="base_path":
                     #include the folder full path as a string
-                     obj_row_d = mstr_global().get_object_info_d(conn=conn,
+                     obj_row_d = MstrGlobal().get_object_info_d(conn=conn,
                                  object_id=obj_d["id"],
                                  type=obj_d["type"],
                                  dpn_prefix=dpn_prefix,

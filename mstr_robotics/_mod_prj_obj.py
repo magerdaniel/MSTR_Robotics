@@ -1,14 +1,14 @@
-from mstr_robotics.mstr_classes import mstr_global
-from mstr_robotics._connectors import mstr_api
-from mstr_robotics._helper import str_func
+from mstr_robotics.mstr_classes import MstrGlobal
+from mstr_robotics._connectors import MstrApi
+from mstr_robotics._helper import StrFunc
 
-class bld_short_cuts:
+class BldShortCuts:
 
     def __init__(self):
-        self.str= str_func()
+        self.str= StrFunc()
         #self.rep = rep
-        self.glob = mstr_global()
-        self.mstr_api = mstr_api()
+        self.glob = MstrGlobal()
+        self.mstr_api = MstrApi()
 
     def bld_short_cut(self,conn,folder_id,object_id,
                       object_type,new_name,object_desc):

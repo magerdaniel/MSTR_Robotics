@@ -4,21 +4,21 @@ from datetime import datetime
 import redis
 import json
 import os
-from mstr_robotics._helper import msic,str_func
-from mstr_robotics.prepare_ai_data import mstr_to_json
-from mstr_robotics._connectors import mstr_api
-from mstr_robotics.read_out_prj_obj import read_gen
-from mstr_robotics.json_compare import json_checksum_handler
+from mstr_robotics._helper import Misc,StrFunc
+from mstr_robotics.prepare_ai_data import MstrToJson
+from mstr_robotics._connectors import MstrApi
+from mstr_robotics.read_out_prj_obj import ReadGen
+from mstr_robotics.json_compare import JsonChecksumHandler
 from typing import List, Optional
 from collections import deque
-i_msic=msic()
-i_str_func=str_func()
-i_mstr_to_json=mstr_to_json()
-i_mstr_api=mstr_api()
-i_read_gen=read_gen()
-i_json_checksum_handler=json_checksum_handler()
+i_msic=Misc()
+i_str_func=StrFunc()
+i_mstr_to_json=MstrToJson()
+i_mstr_api=MstrApi()
+i_read_gen=ReadGen()
+i_json_checksum_handler=JsonChecksumHandler()
 
-class redis_bi_analysis():
+class RedisBiAnalysis():
  
     def __init__(self, username, host: str = 'localhost', port: int = 14995, db: int = 0, 
                  password: Optional[str] = None, decode_responses: bool = True):
@@ -269,7 +269,7 @@ class redis_bi_analysis():
         return map_mstr_types_d
   
 
-class fetch_it_all:
+class FetchItAll:
 
     def __init__(self, i_redis_bi_analysis):
         self.i_redis_bi_analysis=i_redis_bi_analysis
@@ -399,7 +399,7 @@ class fetch_it_all:
         
         return child_keys
 
-class redis_mstr_json:
+class RedisMstrJson:
     # in this class I bundle all methods related to Redis and MSTR JSON handling
 
     def bld_redis_key(self,conn,object_id,env_prefix):

@@ -2,7 +2,7 @@
 Example: How to use the fetch_obj_definitions tool
 """
 from mstr_robotics.fetch_obj_definitions import fetch_object_definitions, ObjectDefinitionFetcher
-# from mstr_robotics._connectors import mstr_api  # Uncomment when you have your connection setup
+# from mstr_robotics._connectors import MstrApi  # Uncomment when you have your connection setup
 
 # Example 1: Quick usage with the convenience function
 def example_quick_fetch():

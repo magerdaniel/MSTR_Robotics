@@ -1,26 +1,26 @@
 from mstrio.utils import parser
 from mstrio.api import reports,cubes
 from mstrio.project_objects import OlapCube
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics._connectors import MstrApi
 from mstrio.project_objects.datasets import super_cube
 from mstrio.project_objects.datasets.cube import _Cube
 from mstrio.project_objects.report import Report
 from mstrio.api.cubes import cube_definition
 import pandas as pd
-from mstr_robotics.mstr_pandas import df_helper
-from mstr_robotics._helper import msic,str_func
+from mstr_robotics.mstr_pandas import DfHelper
+from mstr_robotics._helper import Misc,StrFunc
 import json
 
-i_mstr_api=mstr_api()
-i_msic=msic()
-i_str_func=str_func()
+i_mstr_api=MstrApi()
+i_msic=Misc()
+i_str_func=StrFunc()
 
-class rep:
+class Rep:
 
     def __init__(self):
         self.i_reports = reports
         self.i_parser = parser
-        self.i_df_helper=df_helper()
+        self.i_df_helper=DfHelper()
 
 
     def open_Instance(self, conn, report_id):
@@ -171,7 +171,7 @@ class rep:
 
 
 
-class cube():
+class Cube():
 
     def open_instance(self,conn, cube_id):
         i_api_cubes = cubes
@@ -262,7 +262,7 @@ class cube():
                             )
         return quick_cube.to_dataframe()
 
-class prompts():
+class Prompts():
 
     def set_expr_prp_answ(self,prompt_id, prp_job_ans_l):
         # move to classes
@@ -398,7 +398,7 @@ class prompts():
 
     def close_open_prp(self,conn, report_id, instance_id, prompt_answ):
         # checks the answered prp
-        rep_stat = rep().get_open_prp_stat(conn=conn, report_id=report_id, instance_id=instance_id)
+        rep_stat = Rep().get_open_prp_stat(conn=conn, report_id=report_id, instance_id=instance_id)
 
         if rep_stat == 2:
             prompt_answ_d = json.loads(prompt_answ)
@@ -406,7 +406,7 @@ class prompts():
             prp_ans_id_l = i_msic.keep_cols_from_dict_l(list_l=prp_ans_d_l, keep_cols=["id"])
 
             # checks the all prp in report / dashboard
-            rep_open_prp_d_l = rep().get_open_prompts(conn=conn, report_id=report_id, instance_id=instance_id)
+            rep_open_prp_d_l = Rep().get_open_prompts(conn=conn, report_id=report_id, instance_id=instance_id)
             rep_open_prp_id_l = i_msic.keep_cols_from_dict_l(list_l=rep_open_prp_d_l, keep_cols=["id"])
 
             # checks the prp not answered jet
@@ -426,7 +426,7 @@ class prompts():
                         open_prp_d["answers"] = {}
                     rep_open_prp_d_l.append(open_prp_d.copy())
             prompt_answ = self.frame_prp(prp_ans=rep_open_prp_d_l)
-            rep().set_inst_prompt_ans(conn=conn, report_id=report_id, instance_id=instance_id,
+            Rep().set_inst_prompt_ans(conn=conn, report_id=report_id, instance_id=instance_id,
                                                 prompt_answ=prompt_answ)
         return
 

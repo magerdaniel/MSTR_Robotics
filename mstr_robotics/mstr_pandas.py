@@ -1,6 +1,6 @@
 import pandas as pd
 
-class df_helper():
+class DfHelper():
 
     def clean_double_col(self, df, postfix_left="_x", postfix_right="_y"):
         # postfix_left gets removed

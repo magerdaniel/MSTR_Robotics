@@ -1,5 +1,5 @@
 
-class lu_mstr_md:
+class LuMstrMd:
     # object types and object subtypes are a pain
     # we have difference in the MD, in PA and REST API
 

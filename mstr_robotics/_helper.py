@@ -1,7 +1,7 @@
 from sqlalchemy import text
 
 
-class str_func:
+class StrFunc:
 
     def web_base_url(self,base_url):
         url_start = base_url.split("/")  # Split by backslash
@@ -89,7 +89,7 @@ class str_func:
 
         return mstr_obj_guid
 
-class msic():
+class Misc():
 
     def get_dict_with_id_in_l(self,dict_l,search_l,key="id"):
         #this function extracts dicts within in a list

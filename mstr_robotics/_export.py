@@ -1,7 +1,7 @@
 import json
 
 
-class file_io():
+class FileIo():
     #this class handels th io
     # with the folder sytems
 
@@ -25,7 +25,7 @@ class file_io():
 
         return rag_obj_l
 
-class get_obj_JSON():
+class GetObjJson():
 
     def extract_obj_JSON(self, conn,obj_id,obj_type_id):
         pass

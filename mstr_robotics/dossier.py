@@ -1,15 +1,15 @@
 import pandas as pd
-from mstr_robotics._connectors import mstr_api
-from mstr_robotics.read_out_prj_obj import read_report
+from mstr_robotics._connectors import MstrApi
+from mstr_robotics.read_out_prj_obj import ReadReport
 
-i_mstr_api=mstr_api()
-i_read_report=read_report()
+i_mstr_api=MstrApi()
+i_read_report=ReadReport()
 
-class dossier_global():
+class DossierGlobal():
 
     pass
 
-class doss_read_out_det():
+class DossReadOutDet():
     visual_d = {}
     visual_list=[]
     #doss_filt_d_l = []
@@ -105,7 +105,7 @@ class doss_read_out_det():
         #   print(visual_dict)
         return self.vis_obj_l
 
-class doss_read_out():
+class DossReadOut():
 
     def __init__(self):
         self.doss_filt_d_l = []

@@ -1,21 +1,21 @@
 import pandas as pd
 import json
-from mstr_robotics.report import prompts,cube,rep
-from mstr_robotics.mstr_pandas import df_helper
-from mstr_robotics._helper import msic
-from mstr_robotics.prepare_ai_data import map_objects
-from mstr_robotics.read_out_prj_obj import read_gen
+from mstr_robotics.report import Prompts,Cube,Rep
+from mstr_robotics.mstr_pandas import DfHelper
+from mstr_robotics._helper import Misc
+from mstr_robotics.prepare_ai_data import MapObjects
+from mstr_robotics.read_out_prj_obj import ReadGen
 import ast
 
-i_read_gen=read_gen()
-i_rep=rep()
-i_prompts=prompts()
-i_df_helper=df_helper()
-i_cube=cube()
-i_map_objects=map_objects()
-i_msic=msic()
+i_read_gen=ReadGen()
+i_rep=Rep()
+i_prompts=Prompts()
+i_df_helper=DfHelper()
+i_cube=Cube()
+i_map_objects=MapObjects()
+i_msic=Misc()
 
-class answer_prompts():
+class AnswerPrompts():
 
 
     def __init__(self,obj_prp_rel_df=None
@@ -317,7 +317,7 @@ class answer_prompts():
 
  
 
-class mstr_objects():
+class MstrObjects():
 
 
     def zzz_fetch_mstr_keys(self,conn, cube_id, key_word_l, key_val_l=["key"]):

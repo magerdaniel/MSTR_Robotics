@@ -1,12 +1,12 @@
-from mstr_robotics.report import cube,rep
-#from mstr_robotics.json_analyser import parse_json
-from mstr_robotics._helper import msic
-from mstr_robotics._connectors import mstr_api
-from mstr_robotics.mstr_classes import mstr_global
-from mstr_robotics.read_out_prj_obj import io_attributes,read_gen
+from mstr_robotics.report import Cube,Rep
+#from mstr_robotics.json_analyser import ParseJson
+from mstr_robotics._helper import Misc
+from mstr_robotics._connectors import MstrApi
+from mstr_robotics.mstr_classes import MstrGlobal
+from mstr_robotics.read_out_prj_obj import IoAttributes,ReadGen
 from mstrio.api.browsing import get_objects_from_quick_search
-#from mstr_robotics.json_checksum_handler import json_checksum_handler
-from mstr_robotics.json_compare import json_checksum_handler
+#from mstr_robotics.JsonChecksumHandler import JsonChecksumHandler
+from mstr_robotics.json_compare import JsonChecksumHandler
 import re
 from datetime import datetime
 import copy
@@ -15,19 +15,19 @@ import json
 
 
 
-io_att=io_attributes()
+io_att=IoAttributes()
 
-i_cube=cube()
-i_msic=msic()
-i_mstr_global=mstr_global()
-i_rep=rep()
-i_mstr_api=mstr_api()
-i_read_gen=read_gen()
-i_json_checksum_handler=json_checksum_handler()
+i_cube=Cube()
+i_msic=Misc()
+i_mstr_global=MstrGlobal()
+i_rep=Rep()
+i_mstr_api=MstrApi()
+i_read_gen=ReadGen()
+i_json_checksum_handler=JsonChecksumHandler()
 
 
 
-class export_mstr_md():
+class ExportMstrMd():
 
     def read_out_prj_by_type(self,conn,obj_types_d=None):
     
@@ -58,7 +58,7 @@ class export_mstr_md():
                 print(len(obj_d_l))
                 return obj_d_l
 
-class sort_mstr_json:
+class SortMstrJson:
     # within the exported MD definitions there are sometimes lists, where the order does not matter
     # i.e. parent child relationships. In some of those cases, MSTR sorts the order randomly
     # to simplify comparison, we sort those lists by creating a hash/checksum of their content
@@ -162,9 +162,9 @@ class sort_mstr_json:
         return self.sort_json_lists_by_hash(json_obj, obj_type)
     
 
-class mstr_to_json:
+class MstrToJson:
     def __init__(self):
-        self.i_parse_json=parse_json()
+        self.i_parse_json=ParseJson()
         pass
 
     def add_ai_obj_to_l(self,obj):
@@ -433,7 +433,7 @@ class mstr_to_json:
                     if obj_def_d["subtype"]=="257":
                         obj_def = self.replace_random_id(obj_def,key_to_replace="id", path_l=["elements"])
                     #if obj_def_d["type"] not in ["55","3"]:
-                    #    obj_def = sort_mstr_json().sort_json_lists_by_keys(json_obj=obj_def,obj_type=obj_def_d["type"])
+                    #    obj_def = SortMstrJson().sort_json_lists_by_keys(json_obj=obj_def,obj_type=obj_def_d["type"])
 
                     obj_def = self.sort_all_lists(obj_def, ["dateModified", "dateCreated", "version", "checksum_obj_def", "checksum_obj_ACL", "obj_uploaded"])
             else:
@@ -446,7 +446,7 @@ class mstr_to_json:
 
         return obj_def
 
-class parse_json():
+class ParseJson():
     def __init__(self):
         self.filter_def_l = []
         self.obj_path=[]
@@ -517,7 +517,7 @@ class parse_json():
 
         return all_pairs
     
-class map_objects():
+class MapObjects():
 
     def get_doss_rep_prp(self,conn, object_l):
         prp_rep_l = []
@@ -550,7 +550,7 @@ class map_objects():
         all_rep_prp_d = {"prp_rep_l": prp_rep_l, "prp_rep_err_l": prp_rep_err_l}
         return all_rep_prp_d
 
-class clean_mstr_ids:
+class CleanMstrIds:
     #there are a bunch of id's in object definitions, that are changing as soon as the object
     # is beeing saved. This causes trouble, as soon as we want to compare objects using their
     # definitions n JSON
@@ -581,7 +581,7 @@ class clean_mstr_ids:
 
         return json_obj_def
 
-class zzz_redis_mstr_json:
+class ZzzRedisMstrJson:
     # in this class I bundle all methods related to Redis and MSTR JSON handling
 
     def bld_redis_key(self,  child_obj_d_l,env_prefix=""):
@@ -610,7 +610,7 @@ class zzz_redis_mstr_json:
                      "search_id":s["search_id"],
                         "obj_type":39
                     }
-            obj_def=mstr_to_json().create_obj_def_search_rel(obj_def=obj_def
+            obj_def=MstrToJson().create_obj_def_search_rel(obj_def=obj_def
                                                             ,search_obj_d_l=search_result["result"]
                                                             ,prefix_map=prefix_map)
             
@@ -626,10 +626,10 @@ class zzz_redis_mstr_json:
         for o in all_obj_d_l:
             try:
                 # Get object definition
-                obj_def = mstr_to_json().prepare_obj_def(conn=conn, obj_def_d=o)
+                obj_def = MstrToJson().prepare_obj_def(conn=conn, obj_def_d=o)
 
                         
-                obj_def= mstr_to_json().child_object_handler(conn=conn,obj_def=obj_def,
+                obj_def= MstrToJson().child_object_handler(conn=conn,obj_def=obj_def,
                                                             obj_type=o["type"],prefix_map=prefix_map)
 
                 obj_def = i_json_checksum_handler.add_checksums_to_object(obj_data=obj_def)

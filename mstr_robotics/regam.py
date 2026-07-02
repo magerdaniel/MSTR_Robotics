@@ -3,15 +3,15 @@ This module is designed to control workflows round regression testing based on P
 """
 import warnings
 import uuid
-from mstr_robotics.report import rep, prompts, cube
-from mstr_robotics.report import rep,prompts,cube
-#from mstr_robotics.dossier import doss_read_out,doss_read_out_det,dossier_global
-from mstr_robotics._helper import msic
-from mstr_robotics.mstr_classes import mstr_global, get_conn
-from mstr_robotics.read_out_prj_obj import read_out_hierarchy,io_attributes
-from mstr_robotics._pa_etl import run_prp_ans_bld, parse_pa
-from mstr_robotics._export import file_io
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics.report import Rep, Prompts, Cube
+from mstr_robotics.report import Rep,Prompts,Cube
+#from mstr_robotics.dossier import DossReadOut,DossReadOutDet,DossierGlobal
+from mstr_robotics._helper import Misc
+from mstr_robotics.mstr_classes import MstrGlobal, get_conn
+from mstr_robotics.read_out_prj_obj import ReadOutHierarchy,IoAttributes
+from mstr_robotics._pa_etl import RunPrpAnsBld, ParsePa
+from mstr_robotics._export import FileIo
+from mstr_robotics._connectors import MstrApi
 from mstrio.api import reports
 import pandas as pd
 
@@ -19,18 +19,18 @@ warnings.filterwarnings("ignore")
 
 #i_dossiers=dossiers()
 i_reports = reports
-i_mstr_global = mstr_global()
-i_mstr_api = mstr_api()
+i_mstr_global = MstrGlobal()
+i_mstr_api = MstrApi()
 i_get_conn = get_conn
-i_rep = rep()
-i_io_attributes=io_attributes()
-i_prompts = prompts()
-i_msic = msic()
-i_cube=cube()
-i_file_io=file_io()
+i_rep = Rep()
+i_io_attributes=IoAttributes()
+i_prompts = Prompts()
+i_msic = Misc()
+i_cube=Cube()
+i_file_io=FileIo()
 
-i_run_prp_ans_bld = run_prp_ans_bld()
-i_parse_pa = parse_pa()
+i_run_prp_ans_bld = RunPrpAnsBld()
+i_parse_pa = ParsePa()
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 
@@ -42,7 +42,7 @@ def bld_test_rep_name(unique_job_d):
     return unique_job_d["report_name"]+"_"+unique_job_d["report_id"]+"_sess_" +unique_job_d["session"]+"_rep_job"+str(unique_job_d["rep_job"])
 
 
-class regam_jobs():
+class RegamJobs():
     def read_from_report(self,conn,pa_rep_l):
         #the output is a dataframe containing user report jobs
         #this is used as input to execute the tests
@@ -50,9 +50,9 @@ class regam_jobs():
         for pa_rep in pa_rep_l:
 
             if not 'all_jobs_df' in locals():
-                all_jobs_df=pa_jobs_df=regam().fetch_pa_rep_jobs(conn=conn,                                              report_id=pa_rep["report_id"])
+                all_jobs_df=pa_jobs_df=Regam().fetch_pa_rep_jobs(conn=conn,                                              report_id=pa_rep["report_id"])
             else:
-                all_jobs_df=all_jobs_df.append(regam().fetch_pa_rep_jobs(conn=conn,
+                all_jobs_df=all_jobs_df.append(Regam().fetch_pa_rep_jobs(conn=conn,
                                                                                 report_id=pa_rep["report_id"])
 
                 )
@@ -138,14 +138,14 @@ class regam_jobs():
         return prp_ans_l
 
 
-class regam():
+class Regam():
     """
     this class controls the extraction and parsing of
     the PA raw data
     """
     def __init__(self, run_prop_d={}):
         self.run_prop_d=run_prop_d
-        self.i_load_master_data = read_out_hierarchy(self.run_prop_d)
+        self.i_load_master_data = ReadOutHierarchy(self.run_prop_d)
 
     def fetch_pa_rep_jobs(self, pa_conn,  pa_report_id,prompt_answ=None):
         # PA report to fetch the user executions
@@ -226,7 +226,7 @@ class regam():
 
         return {"run_id": run_id,"all_jobs_prp_ans_JSON_l":all_jobs_prp_ans_JSON_l}
 
-class test_exe():
+class TestExe():
 
     def run_test_exe(self,conn,all_jobs_prp_ans_JSON_l):
 

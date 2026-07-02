@@ -1,24 +1,24 @@
 from warnings import filters
-from mstr_robotics._helper import msic
-from mstr_robotics.mstr_pandas import df_helper
-from mstr_robotics.mstr_classes import mstr_global,md_searches
-from mstr_robotics.report import cube,rep,prompts
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics._helper import Misc
+from mstr_robotics.mstr_pandas import DfHelper
+from mstr_robotics.mstr_classes import MstrGlobal,MdSearches
+from mstr_robotics.report import Cube,Rep,Prompts
+from mstr_robotics._connectors import MstrApi
 from mstrio.api import facts, attributes, user_hierarchies,tables, filters, metrics,cubes,transformations,security_filters
 from mstrio.types import ObjectTypes,ObjectSubTypes
 import pandas as pd
 
-i_mstr_global=mstr_global()
-i_md_searches=md_searches()
-i_df_helper=df_helper()
-i_msic=msic()
-i_cube=cube()
-i_rep=rep()
-i_prompts=prompts()
-i_mstr_api=mstr_api()
+i_mstr_global=MstrGlobal()
+i_md_searches=MdSearches()
+i_df_helper=DfHelper()
+i_msic=Misc()
+i_cube=Cube()
+i_rep=Rep()
+i_prompts=Prompts()
+i_mstr_api=MstrApi()
 
 
-class read_out_hierarchy():
+class ReadOutHierarchy():
 
     def __init__(self,run_prop_d={}):
         self.run_prop_d=run_prop_d
@@ -26,7 +26,7 @@ class read_out_hierarchy():
     def _read_hier_in_prp(self, conn):
         #reads out hierarchies used in prompts
         #currently not used
-        all_proj_prp_rep_l=prompts().get_project_prp(conn=conn)
+        all_proj_prp_rep_l=Prompts().get_project_prp(conn=conn)
         proj_prp_hier_l = []
         for p in all_proj_prp_rep_l:
             try:
@@ -93,7 +93,7 @@ class read_out_hierarchy():
 
         return hier_att_df
 
-class read_table_def():
+class ReadTableDef():
 
     def __init__(self):
         self.columns = ["project_id", "table_id", "logical_table_name", "physical_table_name", "column_id", "column_name"]
@@ -144,7 +144,7 @@ class read_table_def():
 
         return tbl_col_l
 
-class io_facts():
+class IoFacts():
     def __init__(self):
         self.i_read_fact=facts.read_fact
         self.run_prop_d={}
@@ -181,7 +181,7 @@ class io_facts():
 
         return all_fact_maps_l
 
-class io_attributes():
+class IoAttributes():
 
     def __init__(self):
         self.i_read_att=attributes.get_attribute
@@ -273,12 +273,12 @@ class io_attributes():
             print(err)
         return key_form_l
 
-class read_schema():
+class ReadSchema():
 
     def __init__(self):
-        self.io_attributes=io_attributes()
-        self.io_facts = io_facts()
-        self.read_table_def=read_table_def()
+        self.io_attributes=IoAttributes()
+        self.io_facts = IoFacts()
+        self.read_table_def=ReadTableDef()
 
     def set_run_prop_d(self, run_prop_d):
         self.io_attributes.run_prop_d=run_prop_d
@@ -314,7 +314,7 @@ class read_schema():
 
         return schema_df_d
 
-class read_gen():
+class ReadGen():
     def __init__(self):
         self.obj_read_error_d_l=[]
         self.obj_not_mapped_d_l=[]
@@ -564,7 +564,7 @@ class read_gen():
         }
 
 
-class read_prompts():
+class ReadPrompts():
 
     def __init__(self):
         self.prompt_def_l = []
@@ -790,7 +790,7 @@ class read_prompts():
                                       , cube_name=cube_name, folder_id=cube_folder_id, force=force)
 
 
-class read_report():
+class ReadReport():
 
     def __init__(self):
         self.run_prop_d={}
@@ -1044,7 +1044,7 @@ class read_report():
         rep_def_df = i_df_helper.clean_double_col(df=rep_def_df)
         return rep_def_df
 
-class read_cube():
+class ReadCube():
 
     def read_cube_model_header(self,conn, cube_id, cube_head_d=None):
         cube_all_def_d = i_mstr_api.get_cube_all_def(conn=conn, cube_id=cube_id,)

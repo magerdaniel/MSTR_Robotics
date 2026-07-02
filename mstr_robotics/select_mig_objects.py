@@ -1,26 +1,26 @@
-from mstr_robotics.report import cube, rep
-from mstr_robotics.mstr_classes import mstr_global,md_searches,get_conn
-from mstr_robotics._mod_prj_obj import bld_short_cuts
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics.report import Cube, Rep
+from mstr_robotics.mstr_classes import MstrGlobal,MdSearches,get_conn
+from mstr_robotics._mod_prj_obj import BldShortCuts
+from mstr_robotics._connectors import MstrApi
 from datetime import datetime
-from mstr_robotics._helper import str_func
+from mstr_robotics._helper import StrFunc
 import pandas as pd
 from typing import Optional
 from IPython.display import display
 
-class open_conn():
+class OpenConn():
 
     def login(self,base_url,*args,**kwargs):
         return get_conn(self, *args,**kwargs)
 
-class get_change_log:
+class GetChangeLog:
 
     def __init__(self):
-        self.str= str_func()
-        self.rep = rep()
-        self.mstr_api = mstr_api()
-        self.glob = mstr_global()
-        self.run_shortcut=bld_short_cuts()
+        self.str= StrFunc()
+        self.rep = Rep()
+        self.mstr_api = MstrApi()
+        self.glob = MstrGlobal()
+        self.run_shortcut=BldShortCuts()
 
     def set_md_rep_params(self,conn,change_log_report):
         self.conn=conn
@@ -134,7 +134,7 @@ class get_change_log:
             prompt_ans = f'{{"prompts":[{prompt_ans}]}}'
         return prompt_ans
 
-class bld_mig_content():
+class BldMigContent():
 
     def from_folder(self, fold_short_cut_l,action="FORCE_REPLACE",include_dependents=False):
         #purpose of this fucntion is to read out the base objects of short cuts

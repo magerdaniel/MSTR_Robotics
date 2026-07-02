@@ -1,15 +1,15 @@
-from mstr_robotics.report import rep
-from mstr_robotics.report import prompts
-from mstr_robotics._connectors import mstr_api
+from mstr_robotics.report import Rep
+from mstr_robotics.report import Prompts
+from mstr_robotics._connectors import MstrApi
 #from mstr_robotics.export import trans_data
 
 from datetime import datetime
-i_rep=rep()
-i_prompts=prompts()
-i_mstr_api=mstr_api()
+i_rep=Rep()
+i_prompts=Prompts()
+i_mstr_api=MstrApi()
 #i_trans_data=trans_data()
 
-class parse_pa():
+class ParsePa():
     stop_job_exe=False
     def rem_braket(self, exp):
         #attribute forms are marked with brakets in PA
@@ -61,7 +61,7 @@ class parse_pa():
             id_l.append(prp_l[1]["Prompt@GUID"])
         return list(dict.fromkeys(id_l))
 
-class pa_parse_prp():
+class PaParsePrp():
     #this class handels the extraction, parsing
     #and enrichment of element, object and value prompts
     def pa_parse_ele_ans(self, pa_raw_ans_str):
@@ -108,8 +108,8 @@ class pa_parse_prp():
             val_str=val_str
         return val_str
 
-i_parse_pa=parse_pa()
-class parse_att_exp_prp():
+i_parse_pa=ParsePa()
+class ParseAttExpPrp():
     #expression prompts are the most complicated prompts
     #to prompts. Supported compare logigs:
     # "excatly"
@@ -153,11 +153,11 @@ class parse_att_exp_prp():
         #operaters like between, isNull and others are not supported
         exp_ans_d = {}
         if len(pa_exp_ans)>0:
-            pa_exp_ans=parse_pa().rem_braket(pa_exp_ans)
-            pa_exp_ans=parse_pa().rem_curly(pa_exp_ans)
+            pa_exp_ans=ParsePa().rem_braket(pa_exp_ans)
+            pa_exp_ans=ParsePa().rem_curly(pa_exp_ans)
             split_operator_val_l = pa_exp_ans.strip().split(" ")
             exp_ans_d["att_name"]=split_operator_val_l[0]
-            exp_ans_d["att_form_name"]=parse_pa().rem_braket(split_operator_val_l[1])
+            exp_ans_d["att_form_name"]=ParsePa().rem_braket(split_operator_val_l[1])
             exp_ans_d["operator"]=split_operator_val_l[2]
             exp_ans_d["val"]=split_operator_val_l[3]
 
@@ -186,10 +186,10 @@ class parse_att_exp_prp():
                                            ,"operator": ans["operator"]
                                            })
         return att_GUID_exp_ans_l
-i_pa_parse_prp=pa_parse_prp()
-i_parse_att_exp_prp=parse_att_exp_prp()
+i_pa_parse_prp=PaParsePrp()
+i_parse_att_exp_prp=ParseAttExpPrp()
 
-class run_prp_ans_bld():
+class RunPrpAnsBld():
     #this class controls the parsing of the
     # pa answers and the generation of the prompts answer JSON
     # of a certain mstr job
@@ -244,7 +244,7 @@ class run_prp_ans_bld():
         return prompt_ans_JSON_l
 
 """
-class parse_exp_prp():
+class ParseExpPrp():
 
     def pa_parse_metric_ans(self,list_values,elemnt ):
         pa_exp_ans_l = elemnt["String"].split(" And ")

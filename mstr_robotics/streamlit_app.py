@@ -1,6 +1,6 @@
 import streamlit as st
 import yaml
-from mstr_robotics.redis_db import redis_bi_analysis
+from mstr_robotics.redis_db import RedisBiAnalysis
 from mstr_robotics.json_compare import JSONPathHelper, JSONFilterUtils, remove_after_last_dot_if_bracket
 import requests
 import uuid
@@ -407,7 +407,7 @@ class RedisManager:
     def connect_to_redis(redis_con_d):
         """Connect to Redis database"""
         try:
-            i_redis = redis_bi_analysis(
+            i_redis = RedisBiAnalysis(
                 host=redis_con_d["host"],
                 port=redis_con_d["port"],
                 password=redis_con_d["password"],

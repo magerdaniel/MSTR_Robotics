@@ -8,20 +8,20 @@ from html import escape
 import json
 import hashlib
 from pathlib import Path
-from mstr_robotics.read_out_prj_obj import read_gen
-#from mstr_robotics.prepare_ai_data import redis_mstr_json
-#from mstr_robotics.redis_db import redis_mstr_json
-from mstr_robotics.mstr_classes import mstr_global
-from mstr_robotics._helper import msic
+from mstr_robotics.read_out_prj_obj import ReadGen
+#from mstr_robotics.prepare_ai_data import RedisMstrJson
+#from mstr_robotics.redis_db import RedisMstrJson
+from mstr_robotics.mstr_classes import MstrGlobal
+from mstr_robotics._helper import Misc
 
 
 import pandas as pd
 
-i_read_gen=read_gen()
+i_read_gen=ReadGen()
 
-#i_redis_mstr_json=redis_mstr_json()
-i_mstr_global=mstr_global()
-i_msic=msic()
+#i_redis_mstr_json=RedisMstrJson()
+i_mstr_global=MstrGlobal()
+i_msic=Misc()
 
 
 # ==================== UTILITY FUNCTIONS ====================
@@ -618,7 +618,7 @@ class JSONComparator:
 
         return result
     
-class compare_mstr_objects():
+class CompareMstrObjects():
     """
     def bld_redis_key(self,conn,object_id,env_prefix):
         
@@ -723,7 +723,7 @@ class compare_mstr_objects():
             #diff_d_l.append(comp_det_d)
         return diff_d_l
 
-class json_checksum_handler:
+class JsonChecksumHandler:
     """
     A class to handle JSON checksums with filtering capabilities for MicroStrategy objects.
     """
@@ -773,7 +773,7 @@ class json_checksum_handler:
             Hexadecimal checksum string
 
         Example:
-            >>> handler = json_checksum_handler()
+            >>> handler = JsonChecksumHandler()
             >>> data = {"name": "John", "age": 30, "metadata": {"created": "2024-01-01"}}
             >>> checksum = handler.json_checksum(data, ignore_keys=["metadata"])
             >>> print(checksum)
@@ -815,7 +815,7 @@ class json_checksum_handler:
             Dictionary with different checksum types
 
         Example:
-            >>> handler = json_checksum_handler()
+            >>> handler = JsonChecksumHandler()
             >>> checksums = handler.generate_object_checksums(mstr_object_data)
             >>> print(checksums["checksum_no_timestamps"])
         """

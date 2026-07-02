@@ -3,32 +3,32 @@ import yaml
 import sys
 import os
 from pathlib import Path
-from mstr_robotics.report import cube
-from mstr_robotics.prepare_ai_data import parse_json
-from mstr_robotics.mstr_classes import mstr_global
-#from mstr_robotics.json_checksum_handler import json_checksum_handler
-from mstr_robotics.json_compare import JSONComparator,compare_mstr_objects
-from mstr_robotics.read_out_prj_obj import read_gen
-from mstr_robotics.redis_db import  redis_bi_analysis
-from mstr_robotics._helper import msic
-from mstr_robotics._connectors import mstr_api
-from mstr_robotics.prepare_ai_data import export_mstr_md,mstr_to_json
-from mstr_robotics.redis_db import redis_mstr_json
-from mstr_robotics.redis_db import fetch_it_all
+from mstr_robotics.report import Cube
+from mstr_robotics.prepare_ai_data import ParseJson
+from mstr_robotics.mstr_classes import MstrGlobal
+#from mstr_robotics.JsonChecksumHandler import JsonChecksumHandler
+from mstr_robotics.json_compare import JSONComparator,CompareMstrObjects
+from mstr_robotics.read_out_prj_obj import ReadGen
+from mstr_robotics.redis_db import  RedisBiAnalysis
+from mstr_robotics._helper import Misc
+from mstr_robotics._connectors import MstrApi
+from mstr_robotics.prepare_ai_data import ExportMstrMd,MstrToJson
+from mstr_robotics.redis_db import RedisMstrJson
+from mstr_robotics.redis_db import FetchItAll
 
 import pandas as pd
 
 
-i_mstr_global=mstr_global()
-i_msic=msic()
-i_read_gen=read_gen()
-i_parse_json=parse_json()
-#i_json_checksum_handler=json_checksum_handler()
-i_mstr_to_json=mstr_to_json()
-i_mstr_api=mstr_api()
-i_redis_mstr_json=redis_mstr_json()
+i_mstr_global=MstrGlobal()
+i_msic=Misc()
+i_read_gen=ReadGen()
+i_parse_json=ParseJson()
+#i_json_checksum_handler=JsonChecksumHandler()
+i_mstr_to_json=MstrToJson()
+i_mstr_api=MstrApi()
+i_redis_mstr_json=RedisMstrJson()
 
-i_compare_mstr_objects=compare_mstr_objects()
+i_compare_mstr_objects=CompareMstrObjects()
 i_JSONComparator=JSONComparator()
 
 ENV_DIR = Path(sys.prefix)
@@ -41,7 +41,7 @@ with open("..\\config\\user_d.json", 'r') as openfile:
     user_d = json.load(openfile)
 conn_params =  user_d["conn_params"]
 
-class run_compare():
+class RunCompare():
 
     def __init__(self, conn, redis_config=None, selected_redis_env=None):
         """Initialize run_compare with MSTR connection and optional Redis configuration
@@ -77,7 +77,7 @@ class run_compare():
         self.conn = conn
         print(self.redis_con_d)
 
-        self.i_redis_bi_analysis = redis_bi_analysis(
+        self.i_redis_bi_analysis = RedisBiAnalysis(
                                 host=self.redis_con_d["host"],
                                 port=self.redis_con_d["port"],
                                 password=self.redis_con_d["password"],
@@ -155,7 +155,7 @@ class run_compare():
             self.conn.select_project(comp_project_id)
             comp_root_object_id_l.append(i_redis_mstr_json.bld_redis_key(self.conn,obj_id,comp_prefix))
 
-        i_fetch_it_all=fetch_it_all(self.i_redis_bi_analysis)
+        i_fetch_it_all=FetchItAll(self.i_redis_bi_analysis)
         all_org_objects_df = pd.DataFrame(i_fetch_it_all.fetch_all_objects_recursively(root_object_l=org_root_object_id_l,recursive_fg=recursive_fg))
         all_comp_objects_df = pd.DataFrame(i_fetch_it_all.fetch_all_objects_recursively(root_object_l=comp_root_object_id_l,recursive_fg=recursive_fg))
         #print(all_org_objects_df.head(2))

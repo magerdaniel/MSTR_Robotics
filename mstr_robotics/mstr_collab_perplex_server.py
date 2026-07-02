@@ -19,9 +19,9 @@ from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mstrio.connection import Connection
 
-from mstr_robotics.navigation import answer_prompts, mstr_objects
-from mstr_robotics.report import rep as MstrRep, prompts
-from mstr_robotics.user_rag import keyword_processor, perplexity
+from mstr_robotics.navigation import AnswerPrompts, MstrObjects
+from mstr_robotics.report import Rep as MstrRep, Prompts
+from mstr_robotics.user_rag import KeywordProcessor, Perplexity
 
 # ---------------------------------------------------------------------------
 # Static configuration
@@ -58,10 +58,10 @@ _dashboard_chapter_filter_df  = pd.read_csv(os.path.join(MCP_DATA, "dashboard_ch
 _dashboard_selector_filter_df = pd.read_csv(os.path.join(MCP_DATA, "dashboard_selector_filter.csv"))
 
 # RAG / AI helpers
-_keyword_proc = keyword_processor()
-_perplexity   = perplexity()
-_mstr_objects = mstr_objects()
-_answer_prpts = answer_prompts(
+_keyword_proc = KeywordProcessor()
+_perplexity   = Perplexity()
+_mstr_objects = MstrObjects()
+_answer_prpts = AnswerPrompts(
     attribute_form_elements_df=_attribute_form_elements_df,
     attribute_elements_df=_attribute_elements_df,
     obj_prp_rel_df=_obj_prp_rel_df,

@@ -1,9 +1,9 @@
 import json
 import uuid
-from mstr_robotics._helper import msic
-i_msic=msic()
+from mstr_robotics._helper import Misc
+i_msic=Misc()
 
-class mstr_api():
+class MstrApi():
 
     def get_prj_tbl(self,conn):
         inst_u = f"{conn.base_url}/api/model/tables"
