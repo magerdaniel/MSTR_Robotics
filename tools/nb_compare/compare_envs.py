@@ -164,6 +164,12 @@ if __name__ == "__main__":
     # jup_osi_file_generator) off this list unless you intend it.
     NOTEBOOKS = [
 
+            "semantic_endpoints.ipynb",
+            "jup_schema_exporter.ipynb",
+          "jup_osi_file_generator.ipynb",
+           "load_rag_cubes.ipynb",
+        "mstr_admin.ipynb",
+        "jup_prj_obj_exporter.ipynb",
         "jup_migrate.ipynb",
 
     ]
