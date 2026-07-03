@@ -44,10 +44,7 @@ MSTR_BASE_URL = user_d["conn_params"]["base_url"]
 
 load_dotenv(ENV_PATH)
 
-MSTR_PROJECT_ID = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
-# MSTR_PROJECT_ID = "B7CA92F04B9FAE8D941C3E9B7E0CD754"
-
-# REPORT_ID = "89FFB2AE475653785E693DBA32A5E6F3"
+MSTR_PROJECT_ID = user_d["conn_params"]["default_project_id"]
 
 mcp = FastMCP("mstr_robotics")
 
@@ -452,7 +449,7 @@ def run_and_answer_bi_question(
     object_id: str,
     object_type: str,
     osi_file_path: str,
-    project_id: str = "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+    project_id: str = MSTR_PROJECT_ID,
 ) -> str:
     """
     Execute the confirmed dashboard or report, load its OSI context and any

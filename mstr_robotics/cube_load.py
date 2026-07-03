@@ -89,35 +89,42 @@ def handle_cube_load(conn, execution_list, max_cube_parallel=10, poll_interval_s
 
 
 if __name__ == "__main__":
+    import json
+
+    from mstr_robotics._paths import USER_CONFIG
+
+    with open(USER_CONFIG, "r") as _fh:
+        _default_project_id = json.load(_fh)["conn_params"]["default_project_id"]
+
     load_json_d_l = [
         {
-            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "project_id": _default_project_id,
             "cube_id": "C751D2654E00039F8F2EA2886E3255B4",
             "run_any_time": "True",
         },
         {
-            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "project_id": _default_project_id,
             "cube_id": "FCD44FCF44541D9632056DAC1814A1FC",
             "run_any_time": "True",
             "follow_up": {"max_time_s": "30"},
         },
         {
-            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "project_id": _default_project_id,
             "cube_id": "604A34174813EB0FDBE256B49D0EEC76",
             "run_any_time": "True",
             "follow_up": {"cube_id": "0287179B4CB6C203D21CC7BEE0371409"},
         },
         {
-            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "project_id": _default_project_id,
             "cube_id": "0287179B4CB6C203D21CC7BEE0371409",
             "run_any_time": "False",
             "follow_up": {"cube_id": "4701E4F54E94022FDFF369A81DB726C7"},
         },
         {
-            "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754",
+            "project_id": _default_project_id,
             "cube_id": "4701E4F54E94022FDFF369A81DB726C7",
             "run_any_time": "False",
         },
     ]
 
-handle_cube_load(load_json_d_l)
+    handle_cube_load(load_json_d_l)
