@@ -28,13 +28,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Standalone servers (api_server.py, streamlit_app.py, MCP servers) — not needed for the notebooks.
+# Standalone servers (api_server.py, MCP servers) — not needed for the notebooks.
 servers = [
     "fastapi",
     "uvicorn",
     "httpx",
     "mcp",
-    "streamlit",
 ]
 # BigQuery connector (bq_connector.py) — not needed for the notebooks.
 bigquery = [

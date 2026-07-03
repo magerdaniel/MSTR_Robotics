@@ -23,7 +23,7 @@ they are declared as the `servers` optional dependency group in pyproject.toml.
 | Module | Role |
 |---|---|
 | `api_server.py` | FastAPI HTTP server (uses `user_run_compare`) |
-| `streamlit_app.py` | Streamlit comparison UI (uses `redis_db`, `json_compare`) |
+| ~~`streamlit_app.py`~~ | Streamlit comparison UI — **deleted 2026-07-03** at the user's request |
 | `mstr_osi_mcp.py` | MCP server exposing MSTR/OSI tools |
 | `mstr_collab_perplex_server.py` | MCP server: NL question → Perplexity → report |
 
@@ -55,8 +55,7 @@ package nor in `notebooks\`/`tools\`/`examples\`**.
   via decorators** — invoked by the MCP runtime, not by imports.
 - `api_server.py` (`connect_redis`, `logout`): **FastAPI route handlers** —
   invoked over HTTP.
-- `streamlit_app.py` attribute hits (`prefix_1_widget`, `auto_load_comparison`,
-  …): **Streamlit session state** — read/written by the framework at runtime.
+- `streamlit_app.py` attribute hits: no longer applicable (module deleted).
 - `user_rag.py` `ChatBot`/`VectorDbFaiss`: referenced by scripts in
   `Dansfiles\` (out-of-scope personal scripts); dead from the notebooks' view.
 

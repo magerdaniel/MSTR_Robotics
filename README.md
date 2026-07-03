@@ -6,7 +6,6 @@ A Python toolkit for MicroStrategy automation, object comparison, and Redis-base
 
 - **Object Comparison**: Compare MicroStrategy objects between environments using JSON diff analysis
 - **Redis Integration**: Store and analyze BI metadata using Redis
-- **Streamlit UI**: Interactive web interface for object comparison and navigation
 - **Migration Tools**: Automate MicroStrategy object migration workflows
 
 ## Project Structure
@@ -23,18 +22,15 @@ A Python toolkit for MicroStrategy automation, object comparison, and Redis-base
 1. Clone the repository
 2. Create virtual environment: `python -m venv .venv`
 3. Activate: `.venv\Scripts\Activate.ps1`
-4. Install dependencies: `pip install -r requirements.txt` (if available)
+4. Install dependencies: `pip install -r requirements.txt`
 
 ## Usage
 
-Run the Streamlit comparison interface:
-```powershell
-streamlit run mstr_robotics/streamlit_app.py
-```
+The Jupyter notebooks in `notebooks/` are the primary entry points (object
+export, schema monitoring, migration, REGAM regression testing).
 
 ## Development
 
-- Python 3.x required
+- Python 3.12 required
 - Uses Redis for data storage
-- Streamlit for web UI
 - Jupyter notebooks for exploratory analysis
