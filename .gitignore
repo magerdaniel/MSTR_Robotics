@@ -68,3 +68,14 @@ config/bq_oauth_client.json
 # Backups
 *_BAK/
 *.bak
+
+# Personal scratch notebooks that held local credentials (purged from history 2026-07-03)
+notebooks_dev/load_Qdrant.ipynb
+notebooks_dev/Untitled.ipynb
+notebooks_dev/jup_PxCD.ipynb
+notebooks_dev/Power BI or DIE.ipynb
+notebooks_dev/Spelling.ipynb
+alt/zzz_redis_operations_manni.ipynb
+
+# Local Claude settings — held Redis credentials (scrubbed from history); keep untracked
+.claude/settings.local.json
