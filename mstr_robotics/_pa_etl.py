@@ -1,13 +1,14 @@
 from datetime import datetime
 
 from mstr_robotics._connectors import MstrApi
-from mstr_robotics.read_out_prj_obj import IoAttributes
+from mstr_robotics.read_out_prj_obj import IoAttributes, ReadOutHierarchy
 from mstr_robotics.report import Prompts, Rep
 
 i_rep = Rep()
 i_prompts = Prompts()
 i_mstr_api = MstrApi()
 i_io_attributes = IoAttributes()
+i_read_out_hierarchy = ReadOutHierarchy()
 
 
 class ParsePa:
@@ -105,7 +106,17 @@ class ParseAttExpPrp:
     # expression prompts are the most complicated prompts
     # to prompts. Supported compare logigs:
     # "excatly"
-    def bld_prp_exp_ans_JSON(self, conn, report_id, instance_id, prompt_id, pa_ans_prsd_l, hier_att_df):
+    def __init__(self):
+        self._sys_hier_att_df = None
+
+    def _get_sys_hier_att_df(self, conn):
+        # System Hierarchy attributes are read out live once per session
+        # and cached; this replaces the former "System hier_att" cube
+        if self._sys_hier_att_df is None:
+            self._sys_hier_att_df = i_read_out_hierarchy.read_out_sys_hier(conn=conn)
+        return self._sys_hier_att_df
+
+    def bld_prp_exp_ans_JSON(self, conn, report_id, instance_id, prompt_id, pa_ans_prsd_l):
 
         prp_ans_base_l = i_mstr_api.get_prp_ans(
             conn=conn, report_id=report_id, instance_id=instance_id, prompt_id=prompt_id
@@ -117,17 +128,13 @@ class ParseAttExpPrp:
             #    self.pa_parse_metric_ans(list_values,elemnt )
         elif prp_ans_base_l[0][0]["type"] == "attribute":
             att_exp_ans_l = self.pa_parse_exp_ans(prp_ans_base_l, pa_ans_prsd_l)
-            att_GUID_exp_ans_l = self.add_att_GUID(
-                conn=conn, prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l, hier_att_df=hier_att_df
-            )
+            att_GUID_exp_ans_l = self.add_att_GUID(conn=conn, prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l)
             prp_exp_ans_JSON_l = i_prompts.bld_expr_prp_answ(prompt_id=prompt_id, att_exp_ans_l=att_GUID_exp_ans_l)
             return prp_exp_ans_JSON_l
 
         elif prp_ans_base_l[0][0]["type"] == "xxxxxx":
             att_exp_ans_l = self.pa_parse_exp_ans(prp_ans_base_l, pa_ans_prsd_l)
-            att_GUID_exp_ans_l = self.add_att_GUID(
-                conn=conn, prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l, hier_att_df=hier_att_df
-            )
+            att_GUID_exp_ans_l = self.add_att_GUID(conn=conn, prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l)
             prp_exp_ans_JSON_l = i_prompts.bld_expr_prp_answ(prompt_id=prompt_id, att_exp_ans_l=att_GUID_exp_ans_l)
 
             return prp_exp_ans_JSON_l
@@ -159,13 +166,13 @@ class ParseAttExpPrp:
 
         return exp_ans_d
 
-    def add_att_GUID(self, conn, prompt_id, att_exp_ans_l, hier_att_df):
+    def add_att_GUID(self, conn, prompt_id, att_exp_ans_l):
         # in PA only the names of attributes (forms) are logged
         # to answer Prompts over REST we need to pass the GUIDs
-        # the attribute id is resolved by name over the hier_att_df,
-        # the form id / data type come from the attribute definition
-        # (IoAttributes.read_att_form_exp)
-        prp_att_df = hier_att_df[hier_att_df["hier_name"] == "System Hierarchy"]
+        # the attribute id is resolved by name over the System Hierarchy
+        # read-out, the form id / data type come from the attribute
+        # definition (IoAttributes.read_att_form_exp)
+        prp_att_df = self._get_sys_hier_att_df(conn=conn)
 
         att_GUID_exp_ans_l = []
         att_form_cache_d = {}
@@ -210,7 +217,7 @@ class RunPrpAnsBld:
     # this class controls the parsing of the
     # pa answers and the generation of the prompts answer JSON
     # of a certain mstr job
-    def bld_pa_job_prp_JSON(self, conn, action_prp_l, pa_raw_data_df, hier_att_df, report_id, instance_id):
+    def bld_pa_job_prp_JSON(self, conn, action_prp_l, pa_raw_data_df, report_id, instance_id):
         prompt_ans_JSON_l = []
         # print("1")
         print(prompt_ans_JSON_l)
@@ -255,7 +262,6 @@ class RunPrpAnsBld:
                     instance_id=instance_id,
                     prompt_id=p["id"],
                     pa_ans_prsd_l=pa_ans_prsd_l,
-                    hier_att_df=hier_att_df,
                 )
 
                 prompt_ans_JSON_l.append(prp_exp_ans_JSON_l)

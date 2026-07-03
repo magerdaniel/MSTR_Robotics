@@ -15,8 +15,8 @@ from mstr_robotics._export import FileIo
 from mstr_robotics._helper import Misc
 from mstr_robotics._pa_etl import ParsePa, RunPrpAnsBld
 from mstr_robotics.mstr_classes import MstrGlobal, get_conn
-from mstr_robotics.read_out_prj_obj import IoAttributes, ReadOutHierarchy
-from mstr_robotics.report import Cube, Prompts, Rep
+from mstr_robotics.read_out_prj_obj import IoAttributes
+from mstr_robotics.report import Prompts, Rep
 
 warnings.filterwarnings("ignore")
 
@@ -29,7 +29,6 @@ i_rep = Rep()
 i_io_attributes = IoAttributes()
 i_prompts = Prompts()
 i_msic = Misc()
-i_cube = Cube()
 i_file_io = FileIo()
 
 i_run_prp_ans_bld = RunPrpAnsBld()
@@ -165,7 +164,6 @@ class Regam:
         if run_prop_d is None:
             run_prop_d = {}
         self.run_prop_d = run_prop_d
-        self.i_load_master_data = ReadOutHierarchy(self.run_prop_d)
 
     def fetch_pa_rep_jobs(self, pa_conn, pa_report_id, prompt_answ=None):
         # PA report to fetch the user executions
@@ -182,30 +180,7 @@ class Regam:
         )
         return pa_raw_data_df
 
-    def refresh_hier_att_cube(self, conn, REGAM_cube_folder_id, proj_prp_hier_l=None, hier_att_cube_id=None):
-        # to avoid reading out attribute / hierarchies on each execution
-        # the information is cubed. To keep consistancy the cube must
-        # be updated from time to time
-
-        hier_att_df = self.i_load_master_data.read_out_sys_hier(conn=conn)
-        tbl_upd_dict = [{"tbl_name": "hier_att_df", "df": hier_att_df, "update_policy": "REPLACE"}]
-        hier_att_cube_id = i_cube.upload_cube_mult_table(
-            conn,
-            mtdi_id=hier_att_cube_id,
-            tbl_upd_dict=tbl_upd_dict,
-            cube_name="System hier_att",
-            folder_id=REGAM_cube_folder_id,
-            force=True,
-        )
-        return hier_att_cube_id
-
-    def load_hier_att_df(self, conn, hier_att_cube_id):
-        # if you run mutliple test without touching attributes
-        # you do not need to read all out
-        hier_att_df = i_cube.load_cube_to_df(conn=conn, cube_id=hier_att_cube_id)
-        return hier_att_df
-
-    def run_bld_job_prp_JSON(self, conn, pa_raw_data_df, hier_att_df):
+    def run_bld_job_prp_JSON(self, conn, pa_raw_data_df):
         # previously we created a pandas df containing 1:1
         # the PA prompt answers logs. In this function
         # we loop job by job to genenerate the prompt
@@ -240,7 +215,6 @@ class Regam:
                         conn=conn,
                         action_prp_l=action_prp_l,
                         pa_raw_data_df=pa_raw_data_df,
-                        hier_att_df=hier_att_df,
                         report_id=report_job[1]["Object@GUID"],
                         instance_id=instance_id,
                     )
