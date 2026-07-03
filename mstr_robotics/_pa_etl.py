@@ -1,11 +1,13 @@
 from datetime import datetime
 
 from mstr_robotics._connectors import MstrApi
+from mstr_robotics.read_out_prj_obj import IoAttributes
 from mstr_robotics.report import Prompts, Rep
 
 i_rep = Rep()
 i_prompts = Prompts()
 i_mstr_api = MstrApi()
+i_io_attributes = IoAttributes()
 
 
 class ParsePa:
@@ -116,15 +118,15 @@ class ParseAttExpPrp:
         elif prp_ans_base_l[0][0]["type"] == "attribute":
             att_exp_ans_l = self.pa_parse_exp_ans(prp_ans_base_l, pa_ans_prsd_l)
             att_GUID_exp_ans_l = self.add_att_GUID(
-                prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l, hier_att_df=hier_att_df
+                conn=conn, prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l, hier_att_df=hier_att_df
             )
             prp_exp_ans_JSON_l = i_prompts.bld_expr_prp_answ(prompt_id=prompt_id, att_exp_ans_l=att_GUID_exp_ans_l)
             return prp_exp_ans_JSON_l
 
         elif prp_ans_base_l[0][0]["type"] == "xxxxxx":
             att_exp_ans_l = self.pa_parse_exp_ans(prp_ans_base_l, pa_ans_prsd_l)
-            att_GUID_exp_ans_l = self().add_att_GUID(
-                prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l, hier_att_df=hier_att_df
+            att_GUID_exp_ans_l = self.add_att_GUID(
+                conn=conn, prompt_id=prompt_id, att_exp_ans_l=att_exp_ans_l, hier_att_df=hier_att_df
             )
             prp_exp_ans_JSON_l = i_prompts.bld_expr_prp_answ(prompt_id=prompt_id, att_exp_ans_l=att_GUID_exp_ans_l)
 
@@ -157,28 +159,42 @@ class ParseAttExpPrp:
 
         return exp_ans_d
 
-    def add_att_GUID(self, prompt_id, att_exp_ans_l, hier_att_df):
+    def add_att_GUID(self, conn, prompt_id, att_exp_ans_l, hier_att_df):
         # in PA only the names of attributes (forms) are logged
-        # to answer Prompt over REST we need to pass the GUID
+        # to answer Prompts over REST we need to pass the GUIDs
+        # the attribute id is resolved by name over the hier_att_df,
+        # the form id / data type come from the attribute definition
+        # (IoAttributes.read_att_form_exp)
         prp_att_df = hier_att_df[hier_att_df["hier_name"] == "System Hierarchy"]
 
         att_GUID_exp_ans_l = []
+        att_form_cache_d = {}
 
         for ans in att_exp_ans_l:
             if len(ans) > 0:
-                att_df = prp_att_df[
-                    (prp_att_df["att_name"] == ans["att_name"]) & (prp_att_df["att_form_name"] == ans["att_form_name"])
-                ]
+                att_df = prp_att_df[prp_att_df["att_name"] == ans["att_name"]]
                 if att_df.empty:
-                    raise {"err_msg": "no attribute /form found"}
+                    raise ValueError(f"no attribute found for '{ans['att_name']}'")
+                att_id = att_df["att_id"].values[0]
+
+                # read the attribute definition once per attribute
+                if att_id not in att_form_cache_d:
+                    att_form_cache_d[att_id] = i_io_attributes.read_att_form_exp(conn=conn, att_id_l=[att_id])[
+                        "all_att_maps_l"
+                    ]
+
+                form_d_l = [f for f in att_form_cache_d[att_id] if f["form_name"] == ans["att_form_name"]]
+                if not form_d_l:
+                    raise ValueError(f"no form '{ans['att_form_name']}' found for attribute '{ans['att_name']}'")
+                form_d = form_d_l[0]
 
                 att_GUID_exp_ans_l.append(
                     {
                         "prompt_id": prompt_id,
-                        "att_id": att_df["att_id"].values[0],
-                        "att_name": prp_att_df["att_name"].values[0],
-                        "att_form_id": att_df["att_form_id"].values[0],
-                        "data_type": att_df["att_form_data_type"].values[0],
+                        "att_id": att_id,
+                        "att_name": ans["att_name"],
+                        "att_form_id": form_d["form_id"],
+                        "form_data_type": form_d["REST_form_type"],
                         "filter_val_l": ans["val"],
                         "operator": ans["operator"],
                     }
@@ -196,10 +212,12 @@ class RunPrpAnsBld:
     # of a certain mstr job
     def bld_pa_job_prp_JSON(self, conn, action_prp_l, pa_raw_data_df, hier_att_df, report_id, instance_id):
         prompt_ans_JSON_l = []
+        # print("1")
         print(prompt_ans_JSON_l)
         for p in action_prp_l:
             # the first step in parsing is
             # to check the prompt type
+            # print({"prompt_id":p["id"],"prompt_type":p["type"]})
             pa_ele_prp_row_ans_str = i_parse_pa.get_pa_prp_row_ans(pa_raw_data_df, prompt_id=p["id"])
             pa_ans_prsd_l = i_pa_parse_prp.pa_parse_ele_ans(pa_raw_ans_str=pa_ele_prp_row_ans_str)
 
@@ -213,6 +231,7 @@ class RunPrpAnsBld:
                     i_prompts.frame_prp_ans(prompt_id=p["id"], prp_type="ELEMENTS", prp_ans_JSON_l=prp_ele_ans_JSON_l)
                 )
             elif p["type"] == "VALUE":
+                # print(p)
                 prp_val_ans_JSON = i_pa_parse_prp.bld_val_prp_JSON(
                     prompt_id=p["id"], dataType=p["dataType"], val_str=pa_ele_prp_row_ans_str
                 )
@@ -243,64 +262,3 @@ class RunPrpAnsBld:
 
         print(prompt_ans_JSON_l)
         return prompt_ans_JSON_l
-
-
-"""
-class ParseExpPrp():
-
-    def pa_parse_metric_ans(self,list_values,elemnt ):
-        pa_exp_ans_l = elemnt["String"].split(" And ")
-        for pa_exp_ans in pa_exp_ans_l :
-            metric_ans_d=self.pa_split_exp_ans(pa_exp_ans)
-            self.bld_metric_exp_prp_JSON(metric_ans_d)
-
-
-    def pa_split_exp_ans(self, pa_exp_ans):
-        #split pa ans in parts
-        #name
-        #operator
-        #value
-        #operaters like between, isNull and others are not supported
-        exp_ans_d={}
-        pa_exp_ans=pa_exp_ans[1:][:-1][1:]
-        split_metric_l=pa_exp_ans.split("}")
-        exp_ans_d["metric_name"]=split_metric_l[0]
-        split_operator_val_l=split_metric_l[1].strip().split(" ")
-        exp_ans_d["operator"]=split_operator_val_l[0]
-        exp_ans_d["val"]=split_operator_val_l[1]
-        return exp_ans_d
-
-    def pa_rest_operator_trans(self,operator):
-        operator_trans_d={"greater":">"}
-
-    def bld_metric_exp_prp_JSON(self,prompt_id,metric_id,operator,level_att="default"):
-        prp_metric_ans=  {
-                            "id": prompt_id,
-                            "type": "EXPRESSION",
-                            "answers": {
-                              "expression": {
-                                "operator": "And",
-                                "operands": [
-                                  {
-                                    "operator": operator,
-                                    "operands": [
-                                      {
-                                        "type": "metric",
-                                        "id": metric_id
-                                      },
-                                      {
-                                        "type": "constant",
-                                        "dataType": "Numeric",
-                                        "value": "200"
-                                      }
-                                    ],
-                                    "level": {
-                                      "type": level_att
-                                    }
-                                  }
-                                ]
-                              }
-                            }
-                          }
-
-"""
