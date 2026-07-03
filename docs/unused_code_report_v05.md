@@ -22,7 +22,7 @@ they are declared as the `servers` optional dependency group in pyproject.toml.
 
 | Module | Role |
 |---|---|
-| `api_server.py` | FastAPI HTTP server (uses `user_run_compare`) |
+| ~~`api_server.py`~~ | FastAPI HTTP server — **deleted 2026-07-03** at the user's request |
 | ~~`streamlit_app.py`~~ | Streamlit comparison UI — **deleted 2026-07-03** at the user's request |
 | `mstr_osi_mcp.py` | MCP server exposing MSTR/OSI tools |
 | `mstr_collab_perplex_server.py` | MCP server: NL question → Perplexity → report |
@@ -30,7 +30,7 @@ they are declared as the `servers` optional dependency group in pyproject.toml.
 ### Used only by dev/backup code (`notebooks_dev\`)
 | Module | Only consumer |
 |---|---|
-| `bq_connector.py` | `notebooks_dev\jup_bq_uplooad_csv.ipynb` (google-cloud-bigquery also not installed in .venv → `bigquery` optional group) |
+| ~~`bq_connector.py`~~ | was used only by `notebooks_dev\jup_bq_uplooad_csv.ipynb` — **deleted 2026-07-03** at the user's request (that dev notebook is now broken) |
 | `select_mig_objects.py` + `_mod_prj_obj.py` | `notebooks_dev\create_migration_packages.ipynb` |
 
 ### Transitively reachable from the notebooks — NOT unused
@@ -39,7 +39,7 @@ they are declared as the `servers` optional dependency group in pyproject.toml.
 | `_lu_data.py` | notebooks → `mstr_classes` → `_lu_data` |
 | `json_compare.py` | notebooks → `prepare_ai_data` / `redis_db` → `json_compare` |
 | `_pa_etl.py`, `_export.py` | `jup_REGAM.ipynb` → `regam` → `_pa_etl`, `_export` |
-| `user_run_compare.py` | only via `api_server.py` (server-side; unused if the API server is retired) |
+| `user_run_compare.py` | had only one consumer, `api_server.py` — since its deletion (2026-07-03) this module has **no consumers at all** and is the next deletion candidate |
 
 ## 2. Method/class level (vulture 60% confidence, cross-checked against notebooks)
 
