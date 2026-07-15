@@ -54,7 +54,7 @@ REPO_ROOT = find_repo_root()
 # --- inside this repo --------------------------------------------------------
 CONFIG_DIR = REPO_ROOT / "config"
 USER_CONFIG = CONFIG_DIR / "user_d.json"
-ENV_FILE = CONFIG_DIR / "streamlit.env"
+ENV_FILE = CONFIG_DIR / "API_KEY.env"
 OSI_PRODUKTION = REPO_ROOT / "OSI_Produktion"
 
 # --- sibling repo: <...>/Python_environments/OSI_Files ----------------------

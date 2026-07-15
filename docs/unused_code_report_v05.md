@@ -24,8 +24,8 @@ they are declared as the `servers` optional dependency group in pyproject.toml.
 |---|---|
 | ~~`api_server.py`~~ | FastAPI HTTP server — **deleted 2026-07-03** at the user's request |
 | ~~`streamlit_app.py`~~ | Streamlit comparison UI — **deleted 2026-07-03** at the user's request |
-| `mstr_osi_mcp.py` | MCP server exposing MSTR/OSI tools |
-| `mstr_collab_perplex_server.py` | MCP server: NL question → Perplexity → report |
+| `mcp_servers/mstr_osi_mcp.py` | MCP server exposing MSTR/OSI tools |
+| `mcp_servers/mstr_collab_perplex_server.py` | MCP server: NL question → Perplexity → report |
 
 ### Used only by dev/backup code (`notebooks_dev\`)
 | Module | Only consumer |
@@ -48,7 +48,7 @@ or examples reference them. The 104 below are referenced **neither in the
 package nor in `notebooks\`/`tools\`/`examples\`**.
 
 ### Caveats — do NOT treat these groups as dead
-- `mstr_osi_mcp.py` / `mstr_collab_perplex_server.py` functions
+- `mcp_servers/mstr_osi_mcp.py` / `mcp_servers/mstr_collab_perplex_server.py` functions
   (`get_object_definitions`, `resolve_object_by_path`, `query_wikidata_sparql`,
   `get_visualization_data`, `find_dashboard_for_question`,
   `run_and_answer_bi_question`, `query_bi_report`): registered as **MCP tools

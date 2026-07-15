@@ -51,6 +51,7 @@ def bld_test_rep_name(unique_job_d):
     )
 
 
+
 class RegamJobs:
     def read_from_report(self, conn, pa_rep_l):
         # the output is a dataframe containing user report jobs
@@ -164,6 +165,22 @@ class Regam:
         if run_prop_d is None:
             run_prop_d = {}
         self.run_prop_d = run_prop_d
+        
+        
+    def select_rows_by_job_id(self,pa_raw_data_df, job_id=None):
+        """
+        Select all rows belonging to a specific Job@ID
+        If job_id is None, randomly selects the first available Job@ID
+        """
+        if job_id is None:
+            unique_job_ids = pa_raw_data_df["Job@ID"].unique()
+            job_id = unique_job_ids[0] if len(unique_job_ids) > 0 else None
+        
+        if job_id is None:
+            return pd.DataFrame()
+        
+        filtered_df = pa_raw_data_df[pa_raw_data_df["Job@ID"] == job_id]
+        return filtered_df
 
     def fetch_pa_rep_jobs(self, pa_conn, pa_report_id, prompt_answ=None):
         # PA report to fetch the user executions

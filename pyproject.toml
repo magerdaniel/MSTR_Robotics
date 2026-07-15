@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# MCP servers (mstr_osi_mcp.py, mstr_collab_perplex_server.py) — not needed for the notebooks.
+# MCP servers (mstr_robotics/mcp_servers/) — not needed for the notebooks.
 servers = [
     "mcp",
 ]

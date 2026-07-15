@@ -8,14 +8,14 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
 from mstr_robotics._connectors import MstrApi
+from mstr_robotics._paths import ENV_FILE
 from mstr_robotics.read_out_prj_obj import ReadGen
 from mstr_robotics.user_rag import Perplexity
 
 i_mstr_api = MstrApi()
 u_perplexity = Perplexity()
-env_file = "..\\config\\streamlit.env"
 
-load_dotenv(env_file)
+load_dotenv(str(ENV_FILE))
 i_read_gen = ReadGen()
 
 

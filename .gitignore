@@ -54,16 +54,17 @@ json_compare/system1_json/
 json_compare/system2_json/
 
 # Config files with sensitive data (review and adjust as needed)
-config/*_d.json
-config/*.yml
+config/**/*_d.json
+config/**/*.yml
 !config/example*.yml
-config/streamlit.env
-!config/streamlit.env.example
 
 # BigQuery credentials — never commit
-config/bq_sa_key.json
-config/bq_user_token.json
-config/bq_oauth_client.json
+config/**/bq_sa_key.json
+config/**/bq_user_token.json
+config/**/bq_oauth_client.json
+
+# Retired config backups in config/old/ (may contain secrets) — never commit
+config/old/*_bak.*
 
 # Backups
 *_BAK/

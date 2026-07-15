@@ -94,7 +94,7 @@ if __name__ == "__main__":
     from mstr_robotics._paths import USER_CONFIG
 
     with open(USER_CONFIG, "r") as _fh:
-        _default_project_id = json.load(_fh)["conn_params"]["default_project_id"]
+        _default_project_id = json.load(_fh)["conn_params"]["project_id"]
 
     load_json_d_l = [
         {

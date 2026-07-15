@@ -24,7 +24,6 @@ class AnswerPrompts:
         obj_prp_rel_df=None,
         attribute_form_elements_df=None,
         attribute_elements_df=None,
-        dos_rep_prp_rel_df=None,
         dashboard_definitions_df=None,
         dashboard_chapter_filter_df=None,
         dashboard_selector_filter_df=None,
@@ -36,7 +35,6 @@ class AnswerPrompts:
         self.att_form_def_df = att_form_def_df
         self.attribute_form_elements_df = attribute_form_elements_df
         self.attribute_elements_df = attribute_elements_df
-        self.dos_rep_prp_rel_df = dos_rep_prp_rel_df
         self.dashboard_definitions_df = dashboard_definitions_df
         self.dashboard_chapter_filter_df = dashboard_chapter_filter_df
         self.dashboard_selector_filter_df = dashboard_selector_filter_df
@@ -164,17 +162,14 @@ class AnswerPrompts:
 
         return d_prp_ans_d
 
-    def AI_mstr_prp_page_ans(self, vector_store, bi_request_d, rep_dos_id):
+    def AI_mstr_prp_page_ans(self, conn, vector_store, bi_request_d, rep_dos_id):
 
         b_filter_d = bi_request_d["filter"]
-        rep_dos_obj_prp_rel_df = pd.merge(
-            self.dos_rep_prp_rel_df,
-            self.obj_prp_rel_df,
-            left_on=["project_id", "prompt_id"],
-            right_on=["project_id", "prompt_id"],
-            how="inner",
-        )
-        rep_dos_obj_prp_rel_df = rep_dos_obj_prp_rel_df[rep_dos_obj_prp_rel_df["rep_dos_id"] == rep_dos_id]
+        # scope the project-wide prompt/object relations down to the prompts that
+        # actually belong to the target report/dossier, fetched live from MSTR
+        # (replaces the former dos_rep_prp_rel_df lookup)
+        rep_prompt_id_l = [prp.id for prp in i_rep.get_rep_prp_l(conn=conn, report_id=rep_dos_id)]
+        rep_dos_obj_prp_rel_df = self.obj_prp_rel_df[self.obj_prp_rel_df["prompt_id"].isin(rep_prompt_id_l)]
         prp_ans_d_l = []
         vector_store.extract_keywords(msg_t=str(b_filter_d))
         # filt_obj_rag_df = i_map_objects.bld_ai_prp_ans(conn, cube_id=cube_obj_prp_rel_id,

@@ -8,6 +8,7 @@ import yaml
 
 from mstr_robotics._connectors import MstrApi
 from mstr_robotics._helper import Misc
+from mstr_robotics._paths import CONFIG_DIR, USER_CONFIG
 
 # from mstr_robotics.JsonChecksumHandler import JsonChecksumHandler
 from mstr_robotics.json_compare import CompareMstrObjects, JSONComparator
@@ -31,10 +32,10 @@ i_json_comparator = JSONComparator()
 ENV_DIR = Path(sys.prefix)
 os.chdir(ENV_DIR)
 
-with open("..\\config\\mstr_redis_y.yml", "r") as openfile:
+with open(CONFIG_DIR / "mstr_redis_y.yml", "r") as openfile:
     mstr_redis_y = yaml.safe_load(openfile)
 
-with open("..\\config\\user_d.json", "r") as openfile:
+with open(USER_CONFIG, "r") as openfile:
     user_d = json.load(openfile)
 conn_params = user_d["conn_params"]
 
@@ -52,14 +53,14 @@ class RunCompare:
         # Load Redis configuration
         if redis_config is None:
             # Fallback: Load from file system (backward compatibility)
-            with open("..\\config\\mstr_redis_y.yml", "r") as openfile:
+            with open(CONFIG_DIR / "mstr_redis_y.yml", "r") as openfile:
                 mstr_redis_y = yaml.safe_load(openfile)
         else:
             # Use provided configuration
             mstr_redis_y = redis_config
 
         # Load user configuration (still from file)
-        with open("..\\config\\user_d.json", "r") as openfile:
+        with open(USER_CONFIG, "r") as openfile:
             json.load(openfile)
 
         # Select Redis environment
@@ -249,7 +250,7 @@ class RunCompare:
 
 
 if __name__ == "__main__":
-    with open("..\\config\\First_comp_run.yml", "r") as openfile:
+    with open(CONFIG_DIR / "First_comp_run.yml", "r") as openfile:
         play_compare_y = yaml.safe_load(openfile)
 
     # run_comparison(conn, play_compare_y)

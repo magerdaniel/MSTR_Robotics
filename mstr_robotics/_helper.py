@@ -43,7 +43,6 @@ class StrFunc:
                 dict[key[len(prefix) :]] = dict.pop(key)
         return dict
 
-    # @logger
     def bld_mstr_obj_guid_sql_server(self, obj_md_id=None):
         # if you running your meta data on an MS SQL Server
         # object_id are stored in a strange way

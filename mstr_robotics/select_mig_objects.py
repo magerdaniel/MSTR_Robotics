@@ -1,4 +1,7 @@
 import pandas as pd
+from mstrio.api import browsing
+from mstrio.object_management import folder
+from mstrio.object_management.migration.package import Action
 
 from mstr_robotics._connectors import MstrApi
 from mstr_robotics._helper import StrFunc
@@ -160,6 +163,19 @@ class GetChangeLog:
 
 
 class BldMigContent:
+    @staticmethod
+    def _norm_action(action):
+        # The I-Server expects the mstrio Action enum *value* (e.g. "force_replace"),
+        # not the uppercase name ("FORCE_REPLACE"). Passing the name causes the async
+        # package build to fail with PackageStatus.CREATE_FAILED. Accept an Action
+        # enum, its name, or its value and always return the value string.
+        if isinstance(action, Action):
+            return action.value
+        try:
+            return Action[action].value  # by name, e.g. "FORCE_REPLACE"
+        except KeyError:
+            return Action(action).value  # by value, e.g. "force_replace"
+
     def from_folder(self, fold_short_cut_l, action="FORCE_REPLACE", include_dependents=False):
         # purpose of this fucntion is to read out the base objects of short cuts
         # stored in certain folder. This is an typical input for migrations
@@ -169,7 +185,31 @@ class BldMigContent:
             if sh["type"] == 18:
                 obj_d["id"] = sh["target_info"]["id"]
                 obj_d["type"] = sh["target_info"]["type"]
-                obj_d["action"] = action
+                obj_d["action"] = self._norm_action(action)
                 obj_d["include_dependents"] = include_dependents
+                obj_d["subtype"] = sh["target_info"]["subtype"]
                 mig_l.append(obj_d.copy())
+        return mig_l
+
+    def from_folder_id(self, conn, folder_id, action="FORCE_REPLACE", include_dependents=False):
+        # same as from_folder, but fetches the folder contents itself from a folder id
+        i_folder = folder.Folder(connection=conn, id=folder_id)
+        fold_short_cut_l = i_folder.get_contents(to_dictionary=True)
+        return self.from_folder(fold_short_cut_l, action=action, include_dependents=include_dependents)
+
+    def from_excel(self, conn, excel_df, action="FORCE_REPLACE", include_dependents=False):
+        # builds a migration list from an excel sheet holding object guids in an
+        # "object_guid" column. Type and subtype are resolved via quick search.
+        guid_l = excel_df["object_guid"].to_list()
+        mig_l = []
+        for guid in guid_l:
+            body = {"projectIdAndObjectIds": [{"projectId": conn.project_id, "objectIds": [guid]}]}
+            obj_d = browsing.get_objects_from_quick_search(connection=conn, body=body).json()
+            mig_d = {}
+            mig_d["id"] = obj_d["result"][0]["id"]
+            mig_d["type"] = obj_d["result"][0]["type"]
+            mig_d["action"] = self._norm_action(action)
+            mig_d["include_dependents"] = include_dependents
+            mig_d["subtype"] = obj_d["result"][0]["subtype"]
+            mig_l.append(mig_d.copy())
         return mig_l

@@ -62,8 +62,22 @@ def run_one(env: dict, notebook: str) -> dict:
         )
         if proc.stderr:
             sys.stderr.write(proc.stderr)
-        with open(out_path, "r", encoding="utf-8") as fh:
-            report = json.load(fh)
+        # run_shapes.py exits WITHOUT writing a report when the notebook is
+        # missing (rc 2) or crashes before the write, leaving an empty temp
+        # file. Treat any unreadable/empty report as a failure rather than
+        # letting json.load raise and abort the whole comparison.
+        try:
+            with open(out_path, "r", encoding="utf-8") as fh:
+                report = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            report = {
+                "notebook": notebook,
+                "repo": env["root"],
+                "ok": False,
+                "error": (proc.stderr or "").strip()
+                or f"run_shapes.py wrote no report (returncode {proc.returncode})",
+                "dataframes": {},
+            }
         report["returncode"] = proc.returncode
         return report
     finally:
@@ -164,26 +178,15 @@ if __name__ == "__main__":
     # jup_osi_file_generator) off this list unless you intend it.
     NOTEBOOKS = [
 
-            "semantic_endpoints.ipynb",
-            "jup_schema_exporter.ipynb",
-          "jup_osi_file_generator.ipynb",
-           "load_rag_cubes.ipynb",
-        "mstr_admin.ipynb",
-        "jup_prj_obj_exporter.ipynb",
-        "jup_migrate.ipynb",
-
+          "jup_chat_answer_prompt_page.ipynb",
+          "jup_migrate.ipynb",
+          "jup_prj_obj_exporter.ipynb",
+          "jup_REGAM.ipynb",
+          "jup_schema_monitor.ipynb",
+          "load_rag_cubes.ipynb",
+          "mstr_admin.ipynb"
     ]
     print("EEEE")
     #raise SystemExit(main(NOTEBOOKS))
     main(NOTEBOOKS)
     print("RRWRWE")
-    """ 
-            "semantic_endpoints.ipynb",
-            "jup_schema_exporter.ipynb",
-          "jup_osi_file_generator.ipynb",
-           "load_rag_cubes.ipynb",
-        "mstr_admin.ipynb",
-        "jup_prj_obj_exporter.ipynb",
-        "jup_migrate.ipynb",
-    ]
-    """

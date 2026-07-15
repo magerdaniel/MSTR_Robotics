@@ -1182,11 +1182,14 @@ class ReadCube:
         cube_head_d_l = []
         cube_att_d_l = []
         cube_met_d_l = []
-        for cube_id in cube_l:
-            cube_d = self.read_cube(conn=conn, cube_id=cube_id)
-            cube_head_d_l.append(cube_d["cube_head_d"])
-            cube_att_d_l.extend(cube_d["cube_att_d"])
-            cube_met_d_l.extend(cube_d["cube_met_d"])
+        for cube in cube_l:
+            try:
+                cube_d = self.read_cube(conn=conn, cube_id=cube["id"])
+                cube_head_d_l.append(cube_d["cube_head_d"])
+                cube_att_d_l.extend(cube_d["cube_att_d"])
+                cube_met_d_l.extend(cube_d["cube_met_d"])
+            except Exception as err:
+                print(err)
         cube_l_d = {"cube_head_d_l": cube_head_d_l, "cube_att_d_l": cube_att_d_l, "cube_met_d_l": cube_met_d_l}
         return cube_l_d
 
@@ -1249,6 +1252,15 @@ class ReadCube:
             m_def_d["metric_id"] = m["id"]
             m_def_d["metric_name"] = m["name"]
             m_def_d["metric_data_type"] = m["dataType"]
+            metric_def_d_l.append(m_def_d.copy())
+        
+        if len(metric_def_d_l)==0:
+            m_def_d = {}
+            m_def_d["project_id"] = conn.project_id
+            m_def_d["cube_id"] = cube_def["id"]
+            m_def_d["metric_id"] = "x0000000000000000000000000000000"
+            m_def_d["metric_name"] = "dummy"
+            m_def_d["metric_data_type"] = "float64"
             metric_def_d_l.append(m_def_d.copy())
         return metric_def_d_l
 
