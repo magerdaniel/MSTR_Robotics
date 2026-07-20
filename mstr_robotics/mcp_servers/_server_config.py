@@ -6,16 +6,29 @@ tool modules import from here instead of reading the config themselves.
 """
 
 import contextlib
-import json
 import sys
 
+import yaml
 from dotenv import load_dotenv
+from mstrio import config as mstrio_config
 from mstrio.connection import Connection
 
+from mstr_robotics._helper import StrFunc
 from mstr_robotics._paths import ENV_FILE, USER_CONFIG
 
+i_str_func = StrFunc()
+
+# mstrio emits its "Connection established / Project object named / _Cube object
+# named" banners through a logging StreamHandler bound to stdout at import time,
+# which contextlib.redirect_stdout(sys.stderr) cannot intercept. On a stdio MCP
+# server those lines land on stdout and corrupt the JSON-RPC stream ("Unexpected
+# token 'C', Connection... is not valid JSON"). Silence them at the source; this
+# module is imported before any MSTR access so it applies process-wide.
+mstrio_config.verbose = False
+mstrio_config.progress_bar = False
+
 with open(USER_CONFIG, "r") as openfile:
-    user_d = json.load(openfile)
+    user_d = yaml.safe_load(openfile)
 
 load_dotenv(str(ENV_FILE))
 
@@ -75,8 +88,18 @@ def get_conn(project_id: str | None = None, login_mode: int = 1) -> Connection:
 
 
 def get_report_url(report_id: str, project_id: str | None = None) -> str:
-    """Build a MicroStrategy Library web URL to open a report in the browser."""
-    base = MSTR_BASE_URL.rstrip("/")
-    if base.endswith("/api"):
-        base = base[:-4]  # strip trailing /api → .../MicroStrategyLibrary
-    return f"{base}/app/{project_id or MSTR_PROJECT_ID}/{report_id}"
+    """Build a classic MicroStrategy Web (servlet/mstrWeb) URL for a report.
+
+    mstrWeb keys on the project *name* rather than the GUID, so the shared
+    connection is used to resolve both the project name and the i-server host
+    from the base URL.
+    """
+    conn = get_conn(project_id)
+    web_base = i_str_func.web_base_url(conn.base_url)
+    server = i_str_func.get_server_base_url(conn.base_url)
+    project_name = i_str_func.get_project_name_base_url(conn.project_name)
+    return (
+        f"{web_base}Server={server}&Project={project_name}"
+        f"&evt=4001&src=mstrWeb.4001&reportViewMode=1"
+        f"&reportID={report_id}&currentViewMedia=2"
+    )

@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 from pathlib import Path
@@ -36,7 +35,7 @@ with open(CONFIG_DIR / "mstr_redis_y.yml", "r") as openfile:
     mstr_redis_y = yaml.safe_load(openfile)
 
 with open(USER_CONFIG, "r") as openfile:
-    user_d = json.load(openfile)
+    user_d = yaml.safe_load(openfile)
 conn_params = user_d["conn_params"]
 
 
@@ -61,7 +60,7 @@ class RunCompare:
 
         # Load user configuration (still from file)
         with open(USER_CONFIG, "r") as openfile:
-            json.load(openfile)
+            yaml.safe_load(openfile)
 
         # Select Redis environment
         if selected_redis_env is None:

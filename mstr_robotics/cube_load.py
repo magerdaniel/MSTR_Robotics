@@ -89,12 +89,12 @@ def handle_cube_load(conn, execution_list, max_cube_parallel=10, poll_interval_s
 
 
 if __name__ == "__main__":
-    import json
+    import yaml
 
     from mstr_robotics._paths import USER_CONFIG
 
     with open(USER_CONFIG, "r") as _fh:
-        _default_project_id = json.load(_fh)["conn_params"]["project_id"]
+        _default_project_id = yaml.safe_load(_fh)["conn_params"]["project_id"]
 
     load_json_d_l = [
         {

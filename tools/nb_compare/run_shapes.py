@@ -9,7 +9,7 @@ Run ONCE PER ENVIRONMENT, by that environment's own venv python, e.g.:
 
 The notebook's code cells are concatenated and exec()'d with the working
 directory set to <repo>/notebooks, so the notebooks' relative config paths
-(e.g. ..\\config\\user_d.json) resolve to THIS environment's config. After the
+(e.g. ..\\config\\user_d.yml) resolve to THIS environment's config. After the
 last cell runs, every pandas.DataFrame left in the namespace is discovered by
 runtime type (names are inconsistent across notebooks) and its (rows, cols)
 recorded.

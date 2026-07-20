@@ -15,6 +15,8 @@ import contextlib
 import json
 import sys
 
+import yaml
+
 from mstr_robotics._paths import CONFIG_DIR
 from mstr_robotics.mcp_servers._server_config import get_conn, get_report_url
 from mstr_robotics.navigation import AnswerPrompts, MstrObjects
@@ -26,8 +28,8 @@ from mstr_robotics.user_rag import KeywordProcessor, Perplexity
 # Static configuration
 # ---------------------------------------------------------------------------
 
-with open(CONFIG_DIR / "jupyter_objects_d.json", "r") as fh:
-    _jup_obj_d = json.load(fh)
+with open(CONFIG_DIR / "jupyter_objects_d.yml", "r") as fh:
+    _jup_obj_d = yaml.safe_load(fh)
 
 _rag_d = _jup_obj_d["turtorial_RAG"]  # RAG cube GUIDs
 _colab_d = _jup_obj_d["jup_Colab_perplex"]  # template report / target folder
@@ -213,7 +215,14 @@ def _answer_bi_question(question: str) -> str:
 
     # --- Step 5: return result ----------------------------------------------
     rows, cols = df.shape
-    url = get_report_url(new_rep_id)
+    prp_rep_id=_answer_prpts.save_AI_rep(conn=conn,report_id=TEMPLATE_REP_ID
+                                  ,prompt_answ=prompt_answ
+                                  ,ai_rep_name=AI_REP_NAME
+                                  ,promptOption ="filterAndTemplate"
+                                  ,ai_rep_folder_id=AI_REP_FOLDER)
+    prp_rep_id=prp_rep_id.json()["id"]
+    url=i_rep.web_base_url(conn=conn,report_id=prp_rep_id)
+
     csv_text = df.to_csv(index=False)
 
     return (

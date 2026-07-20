@@ -1,10 +1,11 @@
 import pandas as pd
+import yaml
 import json
 from mstrio.project_objects.datasets import super_cube
 from mstrio.connection import Connection
 
-with open('D:\\shared_drive\\Python\\mstr_robotics\\mstr_robotics\\user_d.json', 'r') as openfile:
-    user_d = json.load(openfile)
+with open('D:\\shared_drive\\Python\\mstr_robotics\\mstr_robotics\\user_d.yml', 'r') as openfile:
+    user_d = yaml.safe_load(openfile)
 username = user_d["username"]
 password =user_d["password"]
 server="85.214.60.83"

@@ -9,9 +9,10 @@ environments and get comparable results.
 
 Notebooks and modules should import the constants they need from here, e.g.::
 
+    import yaml
     from mstr_robotics._paths import USER_CONFIG
     with open(USER_CONFIG, "r") as fh:
-        user_d = json.load(fh)
+        user_d = yaml.safe_load(fh)
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ import os
 from pathlib import Path
 
 # Marker that identifies a repo root (every environment has its own copy).
-_MARKER = Path("config") / "user_d.json"
+_MARKER = Path("config") / "user_d.yml"
 
 
 def find_repo_root() -> Path:
@@ -32,11 +33,11 @@ def find_repo_root() -> Path:
     the environments apart. Instead we anchor on the runtime working directory:
     ``run_shapes.py`` executes each notebook with cwd set to ``<repo>/notebooks``
     (see tools/nb_compare), so walking up from cwd to the dir that contains
-    ``config/user_d.json`` yields THIS environment's repo.
+    ``config/user_d.yml`` yields THIS environment's repo.
 
     Resolution order:
       1. ``MSTR_REPO_ROOT`` environment variable, if set.
-      2. The nearest ancestor of the cwd that contains ``config/user_d.json``.
+      2. The nearest ancestor of the cwd that contains ``config/user_d.yml``.
       3. Fall back to this file's install location (the package's own repo).
     """
     env = os.environ.get("MSTR_REPO_ROOT")
@@ -53,7 +54,7 @@ REPO_ROOT = find_repo_root()
 
 # --- inside this repo --------------------------------------------------------
 CONFIG_DIR = REPO_ROOT / "config"
-USER_CONFIG = CONFIG_DIR / "user_d.json"
+USER_CONFIG = CONFIG_DIR / "user_d.yml"
 ENV_FILE = CONFIG_DIR / "API_KEY.env"
 OSI_PRODUKTION = REPO_ROOT / "OSI_Produktion"
 

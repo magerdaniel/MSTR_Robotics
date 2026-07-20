@@ -1,3 +1,4 @@
+import yaml
 from IPython.display import HTML
 import pandas as pd
 pd.set_option('display.max_colwidth', 1000)
@@ -17,13 +18,13 @@ from mstrio.connection import Connection
 from mstr_robotics.mstr_pandas import df_helper
 from mstr_robotics.user_RAG import keyword_processor, vectorDB_faisst,mstr_openAI,chat_bot
 
-user_path="..\\config\\user_d.json"
+user_path="..\\config\\user_d.yml"
 with open(user_path, 'r') as file:
-    user_d = json.load(file)
+    user_d = yaml.safe_load(file)
 
-jupyter_path="..\\config\\jupyter_objects_d.json"
+jupyter_path="..\\config\\jupyter_objects_d.yml"
 with open(jupyter_path, 'r') as file:
-    jupyter_objects_d = json.load(file)
+    jupyter_objects_d = yaml.safe_load(file)
 
 conn_params =  user_d["conn_params"]
 sKey=user_d["sKey"]

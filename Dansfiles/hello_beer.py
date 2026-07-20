@@ -1,3 +1,4 @@
+import yaml
 from IPython.display import HTML
 import webbrowser
 import warnings
@@ -23,9 +24,9 @@ pd.set_option('display.max_rows', None)          # Show all rows
 pd.set_option('display.max_columns', None)       # Show all columns
 pd.set_option('display.width', 0)                # Auto-adjust to terminal
 
-user_path=".\\config\\user_d.json"
+user_path=".\\config\\user_d.yml"
 with open(user_path, 'r') as file:
-    user_d = json.load(file)
+    user_d = yaml.safe_load(file)
 
 conn_params =  user_d["conn_params"]
 sKey=user_d["sKey"]

@@ -1,4 +1,5 @@
 #from mstrio.access_and_security.privilege import Privilege
+import yaml
 import json
 from time import sleep
 import shutil
@@ -30,11 +31,11 @@ from mstrio.object_management.migration.package import (
 #from mstrio.server.environment import StorageType
 
 
-path="D:\\shared_drive\\Python\\mstr_robotics\\mstr_robotics\\user_d.json"
+path="D:\\shared_drive\\Python\\mstr_robotics\\mstr_robotics\\user_d.yml"
 
 
 with open(path, 'r') as file:
-    user_d = json.load(file)
+    user_d = yaml.safe_load(file)
 
 project_id="B7CA92F04B9FAE8D941C3E9B7E0CD754"
 #project_id="01770E1B45A0B84E88E5748B465719AD"

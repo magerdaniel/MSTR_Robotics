@@ -2,6 +2,7 @@
 MicroStrategy MCP Server
 Connects to MicroStrategy and exports report 89FFB2AE475653785E693DBA32A5E6F3
 """
+import yaml
 import json
 from mcp.server.fastmcp import FastMCP
 from mstrio.connection import Connection
@@ -15,8 +16,8 @@ _mstr_api = mstr_api()
 # Configuration – override via environment variables
 # ---------------------------------------------------------------------------
 
-with open('C:\\coding\\Python_environments\\mstr_robotics\\config\\user_d.json', 'r') as openfile:
-    user_d = json.load(openfile)
+with open('C:\\coding\\Python_environments\\mstr_robotics\\config\\user_d.yml', 'r') as openfile:
+    user_d = yaml.safe_load(openfile)
 
 #set user credentials and open a connection to the i-server
 MSTR_USERNAME = user_d["conn_params"]["username"]

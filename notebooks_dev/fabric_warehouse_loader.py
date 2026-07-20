@@ -5,6 +5,7 @@ Supports multiple tables using Delta Lake format via Spark or direct file writes
 
 import pandas as pd
 import json
+import yaml
 import os
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -310,7 +311,7 @@ if __name__ == "__main__":
     # 1. Load MicroStrategy configuration
     config_path = USER_CONFIG
     with open(config_path, 'r') as file:
-        user_d = json.load(file)
+        user_d = yaml.safe_load(file)
 
     # 2. Connect to MicroStrategy
     base_url = "http://217.154.213.84:8080/MicroStrategyLibrary"
