@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mstr-robotics"
+version = "0.5.0"
+description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG, and export to Open Semantic Interchange (OSI) YAML."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Daniel Mager", email = "danielmager@gmx.de" }]
+dependencies = [
+    "mstrio-py>=11.6",
+    "pandas>=2.2",
+    "numpy>=2.0",
+    "requests>=2.31",
+    "PyYAML>=6.0",
+    "redis>=5.0",
+    "openai>=1.0",
+    "flashtext>=2.7",
+    "langchain-community>=0.3",
+    "faiss-cpu>=1.8",
+    "ruamel.yaml>=0.18",
+    "python-dotenv>=1.0",
+    "SQLAlchemy>=2.0",
+    "azure-storage-blob>=12.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+# MCP servers (mstr_robotics/mcp_servers/) — not needed for the notebooks.
+servers = [
+    "mcp",
+]
+dev = [
+    "ruff",
+    "vulture",
+    "jupyter",
+]
+
+[tool.setuptools.packages.find]
+include = ["mstr_robotics*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [
+    ".venv",
+]
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: import sorting, N: pep8-naming, B: bugbear (mutable defaults etc.)
+select = ["E", "F", "W", "I", "N", "B"]
+ignore = [
+    # long string literals / comments; the formatter governs code line length
+    "E501",
+    # deliberate lazy imports of optional deps (openai, google-cloud, faiss)
+    "E402",
+    # star-arg unpacking after keyword arg — widespread call pattern, defer to v0.6
+    "B026",
+    # method/argument/variable renames (open_Instance, sKey, ...) deferred to v0.6;
+    # v0.5 scope was class and module names only
+    "N802", "N803", "N806",
+]

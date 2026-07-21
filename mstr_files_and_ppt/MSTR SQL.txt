@@ -1,0 +1,162 @@
+MicroStrategy Multi Pass SQL
+CREATE TEMP TABLE TF5Q44FWZMD000(
+    "item_id"    SMALLINT, 
+    "emp_id"    SMALLINT, 
+    "day_date"    TIMESTAMP, 
+    "cust_state_id"    SMALLINT, 
+    "CUST_AGE"    INTEGER, 
+    "WJXBFS1"    INTEGER, 
+    "WJXBFS2"    INTEGER, 
+    "WJXBFS3"    INTEGER)
+
+insert into TF5Q44FWZMD000 
+select    "a11"."item_id" AS "item_id",
+    "a11"."emp_id" AS "emp_id",
+    "a11"."order_date" AS "day_date",
+    "a13"."cust_state_id" AS "cust_state_id",
+    "a12"."age_years" AS "CUST_AGE",
+    count(distinct "a11"."customer_id") AS "WJXBFS1",
+    count(distinct "a11"."item_id") AS "WJXBFS2",
+    count(distinct "a11"."order_id") AS "WJXBFS3"
+from    "public"."order_detail"    "a11"
+    join    "public"."lu_customer"    "a12"
+     on     ("a11"."customer_id" = "a12"."customer_id")
+    join    "public"."lu_cust_city"    "a13"
+     on     ("a12"."cust_city_id" = "a13"."cust_city_id")
+    join    "public"."lu_cust_state"    "a14"
+     on     ("a13"."cust_state_id" = "a14"."cust_state_id")
+    join    "public"."lu_day"    "a15"
+     on     ("a11"."order_date" = "a15"."day_date")
+where    ("a14"."cust_region_id" in (4)
+and "a15"."year_id" in (2015, 2016))
+group by    "a11"."item_id",
+    "a11"."emp_id",
+    "a11"."order_date",
+    "a13"."cust_state_id",
+    "a12"."age_years"
+
+CREATE TEMP TABLE TMKB5NYPFOT001(
+    "item_id"    SMALLINT, 
+    "emp_id"    SMALLINT, 
+    "day_date"    TIMESTAMP, 
+    "cust_state_id"    SMALLINT, 
+    "CUST_AGE"    INTEGER, 
+    "WJXBFS1"    SMALLINT, 
+    "WJXBFS2"    SMALLINT)
+
+insert into TMKB5NYPFOT001 
+select    distinct "a11"."item_id" AS "item_id",
+    "a11"."emp_id" AS "emp_id",
+    "a11"."order_date" AS "day_date",
+    "a14"."cust_state_id" AS "cust_state_id",
+    "a13"."age_years" AS "CUST_AGE",
+    "a12"."country_id" AS "WJXBFS1",
+    "a12"."dist_ctr_id" AS "WJXBFS2"
+from    "public"."order_detail"    "a11"
+    join    "public"."lu_employee"    "a12"
+     on     ("a11"."emp_id" = "a12"."emp_id")
+    join    "public"."lu_customer"    "a13"
+     on     ("a11"."customer_id" = "a13"."customer_id")
+    join    "public"."lu_cust_city"    "a14"
+     on     ("a13"."cust_city_id" = "a14"."cust_city_id")
+    join    "public"."lu_cust_state"    "a15"
+     on     ("a14"."cust_state_id" = "a15"."cust_state_id")
+    join    "public"."lu_day"    "a16"
+     on     ("a11"."order_date" = "a16"."day_date")
+where    ("a15"."cust_region_id" in (4)
+and "a16"."year_id" in (2015, 2016))
+
+CREATE TEMP TABLE T2P18G1VNMD002(
+    "item_id"    SMALLINT, 
+    "emp_id"    SMALLINT, 
+    "day_date"    TIMESTAMP, 
+    "cust_state_id"    SMALLINT, 
+    "CUST_AGE"    INTEGER, 
+    "WJXBFS1"    INTEGER)
+
+insert into T2P18G1VNMD002 
+select    "pa11"."item_id" AS "item_id",
+    "pa11"."emp_id" AS "emp_id",
+    "pa11"."day_date" AS "day_date",
+    "pa11"."cust_state_id" AS "cust_state_id",
+    "pa11"."CUST_AGE" AS "CUST_AGE",
+    count(*) AS "WJXBFS1"
+from    TMKB5NYPFOT001    "pa11"
+group by    "pa11"."item_id",
+    "pa11"."emp_id",
+    "pa11"."day_date",
+    "pa11"."cust_state_id",
+    "pa11"."CUST_AGE"
+
+select    "a110"."month_id" AS "month_id",
+    "a113"."month_desc" AS "month_desc0",
+    "pa14"."day_date" AS "day_date",
+    "a110"."quarter_id" AS "quarter_id",
+    "a118"."quarter_desc" AS "quarter_desc0",
+    "a110"."year_id" AS "year_id",
+    "a16"."category_id" AS "category_id",
+    "a112"."category_desc" AS "category_desc0",
+    "pa14"."item_id" AS "item_id",
+    "a15"."item_name" AS "item_name0",
+    "a15"."supplier_id" AS "supplier_id",
+    "a115"."supplier_name" AS "supplier_name",
+    "a111"."region_id" AS "region_id",
+    "a114"."region_name" AS "region_name0",
+    "a114"."region_name_es" AS "region_name_es0",
+    "a17"."country_id" AS "country_id",
+    "a116"."country_name" AS "CUST_COUNTRY_DESC0",
+    "pa14"."emp_id" AS "emp_id",
+    "a17"."emp_last_name" AS "emp_last_name",
+    "a17"."emp_first_name" AS "emp_first_name",
+    "a18"."cust_region_id" AS "cust_region_id",
+    "a19"."cust_region_name" AS "cust_region_name0",
+    "pa14"."CUST_AGE" AS "CUST_AGE",
+    "a19"."cust_country_id" AS "cust_country_id",
+    "a117"."country_name" AS "CUST_COUNTRY_DESC2",
+    "pa14"."cust_state_id" AS "cust_state_id",
+    "a18"."cust_state_name" AS "cust_state_name",
+    "pa14"."WJXBFS1" AS "WJXBFS1",
+    "pa12"."WJXBFS1" AS "WJXBFS2",
+    "pa14"."WJXBFS2" AS "WJXBFS3",
+    "pa14"."WJXBFS3" AS "WJXBFS4"
+from    TF5Q44FWZMD000    "pa14"
+    join    T2P18G1VNMD002    "pa12"
+     on     ("pa14"."CUST_AGE" = "pa12"."CUST_AGE" and 
+    "pa14"."cust_state_id" = "pa12"."cust_state_id" and 
+    "pa14"."day_date" = "pa12"."day_date" and 
+    "pa14"."emp_id" = "pa12"."emp_id" and 
+    "pa14"."item_id" = "pa12"."item_id")
+    join    "public"."lu_item"    "a15"
+     on     ("pa14"."item_id" = "a15"."item_id")
+    join    "public"."lu_subcateg"    "a16"
+     on     ("a15"."subcat_id" = "a16"."subcat_id")
+    join    "public"."lu_employee"    "a17"
+     on     ("pa14"."emp_id" = "a17"."emp_id")
+    join    "public"."lu_cust_state"    "a18"
+     on     ("pa14"."cust_state_id" = "a18"."cust_state_id")
+    join    "public"."lu_cust_region"    "a19"
+     on     ("a18"."cust_region_id" = "a19"."cust_region_id")
+    join    "public"."lu_day"    "a110"
+     on     ("pa14"."day_date" = "a110"."day_date")
+    join    "public"."lu_call_ctr"    "a111"
+     on     ("a17"."call_ctr_id" = "a111"."call_ctr_id")
+    join    "public"."lu_category"    "a112"
+     on     ("a16"."category_id" = "a112"."category_id")
+    join    "public"."lu_month"    "a113"
+     on     ("a110"."month_id" = "a113"."month_id")
+    join    "public"."lu_region"    "a114"
+     on     ("a111"."region_id" = "a114"."region_id")
+    join    "public"."lu_supplier"    "a115"
+     on     ("a15"."supplier_id" = "a115"."supplier_id")
+    join    "public"."lu_country"    "a116"
+     on     ("a17"."country_id" = "a116"."country_id")
+    join    (SELECT COUNTRY_ID, COUNTRY_NAME 
+FROM lu_country 
+WHERE COUNTRY_ID IN (1,3,4,5,6))    "a117"
+     on     ("a19"."cust_country_id" = "a117"."country_id")
+    join    "public"."lu_quarter"    "a118"
+     on     ("a110"."quarter_id" = "a118"."quarter_id")
+where    ("a18"."cust_region_id" in (4)
+and "a110"."year_id" in (2015, 2016))
+
+ 

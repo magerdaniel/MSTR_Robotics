@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Secrets and environment.
+# Real config is never tracked; only the *.example.* templates are.
+.env
+*.env
+config/*.yml
+config/*.json
+!config/*.example.yml
+!config/*.example.env
+
+# Generated OSI content and output area
+data/
+output/
+
+# Logs
+*.log
+log/
+logs/
+
+# Databases and dumps
+*.db
+*.sqlite
+*.sqlite3
+*.rdb
+
+# OS
+.DS_Store
+Thumbs.db

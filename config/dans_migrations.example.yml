@@ -1,0 +1,15 @@
+{
+    'azure_storage': {
+        'container_name': 'YOUR container_name ',
+        'account_name': 'YOUR account_name',
+        'account_key': 'YOU ACCOUNT KEY'
+    },
+    'microstrategy': {
+        'short_cut_folder_id': '986E6D1A427030A710A0E68F74290482',
+        'source_project_id': 'B7CA92F04B9FAE8D941C3E9B7E0CD754',
+        'target_project_id': '74F9B2164869627AF637FDA5D4A121B3'
+    },
+    'directory': {
+        'path': 'first_run'
+    }
+}

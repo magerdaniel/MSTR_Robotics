@@ -1,0 +1,69 @@
+turtorial_RAG:
+  project_id: B7CA92F04B9FAE8D941C3E9B7E0CD754
+  read_out_cbe_fold_id: 9981CB214C79D75EC342A781539A4E5A
+  ele_cbe_folder_id: 2B028FBC466C3DC839E1E092FDF4CC56
+  read_out_ai_obj_fold_id: D41FC55D4282E9A5C943D9A8670336CF
+  cube_attribute_form_elements_name: attribute_form_elements
+  cube_attribute_form_elements_id: 7065AA4C48A2044AF0BEED95042A4870
+  cube_attribute_elements_name: attribute_elements
+  cube_attribute_elements_id: E098E8DD49B73D9FBE4F17ACC6774F3E
+  cube_obj_prp_rel_name: obj_prp_rel
+  cube_obj_prp_rel_id: 21BCCD6C4110696EABE622B71D1C0566
+  cube_att_form_def_name: att_form_def
+  cube_att_form_def_id: A8B8EF0949433604826137AC569859E3
+  cbe_dashboard_definitions_id: AFA89D9C4313375DC9945AA4634C5FED
+  cbe_dashboard_definitions_name: dashboard_definitions
+  cbe_dashboard_chapter_filt_id: 9BB06A4C43974CEF178D2D9843018297
+  cbe_dashboard_chapter_filt_name: dashboard_chapter_filter
+  cbe_dashboard_selector_filt_id: BB1630284A9D1EA06DCF69A1A57BD24B
+  cbe_dashboard_selector_filt_name: dashboard_selector_filter
+  cbe_rep_def_id: B7AE522248AD2604FA45489C1B750FBD
+  cbe_rep_def_name: report_definitions
+  cbe_tbl_att_fct_mapping_id: D1D2CE9E43C95905EF6640AA0576FE1C
+  cbe_tbl_att_fct_mapping_name: tbl_att_fct_mapping
+  cbe_cube_read_out_id: 293664374424ADAC7D3615AE3B384907
+  cbe_cube_read_out_name: cube_definitions
+jup_schema_monitor:
+  reports:
+    report_usage: BF03DD1443947C6192D0229B4A3D7EF8
+    views_cols_usage: 9A96A6474DB13EA45D4B96B4485463C8
+  prompts:
+    pa_element_prompt_id: EF66D49D40D0E799E1D1909A65085E97
+    pa_attribute_project_id: 3A0BE6C741DE7CDD4A4C01925B5A04E9
+  cubes:
+    cbe_tbl_att_fct_mapping_id: 3673EC9146EE4DF3517725BBA97A4B36
+    cbe_att_form_exp_id: 3E312E64489040609C0A63800A4E3BAE
+    cbe_fact_exp_id: 5D8A265D4A08641AAB76DAB74440A41C
+    cbe_table_exp_id: 745D4D304697491769F4F4B41E906BE0
+  folders:
+    cube_folder_id: 9981CB214C79D75EC342A781539A4E5A
+    flag_path_d_l:
+    - in_duty: Daniel
+      flag_folder_id: 032A5E114A59D28267BDD8B6D9E58B22
+    - in_duty: Verena
+      flag_folder_id: F025A94B4C03B6DCEE0F5D9DA825DA67
+    - in_duty: Dolores
+      flag_folder_id: 92ADD0F84D07AC532AD03BA0F92A836B
+    - in_duty: Ed
+      flag_folder_id: 7F16A4B811E58ED317D50080EFF554EA
+    - in_duty: Mike
+      flag_folder_id: D64C532E4E7FBA74D29A7CA3576F39CF
+  misc:
+    pa_project_element_id: '7397622336377065472'
+jup_REGAM:
+  reports:
+    pa_report_id: 31FF880045D230BE04C209A42C108B24
+jup_Colab_perplex:
+  reports:
+    report_id: 25D40AD444B6D51B333021ADFB219501
+  folders:
+    ai_rep_folder_id: 2F2302AE4D1C2DDDFA9CDCB46802B185
+jup_prj_obj_exporter:
+  folders:
+    folder_id: B70AF11248C00F7D4339079310F8B3F1
+  misc:
+    daily_search_id: 96648F2B492150A6AA27DDB3744E32B4
+    single_object_d:
+      id: D63BE643469DE5784DD83C8F95B8BFE6
+      type: '3'
+      subtype: '776'
