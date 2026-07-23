@@ -3,34 +3,48 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mstr-robotics"
+name = "MSTR-Robotics-magerdaniel"
 version = "0.5.0"
 description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG and OSI export."
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "Daniel Mager", email = "danielmager@gmx.de" }]
+# Base install: connection, object read-out, comparison and migration. Kept small on
+# purpose; feature-specific libraries live in the extras below. (openpyxl is base because
+# the migration notebook reads its input list from an .xlsx via pandas.)
 dependencies = [
     "mstrio-py>=11.6",
     "pandas>=2.2",
     "numpy>=2.0",
     "requests>=2.31",
     "PyYAML>=6.0",
-    "redis>=5.0",
-    "openai>=1.0",
-    "flashtext>=2.7",
-    "langchain-community>=0.3",
-    "faiss-cpu>=1.8",
     "ruamel.yaml>=0.18",
     "python-dotenv>=1.0",
-    "SQLAlchemy>=2.0",
-    "azure-storage-blob>=12.0",
     "openpyxl>=3.1",
 ]
 
 [project.optional-dependencies]
-# MCP servers (mstr_robotics/mcp_servers/) — not needed for the notebooks.
+# Chat / RAG notebooks: OpenAI + Perplexity (OpenAI-compatible) and keyword extraction.
+rag = [
+    "openai>=1.0",
+    "flashtext>=2.7",
+]
+# Redis-backed metadata analysis.
+redis = [
+    "redis>=5.0",
+]
+# Azure Blob staging for migration packages.
+azure = [
+    "azure-storage-blob>=12.0",
+]
+# MCP servers (mstr_robotics/mcp_servers/) — the report-wizard tool uses the RAG stack.
 servers = [
     "mcp",
+    "MSTR-Robotics-magerdaniel[rag]",
+]
+# Everything above.
+all = [
+    "MSTR-Robotics-magerdaniel[rag,redis,azure,servers]",
 ]
 dev = [
     "ruff",
@@ -59,7 +73,7 @@ select = ["E", "F", "W", "I", "N", "B"]
 ignore = [
     # long string literals / comments; the formatter governs code line length
     "E501",
-    # deliberate lazy imports of optional deps (openai, google-cloud, faiss)
+    # deliberate lazy imports of optional deps (mstrio, openai, azure)
     "E402",
     # star-arg unpacking after keyword arg — widespread call pattern, defer to v0.6
     "B026",

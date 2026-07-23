@@ -2,9 +2,8 @@ import ast
 import json
 import re
 
+import numpy as np
 from flashtext import KeywordProcessor as FlashtextKeywordProcessor
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
 from openai import OpenAI
 
 
@@ -33,20 +32,33 @@ class KeywordProcessor:
 
 
 class VectorDbFaiss:
-    def __init__(self, sKey):
-        self.i_embeddings = OpenAIEmbeddings(openai_api_key=sKey)
+    """Nearest-keyword lookup over OpenAI embeddings.
+
+    The corpus is a short list of keyword strings rebuilt in memory each run, so a
+    brute-force cosine search over a normalized numpy matrix is instant and needs no
+    vector-store dependency. Named ``VectorDbFaiss`` for backwards compatibility; it no
+    longer uses FAISS or langchain.
+    """
+
+    def __init__(self, sKey, model="text-embedding-3-small"):
+        self._client = OpenAI(api_key=sKey)
+        self._model = model
+
+    def _embed(self, texts):
+        resp = self._client.embeddings.create(model=self._model, input=list(texts))
+        return np.array([d.embedding for d in resp.data], dtype=np.float32)
 
     def load_vector_store(self, key_l):
-        # Flatten and ensure all items are strings
-        # Create FAISS vector store
-        self.vector_store = FAISS.from_texts(key_l, self.i_embeddings)
-
-        return self.vector_store
+        self._keys = list(key_l)
+        mat = self._embed(self._keys)
+        # Normalize rows once so the dot product below is cosine similarity.
+        self._mat = mat / np.linalg.norm(mat, axis=1, keepdims=True)
+        return self
 
     def check_keyword(self, filt_obj_str):
-        results = self.vector_store.similarity_search_with_score(query=filt_obj_str, top_k=1)
-        filter_obj_name = results[0][0].page_content
-        return filter_obj_name
+        q = self._embed([filt_obj_str])[0]
+        q = q / np.linalg.norm(q)
+        return self._keys[int((self._mat @ q).argmax())]
 
 
 class MstrOpenAi:
