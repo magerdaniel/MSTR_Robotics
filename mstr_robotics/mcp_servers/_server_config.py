@@ -27,8 +27,16 @@ i_str_func = StrFunc()
 mstrio_config.verbose = False
 mstrio_config.progress_bar = False
 
-with open(USER_CONFIG, "r") as openfile:
-    user_d = yaml.safe_load(openfile)
+try:
+    with open(USER_CONFIG, "r") as openfile:
+        user_d = yaml.safe_load(openfile)
+except FileNotFoundError as exc:
+    raise RuntimeError(
+        f"MicroStrategy configuration not found at {USER_CONFIG}.\n"
+        "Run the setup notebook (notebooks/00_setup.ipynb), or copy the template by hand:\n"
+        f"    cp {USER_CONFIG.parent / 'user_d.example.yml'} {USER_CONFIG}\n"
+        "then fill in base_url, username, password and project_id."
+    ) from exc
 
 load_dotenv(str(ENV_FILE))
 

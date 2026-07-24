@@ -182,11 +182,10 @@ if __name__ == "__main__":
           "jup_migrate.ipynb",
           "jup_prj_obj_exporter.ipynb",
           "jup_REGAM.ipynb",
-          "jup_schema_monitor.ipynb",
-          "load_rag_cubes.ipynb",
-          "mstr_admin.ipynb"
+          "jup_load_rag_cubes.ipynb"
     ]
     print("EEEE")
     #raise SystemExit(main(NOTEBOOKS))
     main(NOTEBOOKS)
     print("RRWRWE")
+    #"jup_schema_monitor.ipynb",

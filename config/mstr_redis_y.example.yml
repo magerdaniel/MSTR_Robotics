@@ -1,0 +1,46 @@
+{
+  "redis_env_d": {
+    "redis_dev": {
+      "host": "YOUR REDIS HOST",
+      "port": 14995,
+      "password": "YOUR PASSWORD",
+      "username": "default",
+      "decode_responses": true,
+      "project_id": "B7CA92F04B9FAE8D941C3E9B7E0CD754"
+    }
+  },
+  "searches_used_in_prp_d_l": [
+    {"search_id": "E6A7C8EE4BB767E8380E3A896092C0E6", "run_fg": 1},
+    {"search_id": "BA38E83548881BF83570CCABE2CB9B4B", "run_fg": 1}
+  ],
+  "project_prefix": {
+      "B7CA92F04B9FAE8D941C3E9B7E0CD754": "mstr_dev",
+      "74F9B2164869627AF637FDA5D4A121B3": "mstr_test"
+    }
+  ,
+  "prefix_map": {
+    "report_grid_and_graph": "REPORT_DEFINITION",
+    "prompt_double": "PROMPT",
+    "prompt_expression": "PROMPT",
+    "agg_metric": "AGG_METRIC",
+    "report_engine": "REPORT_DEFINITION",
+    "prompt_objects": "PROMPT",
+    "report_grid": "REPORT_DEFINITION",
+    "report_graph": "REPORT_DEFINITION",
+    "prompt_elements": "PROMPT",
+    "prompt_big_decimal": "PROMPT",
+    "prompt_string": "PROMPT",
+    "consolidation_element": "CONSOLIDATION_ELEMENT",
+    "14081": "DOCUMENT_DEFINITION",
+    "consolidation": "CONSOLIDATION",
+    "custom_group": "FILTER",
+    "prompt_date": "PROMPT",
+    "attribute": "ATTRIBUTE",
+    "metric": "METRIC",
+    "filter": "FILTER",
+    "fact": "FACT",
+    "logical_table": "TABLE",
+    "role_transformation": "ROLE",
+    "search": "SEARCH"
+  }
+}

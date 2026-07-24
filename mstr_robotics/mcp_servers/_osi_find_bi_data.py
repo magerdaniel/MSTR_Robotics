@@ -10,9 +10,9 @@ import json
 import os
 from pathlib import Path
 
-from mstr_robotics._paths import OSI_PRODUKTION
+from mstr_robotics._paths import OSI_DIR
 
-OSI_FOLDER = str(OSI_PRODUKTION)
+OSI_FOLDER = str(OSI_DIR)
 
 
 def _call_llm(sys_cont: str, msg_t: str, temperature: float = 0.1) -> str:

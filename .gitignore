@@ -80,3 +80,6 @@ alt/zzz_redis_operations_manni.ipynb
 
 # Local Claude settings — held Redis credentials (scrubbed from history); keep untracked
 .claude/settings.local.json
+
+# Generated output area — MSTR data dumps (CSV etc.); never ship these
+output/

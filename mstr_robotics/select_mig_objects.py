@@ -206,10 +206,13 @@ class BldMigContent:
             body = {"projectIdAndObjectIds": [{"projectId": conn.project_id, "objectIds": [guid]}]}
             obj_d = browsing.get_objects_from_quick_search(connection=conn, body=body).json()
             mig_d = {}
-            mig_d["id"] = obj_d["result"][0]["id"]
-            mig_d["type"] = obj_d["result"][0]["type"]
-            mig_d["action"] = self._norm_action(action)
-            mig_d["include_dependents"] = include_dependents
-            mig_d["subtype"] = obj_d["result"][0]["subtype"]
-            mig_l.append(mig_d.copy())
+            if len(obj_d["result"])>0:
+                mig_d["id"] = obj_d["result"][0]["id"]
+                mig_d["type"] = obj_d["result"][0]["type"]
+                mig_d["action"] = self._norm_action(action)
+                mig_d["include_dependents"] = include_dependents
+                mig_d["subtype"] = obj_d["result"][0]["subtype"]
+                mig_l.append(mig_d.copy())
+            else:
+                print(f"Object with GUID {guid} not found.")
         return mig_l
