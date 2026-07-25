@@ -83,3 +83,6 @@ alt/zzz_redis_operations_manni.ipynb
 
 # Generated output area — MSTR data dumps (CSV etc.); never ship these
 output/
+
+# Python build artifacts
+build/
