@@ -27,8 +27,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-# Marker that identifies a project root (every environment has its own copy).
-_MARKER = Path("config") / "user_d.yml"
+# Markers that identify a project root (every environment has its own copy).
+# ``user_d.yml`` exists once setup has run; ``user_d.example.yml`` exists as
+# soon as the user copies mstr_robotics/utils/config/ in, before setup has run
+# even once -- needed because the setup notebook itself runs from
+# <project>/notebooks/, one level below the project root it needs to find.
+_MARKERS = (
+    Path("config") / "user_d.yml",
+    Path("config") / "user_d.example.yml",
+)
 
 
 def find_repo_root() -> Path:
@@ -37,10 +44,10 @@ def find_repo_root() -> Path:
     Resolution order:
       1. ``MSTR_REPO_ROOT`` environment variable, if set.
       2. The nearest ancestor of the cwd that contains ``config/user_d.yml``
-         (a project that has already run setup at least once).
-      3. The current working directory, on the assumption this is a fresh
-         project where the user just copied ``mstr_robotics/utils/`` in and is
-         about to run setup for the first time.
+         or ``config/user_d.example.yml`` (a project that has copied
+         mstr_robotics/utils/ in, whether or not setup has run yet).
+      3. The current working directory, if neither marker is found anywhere
+         above it.
 
     Step 3 deliberately does NOT fall back to this file's install location
     (e.g. site-packages) -- that would silently write config/output inside the
@@ -51,7 +58,7 @@ def find_repo_root() -> Path:
         return Path(env).resolve()
     cwd = Path.cwd()
     for base in (cwd, *cwd.parents):
-        if (base / _MARKER).exists():
+        if any((base / marker).exists() for marker in _MARKERS):
             return base
     return cwd
 
