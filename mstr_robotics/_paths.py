@@ -1,11 +1,18 @@
-"""Central repo-relative path resolution.
+"""Central project-relative path resolution.
 
-Every path here is derived from the installed package location
-(``Path(__file__).parent.parent`` == the repo root), so the same code resolves
-correctly in whichever environment the package is installed -- e.g.
-``mstr_robotics`` vs ``mstr_robotics_comp`` -- without any hardcoded absolute
-paths. This is what lets ``tools/nb_compare`` run the same notebooks against two
-environments and get comparable results.
+Resolution walks up from the current working directory looking for
+``config/user_d.yml`` -- the marker that says "this is a project that has run
+setup". This is what lets a user ``pip install`` the package, copy the
+reference material from ``mstr_robotics/utils/`` to the top level of their own
+project, and have config/output/OSI paths resolve there -- instead of inside
+the installed package's own location (e.g. site-packages), which is not
+writable in any meaningful sense for the user.
+
+It is also what lets ``tools/nb_compare`` (in the dans_playground dev repo)
+run the same notebooks against two full repo checkouts that share one
+installed ``mstr_robotics`` package: each checkout has its own
+``config/user_d.yml``, so walking up from cwd tells the two apart even though
+``Path(__file__)`` cannot.
 
 Notebooks and modules should import the constants they need from here, e.g.::
 
@@ -20,25 +27,24 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-# Marker that identifies a repo root (every environment has its own copy).
+# Marker that identifies a project root (every environment has its own copy).
 _MARKER = Path("config") / "user_d.yml"
 
 
 def find_repo_root() -> Path:
-    """Resolve the repo root of the *current* environment.
-
-    The two comparison environments (mstr_robotics / mstr_robotics_comp) share a
-    single installed ``mstr_robotics`` package, so ``Path(__file__)`` always
-    points at whichever repo the package was installed from -- it cannot tell
-    the environments apart. Instead we anchor on the runtime working directory:
-    ``run_shapes.py`` executes each notebook with cwd set to ``<repo>/notebooks``
-    (see tools/nb_compare), so walking up from cwd to the dir that contains
-    ``config/user_d.yml`` yields THIS environment's repo.
+    """Resolve the root of the *current* project.
 
     Resolution order:
       1. ``MSTR_REPO_ROOT`` environment variable, if set.
-      2. The nearest ancestor of the cwd that contains ``config/user_d.yml``.
-      3. Fall back to this file's install location (the package's own repo).
+      2. The nearest ancestor of the cwd that contains ``config/user_d.yml``
+         (a project that has already run setup at least once).
+      3. The current working directory, on the assumption this is a fresh
+         project where the user just copied ``mstr_robotics/utils/`` in and is
+         about to run setup for the first time.
+
+    Step 3 deliberately does NOT fall back to this file's install location
+    (e.g. site-packages) -- that would silently write config/output inside the
+    venv instead of the user's own project.
     """
     env = os.environ.get("MSTR_REPO_ROOT")
     if env:
@@ -47,7 +53,7 @@ def find_repo_root() -> Path:
     for base in (cwd, *cwd.parents):
         if (base / _MARKER).exists():
             return base
-    return Path(__file__).resolve().parent.parent
+    return cwd
 
 
 REPO_ROOT = find_repo_root()
