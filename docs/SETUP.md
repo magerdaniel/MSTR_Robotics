@@ -63,7 +63,7 @@ Send me a mail to daniel@magdata.de.
 ## 3. Run the setup notebook
 
 ```bash
-jupyter lab mstr_robotics/notebooks/00_setup.ipynb
+jupyter lab notebooks/00_setup.ipynb
 ```
 
 Run it top to bottom. It creates the output folders, copies the config templates,

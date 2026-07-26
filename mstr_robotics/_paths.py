@@ -31,7 +31,7 @@ def find_repo_root() -> Path:
     single installed ``mstr_robotics`` package, so ``Path(__file__)`` always
     points at whichever repo the package was installed from -- it cannot tell
     the environments apart. Instead we anchor on the runtime working directory:
-    ``run_shapes.py`` executes each notebook with cwd set to ``<repo>/mstr_robotics/notebooks``
+    ``run_shapes.py`` executes each notebook with cwd set to ``<repo>/notebooks``
     (see tools/nb_compare), so walking up from cwd to the dir that contains
     ``config/user_d.yml`` yields THIS environment's repo.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MSTR-Robotics-magerdaniel"
-version = "0.5.5"
+version = "0.5.6"
 description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG and OSI export."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -52,14 +52,32 @@ dev = [
     "jupyter",
 ]
 
-[tool.setuptools.packages.find]
-include = ["mstr_robotics*", "config", "OSI_Produktion"]
-namespaces = true
+[tool.setuptools]
+packages = [
+    "mstr_robotics",
+    "mstr_robotics.mcp_servers",
+    "mstr_robotics.osi_exporter",
+    "mstr_robotics.utils.notebooks",
+    "mstr_robotics.utils.config",
+    "mstr_robotics.utils.docs",
+    "mstr_robotics.utils.OSI_Produktion",
+]
+
+# Repo layout keeps notebooks/, config/, docs/, OSI_Produktion/ at project level;
+# these map them into mstr_robotics/utils/ only inside the built package, so
+# `pip install`ers get a self-contained, copy-pasteable bundle of reference
+# material alongside the code.
+[tool.setuptools.package-dir]
+"mstr_robotics.utils.notebooks" = "notebooks"
+"mstr_robotics.utils.config" = "config"
+"mstr_robotics.utils.docs" = "docs"
+"mstr_robotics.utils.OSI_Produktion" = "OSI_Produktion"
 
 [tool.setuptools.package-data]
-config = ["*.example.*"]
-OSI_Produktion = ["*.yml"]
-mstr_robotics = ["notebooks/*.ipynb"]
+"mstr_robotics.utils.notebooks" = ["*.ipynb"]
+"mstr_robotics.utils.config" = ["*.example.*"]
+"mstr_robotics.utils.docs" = ["*.md"]
+"mstr_robotics.utils.OSI_Produktion" = ["*.yml"]
 
 [tool.ruff]
 line-length = 120

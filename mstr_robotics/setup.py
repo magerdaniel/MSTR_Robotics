@@ -1,4 +1,4 @@
-"""First-time setup helpers, driven by ``mstr_robotics/notebooks/00_setup.ipynb``.
+"""First-time setup helpers, driven by ``notebooks/00_setup.ipynb``.
 
 Each function performs one setup step and returns a :class:`StepResult` instead
 of raising, so the setup notebook can show every problem at once rather than
@@ -43,7 +43,7 @@ from mstr_robotics._paths import (
 _PLACEHOLDER_MARKERS = ("_guid", "your", "you account", "changeme", "placeholder")
 
 # Directories the package writes into. Nothing else creates these, and pandas
-# `to_csv` / `open(..., "w")` do not create parents -- see mstr_robotics/notebooks/00_setup.ipynb.
+# `to_csv` / `open(..., "w")` do not create parents -- see notebooks/00_setup.ipynb.
 _WRITABLE_DIRS = (OSI_DIR, OSI_DASHBOARD_CONTEXT, OUTPUT_DIR, MCP_DATA)
 
 # Configs every user must customise. The rest are feature-specific and may

@@ -11,7 +11,7 @@ A Python toolkit for MicroStrategy automation, object comparison, and Redis-base
 ## Project Structure
 
 - `mstr_robotics/` - Main package with core functionality
-- `mstr_robotics/notebooks/` - Jupyter notebooks for analysis and exploration
+- `notebooks/` - Jupyter notebooks for analysis and exploration
 - `Dansfiles/` - Migration and automation scripts
 - `config/` - Configuration files (YAML, JSON)
 - `export/` - Export utilities and logs
@@ -26,7 +26,7 @@ A Python toolkit for MicroStrategy automation, object comparison, and Redis-base
 
 ## Usage
 
-The Jupyter notebooks in `mstr_robotics/notebooks/` are the primary entry points (object
+The Jupyter notebooks in `notebooks/` are the primary entry points (object
 export, schema monitoring, migration, REGAM regression testing).
 
 ## Development
