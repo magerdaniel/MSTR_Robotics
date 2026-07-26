@@ -1,7 +1,7 @@
 """mstr_robotics — automation toolkit for MicroStrategy / Strategy One.
 
 Object read-out, migration packaging, environment comparison, RAG helpers
-and OSI dashboard export, driven by the Jupyter notebooks in ``notebooks/``.
+and OSI dashboard export, driven by the Jupyter notebooks in ``mstr_robotics/notebooks/``.
 """
 
-__version__ = "0.5.4"
+__version__ = "0.5.5"

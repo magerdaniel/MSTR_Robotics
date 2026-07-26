@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MSTR-Robotics-magerdaniel"
-version = "0.5.4"
+version = "0.5.5"
 description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG and OSI export."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -53,13 +53,13 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["mstr_robotics*", "config", "notebooks", "OSI_Produktion"]
+include = ["mstr_robotics*", "config", "OSI_Produktion"]
 namespaces = true
 
 [tool.setuptools.package-data]
 config = ["*.example.*"]
-notebooks = ["*.ipynb"]
 OSI_Produktion = ["*.yml"]
+mstr_robotics = ["notebooks/*.ipynb"]
 
 [tool.ruff]
 line-length = 120

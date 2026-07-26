@@ -5,7 +5,7 @@ keyword-extraction → Perplexity RAG → prompt-answering → report-execution
 pipeline and returns the result as CSV plus a browser link.
 
 Importing this module loads the four RAG cubes into DataFrames (same loading
-logic as notebooks/jup_chat_answer_prompt_page.ipynb) and builds the
+logic as mstr_robotics/notebooks/jup_chat_answer_prompt_page.ipynb) and builds the
 flash-text keyword index — i.e. it happens once when the MCP server process
 starts. Every query_bi_report call afterwards is served from the in-memory
 copies and reuses the shared session-managed connection (_server_config).

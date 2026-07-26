@@ -33,7 +33,7 @@ try:
 except FileNotFoundError as exc:
     raise RuntimeError(
         f"MicroStrategy configuration not found at {USER_CONFIG}.\n"
-        "Run the setup notebook (notebooks/00_setup.ipynb), or copy the template by hand:\n"
+        "Run the setup notebook (mstr_robotics/notebooks/00_setup.ipynb), or copy the template by hand:\n"
         f"    cp {USER_CONFIG.parent / 'user_d.example.yml'} {USER_CONFIG}\n"
         "then fill in base_url, username, password and project_id."
     ) from exc
