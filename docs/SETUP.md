@@ -102,6 +102,7 @@ repo root, so it must exist even if you override paths via environment variables
 |---|---|---|
 | `MSTR_REPO_ROOT` | auto-detected from `config/user_d.yml` | repo root |
 | `MSTR_OSI_DIR` | `<repo>/data/osi` | generated OSI YAML |
+| `MSTR_OSI_TEMPLATES_DIR` | `<repo>/osi_templates` | read-only OSI input templates, incl. `osi-schema-with-dashboards.json` |
 | `MSTR_OUTPUT_DIR` | `<repo>/output` | exports, logs, MCP data |
 
 ---

@@ -85,8 +85,14 @@ ENV_FILE = CONFIG_DIR / "API_KEY.env"
 # --- OSI (Open Semantic Interchange) content ---------------------------------
 # Generated OSI YAML lives here; MSTR_OSI_DIR repoints it at an external folder.
 OSI_DIR = _dir_from_env("MSTR_OSI_DIR", REPO_ROOT / "data" / "osi")
-OSI_SCHEMA = _dir_from_env("MSTR_OSI_SCHEMA_DIR", OSI_DIR) / "osi-schema-with-dashboards.json"
 OSI_DASHBOARD_CONTEXT = OSI_DIR / "Dashboard_Context"
+
+# Read-only input templates, kept apart from the generated content above: the
+# OSI generator reads the schema, nothing ever writes it. Ships with the repo,
+# so it lives at project level rather than in the (gitignored, possibly
+# relocated) output area.
+OSI_TEMPLATES_DIR = _dir_from_env("MSTR_OSI_TEMPLATES_DIR", REPO_ROOT / "osi_templates")
+OSI_SCHEMA = _dir_from_env("MSTR_OSI_SCHEMA_DIR", OSI_TEMPLATES_DIR) / "osi-schema-with-dashboards.json"
 
 # --- output area -------------------------------------------------------------
 OUTPUT_DIR = _dir_from_env("MSTR_OUTPUT_DIR", REPO_ROOT / "output")

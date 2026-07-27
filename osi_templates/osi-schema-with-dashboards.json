@@ -1,0 +1,771 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/open-semantic-interchange/OSI/core-spec/osi-schema.json",
+  "title": "OSI Core Metadata Specification with Dashboard Extension",
+  "description": "JSON Schema for validating OSI (Open Semantic Interoperability) semantic model definitions, extended with dashboard and report definitions. Dashboards reference datasets, fields/dimensions, and metrics defined in the semantic model by name.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "0.2.0",
+      "description": "OSI specification version — bumped to 0.2.0 to reflect dashboard extension"
+    },
+    "dialects": {
+      "type": "array",
+      "description": "Supported expression language dialects (enumeration definition)",
+      "items": {
+        "$ref": "#/$defs/Dialect"
+      }
+    },
+    "vendors": {
+      "type": "array",
+      "description": "Supported vendors for custom extensions (enumeration definition)",
+      "items": {
+        "$ref": "#/$defs/Vendor"
+      }
+    },
+    "semantic_model": {
+      "type": "array",
+      "description": "Collection of semantic model definitions",
+      "items": {
+        "$ref": "#/$defs/SemanticModel"
+      }
+    },
+    "dashboards": {
+      "type": "array",
+      "description": "Top-level collection of dashboards. Each dashboard references datasets, metrics and dimensions defined in semantic_model by name.",
+      "items": {
+        "$ref": "#/$defs/Dashboard"
+      }
+    }
+  },
+  "required": ["version", "semantic_model"],
+  "additionalProperties": false,
+
+  "$defs": {
+
+    "Dialect": {
+      "type": "string",
+      "enum": ["ANSI_SQL", "SNOWFLAKE", "MDX", "TABLEAU", "DATABRICKS","MSTR_ROBOTICS"],
+      "description": "Supported SQL and expression language dialects"
+    },
+
+    "Vendor": {
+      "type": "string",
+      "enum": ["COMMON", "SNOWFLAKE", "SALESFORCE", "DBT", "DATABRICKS","MSTR_ROBOTICS"],
+      "description": "Supported vendors for custom extensions"
+    },
+
+    "AIContext": {
+      "description": "Additional context for AI tools",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "instructions": {
+              "type": "string",
+              "description": "Instructions for AI on how to use this entity"
+            },
+            "synonyms": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Alternative names and terms"
+            },
+            "examples": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Sample questions or use cases"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+
+    "CustomExtension": {
+      "type": "object",
+      "description": "Vendor-specific attributes for extensibility",
+      "properties": {
+        "vendor_name": { "$ref": "#/$defs/Vendor" },
+        "data": {
+          "type": "string",
+          "description": "JSON string containing vendor-specific data"
+        }
+      },
+      "required": ["vendor_name", "data"],
+      "additionalProperties": false
+    },
+
+    "DialectExpression": {
+      "type": "object",
+      "description": "Expression in a specific dialect",
+      "properties": {
+        "dialect": { "$ref": "#/$defs/Dialect" },
+        "expression": {
+          "type": "string",
+          "description": "SQL or dialect-specific expression"
+        }
+      },
+      "required": ["dialect", "expression"],
+      "additionalProperties": false
+    },
+
+    "Expression": {
+      "type": "object",
+      "description": "Expression definition with multi-dialect support",
+      "properties": {
+        "dialects": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DialectExpression" },
+          "minItems": 1
+        }
+      },
+      "required": ["dialects"],
+      "additionalProperties": false
+    },
+
+    "Dimension": {
+      "type": "object",
+      "description": "Dimension metadata",
+      "properties": {
+        "is_time": {
+          "type": "boolean",
+          "description": "Indicates if this is a time-based dimension for temporal filtering"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Field": {
+      "type": "object",
+      "description": "Row-level attribute for grouping, filtering, and metric expressions",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the field within the dataset"
+        },
+        "expression": { "$ref": "#/$defs/Expression" },
+        "dimension": { "$ref": "#/$defs/Dimension" },
+        "label": {
+          "type": "string",
+          "description": "Label for categorization"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" }
+        }
+      },
+      "required": ["name", "expression"],
+      "additionalProperties": false
+    },
+
+    "Dataset": {
+      "type": "object",
+      "description": "Logical dataset representing a business entity (fact or dimension table)",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the dataset"
+        },
+        "source": {
+          "type": "string",
+          "description": "Reference to underlying physical table/view (database.schema.table) or query"
+        },
+        "primary_key": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Primary key columns (single or composite)"
+        },
+        "unique_keys": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Array of unique key definitions (each can be single or composite)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Field" }
+        },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" }
+        }
+      },
+      "required": ["name", "source"],
+      "additionalProperties": false
+    },
+
+    "Relationship": {
+      "type": "object",
+      "description": "Foreign key relationship between datasets",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the relationship"
+        },
+        "from": {
+          "type": "string",
+          "description": "Dataset on the many side of the relationship"
+        },
+        "to": {
+          "type": "string",
+          "description": "Dataset on the one side of the relationship"
+        },
+        "from_columns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Foreign key columns in the 'from' dataset"
+        },
+        "to_columns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Primary/unique key columns in the 'to' dataset"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" }
+        }
+      },
+      "required": ["name", "from", "to", "from_columns", "to_columns"],
+      "additionalProperties": false
+    },
+
+    "Metric": {
+      "type": "object",
+      "description": "Quantitative measure defined on business data",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the metric"
+        },
+        "expression": { "$ref": "#/$defs/Expression" },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what the metric measures"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" }
+        }
+      },
+      "required": ["name", "expression"],
+      "additionalProperties": false
+    },
+
+    "SemanticModel": {
+      "type": "object",
+      "description": "Top-level container representing a complete semantic model",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the semantic model"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "datasets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Dataset" },
+          "minItems": 1,
+          "description": "Collection of logical datasets"
+        },
+        "relationships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Relationship" },
+          "description": "Defines how datasets are connected"
+        },
+        "metrics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Metric" },
+          "description": "Quantifiable measures spanning datasets"
+        },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" }
+        }
+      },
+      "required": ["name", "datasets"],
+      "additionalProperties": false
+    },
+
+    "SemanticRef": {
+      "type": "object",
+      "description": "A typed reference to a named object in a semantic model. Used by dashboards to reference datasets, fields/dimensions, or metrics by their declared names.",
+      "properties": {
+        "semantic_model": {
+          "type": "string",
+          "description": "Name of the SemanticModel that owns the referenced object. If omitted, resolved from context."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the referenced object (dataset, field, or metric) as declared in the semantic model"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["dataset", "field", "metric"],
+          "description": "Kind of semantic object being referenced"
+        },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" },
+          "description": "Vendor-specific detail about the referenced object (e.g. source IDs, placement, forms)"
+        }
+      },
+      "required": ["name", "type"],
+      "additionalProperties": false
+    },
+
+    "Dashboard": {
+      "type": "object",
+      "description": "A dashboard containing organised visualisations and reports. Datasets, dimensions/fields and metrics used inside visualisations must reference objects declared in the semantic_model section by name via SemanticRef.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the dashboard"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name for the dashboard"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the dashboard purpose and content"
+        },
+        "ai_context": {
+          "$ref": "#/$defs/AIContext",
+          "description": "Additional context for AI tools and agents"
+        },
+        "semantic_model": {
+          "type": "string",
+          "description": "Name of the primary SemanticModel this dashboard is built on. All unqualified metric/field/dataset references inside this dashboard resolve against this model."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tags for categorisation and discovery"
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Filter" },
+          "description": "Dashboard-level filters affecting all content"
+        },
+        "default_date_range": {
+          "$ref": "#/$defs/DateRange",
+          "description": "Default time period for dashboard data"
+        },
+        "chapters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Chapter" },
+          "description": "Organisational chapters within the dashboard (use chapters OR pages, not both)"
+        },
+        "pages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Page" },
+          "description": "Direct pages when no chapter grouping is needed (use pages OR chapters, not both)"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional vendor-specific or custom metadata"
+        },
+        "custom_extensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CustomExtension" }
+        }
+      }
+    },
+
+    "Chapter": {
+      "type": "object",
+      "description": "A logical grouping of related pages within a dashboard",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the chapter"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name for the chapter"
+        },
+        "description": { "type": "string" },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "order": {
+          "type": "integer",
+          "description": "Display order within the dashboard"
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Filter" },
+          "description": "Chapter-level filters affecting all pages in this chapter"
+        },
+        "pages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Page" },
+          "description": "Pages within this chapter"
+        }
+      }
+    },
+
+    "Page": {
+      "type": "object",
+      "description": "A single page containing visualisations",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the page"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name for the page"
+        },
+        "description": { "type": "string" },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "order": {
+          "type": "integer",
+          "description": "Display order within the chapter"
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Filter" },
+          "description": "Page-level filters affecting all visualisations"
+        },
+        "visualizations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Visualization" },
+          "description": "Visualisations displayed on this page"
+        }
+      }
+    },
+
+    "Visualization": {
+      "type": "object",
+      "description": "An individual chart, table, or visual element. The datasets, metrics and dimensions it uses must reference names declared in the SemanticModel this dashboard is bound to.",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the visualisation"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable title for the visualisation"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "layout": {
+          "type": "object",
+          "description": "Position and size on the page canvas",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "width": { "type": "number" },
+            "height": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "bar_chart",
+            "line_chart",
+            "pie_chart",
+            "scatter_plot",
+            "combo_chart",
+            "bullet_chart",
+            "filter_control",
+            "container",
+            "text_box",
+            "button",
+            "image",
+            "table",
+            "pivot_table",
+            "heatmap",
+            "treemap",
+            "gauge",
+            "kpi_card",
+            "geo_map",
+            "waterfall",
+            "funnel",
+            "custom"
+          ],
+          "description": "Type of visualisation"
+        },
+        "actions": {
+          "type": "array",
+          "description": "Interactivity actions (e.g. click-to-filter another visualisation)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "enum": ["filter"] },
+              "trigger": { "enum": ["click", "hover"] },
+              "target": {
+                "type": "string",
+                "description": "Name of the visualisation or page that receives the action"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "datasets": {
+          "type": "array",
+          "description": "References to datasets from the semantic model. Use SemanticRef with type='dataset'.",
+          "items": { "$ref": "#/$defs/SemanticRef" }
+        },
+        "metrics": {
+          "type": "array",
+          "description": "References to metrics from the semantic model. Use SemanticRef with type='metric'.",
+          "items": { "$ref": "#/$defs/SemanticRef" }
+        },
+        "dimensions": {
+          "type": "array",
+          "description": "References to fields/dimensions from the semantic model. Use SemanticRef with type='field'.",
+          "items": { "$ref": "#/$defs/SemanticRef" }
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Filter" },
+          "description": "Visualisation-level filters"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "Visualisation-specific configuration (colors, axes, legends, sorting, etc.)"
+        }
+      }
+    },
+
+    "Filter": {
+      "type": "object",
+      "description": "A filter applicable at dashboard, chapter, page, or visualisation level. Attribute/metric references inside filter definitions must resolve to names declared in the semantic model.",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique identifier for the filter"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name shown in UI"
+        },
+        "ai_context": { "$ref": "#/$defs/AIContext" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "expression",
+            "element_selection",
+            "object_selection",
+            "date_range"
+          ],
+          "description": "Type of filter"
+        },
+        "target": {
+          "$ref": "#/$defs/FilterTarget",
+          "description": "What this filter applies to"
+        },
+        "definition": {
+          "oneOf": [
+            { "$ref": "#/$defs/ExpressionFilter" },
+            { "$ref": "#/$defs/ValueListFilter" },
+            { "$ref": "#/$defs/FieldSelectorFilter" },
+            { "$ref": "#/$defs/DateRangeFilter" }
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether user must provide a value before the dashboard loads"
+        },
+        "default_value": {
+          "description": "Default filter value applied on first load"
+        }
+      }
+    },
+
+    "FilterTarget": {
+      "type": "object",
+      "description": "Defines the scope and optional specific targets a filter operates on",
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": ["dashboard", "chapter", "page", "visualization"],
+          "description": "Level at which the filter operates"
+        },
+        "specific_targets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of specific visualisations or pages this filter applies to (optional — omit to apply to all within scope)"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ExpressionFilter": {
+      "type": "object",
+      "description": "Filter based on a metric qualification or attribute expression. The metric/attribute referenced in applies_to must match a name declared in the semantic model.",
+      "required": ["expression"],
+      "properties": {
+        "expression": {
+          "type": "string",
+          "description": "Filter expression (e.g. 'revenue > 500', 'name LIKE \"%mag%\"')"
+        },
+        "dialect": {
+          "$ref": "#/$defs/Dialect",
+          "description": "Expression language dialect"
+        },
+        "applies_to": {
+          "type": "object",
+          "description": "Declares whether this expression filters on a metric or an attribute from the semantic model",
+          "properties": {
+            "metric": {
+              "type": "string",
+              "description": "Name of the metric (as declared in SemanticModel.metrics) if filtering on aggregated data"
+            },
+            "attribute": {
+              "type": "string",
+              "description": "Name of the field/attribute (as declared in Dataset.fields) if filtering on row-level data"
+            },
+            "grain": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Dimensional grain for metric-based filters — each entry is a field name from the semantic model (e.g. ['customer', 'year'])"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ValueListFilter": {
+      "type": "object",
+      "description": "Filter by selecting specific attribute element values. The attribute must reference a field name declared in the semantic model.",
+      "required": ["attribute"],
+      "properties": {
+        "attribute": {
+          "type": "string",
+          "description": "Name of the field/attribute (as declared in Dataset.fields) being filtered"
+        },
+        "selection_type": {
+          "type": "string",
+          "enum": ["include", "exclude"],
+          "default": "include",
+          "description": "Whether to include or exclude the selected elements"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" }
+            ]
+          },
+          "description": "Static list of element values (e.g. ['Germany', 'France'])"
+        },
+        "dynamic_selection": {
+          "type": "object",
+          "description": "Alternative to a static element list — evaluated at query time",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "Dynamic expression to select elements (e.g. 'TOP 10 BY revenue')"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "FieldSelectorFilter": {
+      "type": "object",
+      "description": "A UI control that lets the user choose which metrics or dimensions are displayed. All names in available_objects and selected_objects must match names declared in the semantic model.",
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": ["metric", "dimension", "attribute"],
+          "description": "Kind of semantic objects being selected"
+        },
+        "available_objects": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of available semantic model objects the user can choose from"
+        },
+        "selected_objects": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of currently selected semantic model objects (default selection)"
+        },
+        "allow_multiple": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the user can select more than one object"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "DateRangeFilter": {
+      "type": "object",
+      "description": "Time-based filter. The date_attribute must reference an is_time field declared in the semantic model.",
+      "properties": {
+        "date_attribute": {
+          "type": "string",
+          "description": "Name of the date/time field (as declared in Dataset.fields with dimension.is_time=true) to filter on"
+        },
+        "range_type": {
+          "type": "string",
+          "enum": ["absolute", "relative", "dynamic"],
+          "description": "Type of date range specification"
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start date for absolute ranges"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "End date for absolute ranges"
+        },
+        "relative_range": {
+          "type": "string",
+          "description": "Relative expression for dynamic ranges (e.g. 'LAST_30_DAYS', 'THIS_QUARTER')"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "DateRange": {
+      "type": "object",
+      "description": "A fixed date range used as a dashboard default",
+      "properties": {
+        "start": { "type": "string", "format": "date-time" },
+        "end": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+
+  }
+}
