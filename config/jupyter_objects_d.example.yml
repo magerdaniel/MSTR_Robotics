@@ -58,6 +58,12 @@ jup_Colab_perplex:
     report_id: 25D40AD444B6D51B333021ADFB219501
   folders:
     ai_rep_folder_id: 2F2302AE4D1C2DDDFA9CDCB46802B185
+jup_osi_file_generator:
+  misc:
+    # Dashboards (dossiers) exported to OSI YAML, one file per ID. The default is
+    # the dashboard whose exported result ships in OSI_Produktion/.
+    dossier_id_l:
+    - 8D47320148C7E2850BFD2B9605D73297
 jup_prj_obj_exporter:
   folders:
     folder_id: B70AF11248C00F7D4339079310F8B3F1
