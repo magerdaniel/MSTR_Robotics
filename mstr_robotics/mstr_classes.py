@@ -28,11 +28,22 @@ class MstrGlobal:
         self.i_mstr_api = MstrApi()
         self.md_searches = MdSearches()
 
-    def get_folder_obj_l(self, conn, folder_id):
+    def get_folder_obj_l(self, conn, folder_id, **kwargs):
         # reads out the content of a folder
+        # kwargs are handed to mstrio, i.e. include_subfolders=True
         i_folder = folder.Folder(connection=conn, id=folder_id)
-        existing_obj_l = i_folder.get_contents(to_dictionary=True)
+        existing_obj_l = i_folder.get_contents(to_dictionary=True, **kwargs)
         return existing_obj_l
+
+    def get_cube_obj_l(self, conn, folder_id, include_subfolders=True):
+        # all cubes stored underneath a folder, OLAP as well as super cubes
+        cube_subtype_l = [
+            ObjectSubTypes.OLAP_CUBE.value,
+            ObjectSubTypes.SUPER_CUBE.value,
+            ObjectSubTypes.SUPER_CUBE_IRR.value,
+        ]
+        obj_l = self.get_folder_obj_l(conn=conn, folder_id=folder_id, include_subfolders=include_subfolders)
+        return [obj_d for obj_d in obj_l if obj_d.get("subtype") in cube_subtype_l]
 
     def get_obj_from_sh_fold(self, conn, folder_id):
         obj_l = self.get_folder_obj_l(conn=conn, folder_id=folder_id)

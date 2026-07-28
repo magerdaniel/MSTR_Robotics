@@ -84,5 +84,9 @@ alt/zzz_redis_operations_manni.ipynb
 # Generated output area — MSTR data dumps (CSV etc.); never ship these
 output/
 
+# Generated OSI YAML (MSTR_OSI_DIR default) — exports of a live environment.
+# Distinct from osi_templates/, which holds the read-only schema and IS tracked.
+data/
+
 # Python build artifacts
 build/

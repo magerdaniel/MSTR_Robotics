@@ -35,7 +35,7 @@ _rag_d = _jup_obj_d["turtorial_RAG"]  # RAG cube GUIDs
 _colab_d = _jup_obj_d["jup_Colab_perplex"]  # template report / target folder
 
 TEMPLATE_REP_ID = _colab_d["reports"]["report_id"]
-AI_REP_FOLDER = _colab_d["folders"]["ai_rep_folder_id"]
+AI_REP_FOLDER = _colab_d["folders"]["AI_genRep_folder_id"]
 AI_REP_NAME = "dyn_prompt_page_botstat"
 
 # ---------------------------------------------------------------------------

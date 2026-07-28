@@ -362,6 +362,7 @@ class AnswerPrompts:
             save_mode="OVERWRITE",
             promptOption=promptOption,
             setCurrentAsDefaultAnswer=True,
+            folder_id=ai_rep_folder_id,
         )
 
         return rep_id

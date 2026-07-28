@@ -8,11 +8,10 @@ project, and have config/output/OSI paths resolve there -- instead of inside
 the installed package's own location (e.g. site-packages), which is not
 writable in any meaningful sense for the user.
 
-It is also what lets ``tools/nb_compare`` (in the dans_playground dev repo)
-run the same notebooks against two full repo checkouts that share one
-installed ``mstr_robotics`` package: each checkout has its own
-``config/user_d.yml``, so walking up from cwd tells the two apart even though
-``Path(__file__)`` cannot.
+It is also what lets ``tools/nb_compare`` run the same notebooks against two
+full repo checkouts that share one installed ``mstr_robotics`` package: each
+checkout has its own ``config/user_d.yml``, so walking up from cwd tells the
+two apart even though ``Path(__file__)`` cannot.
 
 Notebooks and modules should import the constants they need from here, e.g.::
 

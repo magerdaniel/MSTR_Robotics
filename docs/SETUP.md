@@ -37,8 +37,8 @@ migration. Add only what you need:
 ## 2. Deploy the Object Manager packages
 
 The notebooks and the libraries read from cubes, reports and dossiers that must exist in **your**
-MicroStrategy environment. Further they write into cubes. To simplify your start, everything is pre-configured for MSTR - Tutorial. You'll find the relevant mmp files for Tutorial and Platform Analytics in the file mstr_robotics_demo.zip under
-[`Object_Manager_Packages/`](../Object_Manager_Packages/).
+MicroStrategy environment. Further they write into cubes. To simplify your start, everything is pre-configured for MSTR - Tutorial. You'll find the relevant mmp files for Tutorial and Platform Analytics in the file mstr_robotis_demo.zip under
+[`OM_packages/`](../OM_packages/).
 
 ### Prerequisites
 
@@ -50,8 +50,8 @@ MicroStrategy environment. Further they write into cubes. To simplify your start
 
 | Package | Provides |
 |---|---|
-| `mstr_robotics_tutorial.mmp` | contains the folder structure, the MTDI-cubes and MSTR application objects.  — **deploy this first** |
-| `PA_mstr_robotics.mmp` | is only needed for REGAM regession testing. Using this report, we can fetch user job for re-play out of PA |
+| `tutorial_objetcs.mmp` | contains the folder structure, the MTDI-cubes and MSTR application objects.  — **deploy this first** |
+| `PA_Objects.mmp` | is only needed for REGAM regession testing. Using this report, we can fetch user job for re-play out of PA |
 
 
 ### If a package fails to import

@@ -1,11 +1,12 @@
 import json
+import time
 
 import pandas as pd
 from mstrio.api import cubes, reports
 from mstrio.api.cubes import cube_definition
 from mstrio.project_objects import OlapCube
 from mstrio.project_objects.datasets import super_cube
-from mstrio.project_objects.datasets.cube import _Cube
+from mstrio.project_objects.datasets.cube import CubeStates, _Cube
 from mstrio.project_objects.report import Report
 from mstrio.utils import parser
 
@@ -56,7 +57,7 @@ class Rep:
         save_mode="OVERWRITE",
         promptOption="static",
         setCurrentAsDefaultAnswer=True,
-        folder_id="1346F3614BF3E15BC090ED96B76CD7AC",
+        folder_id=None,
     ):
 
         data = {
@@ -247,6 +248,71 @@ class Cube:
             ds.update()
 
         return ds.id
+
+    def get_cube_status(self, conn, cube_id):
+        # the status is a bit mask returned in the X-MSTR-CubeStatus header,
+        # the same one mstrio decodes in _Cube.refresh_status()
+        resp = cubes.status(connection=conn, cube_id=cube_id, throw_error=False)
+        status = int(resp.headers.get("X-MSTR-CubeStatus", 0)) if resp.ok else 0
+        state_l = [s.name for s in CubeStates if s.value and status & s.value and "UNKNOWN" not in s.name]
+        return {
+            "status": status,
+            "state_l": state_l,
+            "is_ready": bool(status & CubeStates.READY.value),
+            "is_processing": bool(status & CubeStates.PROCESSING.value),
+        }
+
+    def publish_cube(self, conn, cube_id, wait=True, timeout=600, poll_sec=5):
+        # publishing is asynchronous, the server only acknowledges the request,
+        # so the result has to be polled from the cube status
+        cubes.publish(connection=conn, cube_id=cube_id)
+        pub_d = {"cube_id": cube_id}
+        pub_d.update(self.get_cube_status(conn=conn, cube_id=cube_id))
+
+        if wait:
+            deadline = time.monotonic() + timeout
+            while time.monotonic() < deadline:
+                time.sleep(poll_sec)
+                pub_d.update(self.get_cube_status(conn=conn, cube_id=cube_id))
+                if pub_d["is_ready"] and not pub_d["is_processing"]:
+                    break
+
+        pub_d["published"] = pub_d["is_ready"] and not pub_d["is_processing"]
+        pub_d["error"] = None
+        return pub_d
+
+    def publish_cubes(self, conn, cube_l, wait=True, timeout=600, poll_sec=5, verbose=True):
+        # cube_l takes GUID strings or the object dicts coming from
+        # MstrGlobal.get_cube_obj_l / get_folder_obj_l
+        pub_l = []
+        for cube in cube_l:
+            cube_id = cube if isinstance(cube, str) else cube["id"]
+            cube_name = "" if isinstance(cube, str) else cube.get("name", "")
+            try:
+                pub_d = self.publish_cube(conn=conn, cube_id=cube_id, wait=wait, timeout=timeout, poll_sec=poll_sec)
+            except Exception as err:
+                # one unpublishable cube must not abort the whole folder
+                pub_d = {
+                    "cube_id": cube_id,
+                    "status": None,
+                    "state_l": [],
+                    "is_ready": False,
+                    "is_processing": False,
+                    "published": False,
+                    "error": f"{type(err).__name__}: {err}",
+                }
+            pub_d["cube_name"] = cube_name
+            pub_l.append(pub_d)
+
+            if verbose:
+                if pub_d["error"]:
+                    print(f"FAIL {cube_name or cube_id}: {pub_d['error']}")
+                elif pub_d["published"]:
+                    print(f"OK   {cube_name or cube_id} published ({', '.join(pub_d['state_l'])})")
+                else:
+                    print(f"...  {cube_name or cube_id} still publishing ({', '.join(pub_d['state_l'])})")
+
+        return pub_l
 
     def quick_query_cube(self, conn, cube_id, attribute_l=None, metric_l=None, attr_elements=None):
         quick_cube = OlapCube(connection=conn, id=cube_id)

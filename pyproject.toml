@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MSTR-Robotics-magerdaniel"
-version = "0.5.8"
+version = "0.5.9"
 description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG and OSI export."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -60,26 +60,35 @@ packages = [
     "mstr_robotics.utils.notebooks",
     "mstr_robotics.utils.config",
     "mstr_robotics.utils.docs",
-    "mstr_robotics.utils.OSI_Produktion",
+    "mstr_robotics.utils.examples",
+    "mstr_robotics.utils.OSI_production",
+    "mstr_robotics.utils.OM_packages",
     "mstr_robotics.utils.osi_templates",
 ]
 
-# Repo layout keeps notebooks/, config/, docs/, OSI_Produktion/, osi_templates/
-# at project level; these map them into mstr_robotics/utils/ only inside the
-# built package, so `pip install`ers get a self-contained, copy-pasteable bundle
-# of reference material alongside the code.
+# Repo layout keeps notebooks/, config/, docs/, examples/, OSI_production/,
+# OM_packages/ and osi_templates/ at project level; these map them into
+# mstr_robotics/utils/ only inside the built package, so `pip install`ers get a
+# self-contained, copy-pasteable bundle of reference material alongside the code.
+# Copying that utils/ tree up into your own project folder is step 4 of the
+# install guide in README.md.
 [tool.setuptools.package-dir]
 "mstr_robotics.utils.notebooks" = "notebooks"
 "mstr_robotics.utils.config" = "config"
 "mstr_robotics.utils.docs" = "docs"
-"mstr_robotics.utils.OSI_Produktion" = "OSI_Produktion"
+"mstr_robotics.utils.examples" = "examples"
+"mstr_robotics.utils.OSI_production" = "OSI_production"
+"mstr_robotics.utils.OM_packages" = "OM_packages"
 "mstr_robotics.utils.osi_templates" = "osi_templates"
 
+# config/ ships example files only — never a populated user_d.yml or API_KEY.env.
 [tool.setuptools.package-data]
 "mstr_robotics.utils.notebooks" = ["*.ipynb"]
 "mstr_robotics.utils.config" = ["*.example.*"]
 "mstr_robotics.utils.docs" = ["*.md"]
-"mstr_robotics.utils.OSI_Produktion" = ["*.yml"]
+"mstr_robotics.utils.examples" = ["*.csv", "*.py"]
+"mstr_robotics.utils.OSI_production" = ["*.yml"]
+"mstr_robotics.utils.OM_packages" = ["*.zip", "*.mmp"]
 "mstr_robotics.utils.osi_templates" = ["*.json"]
 
 [tool.ruff]
@@ -91,7 +100,7 @@ extend-exclude = [
     "Dansfiles",
     "notebooks_BAK",
     "notebooks_dev",
-    "OSI_Produktion",
+    "OSI_production",
 ]
 
 [tool.ruff.lint]
