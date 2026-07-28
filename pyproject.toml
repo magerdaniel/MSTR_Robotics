@@ -4,7 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MSTR-Robotics-magerdaniel"
-version = "0.5.9"
+# Single source of truth is mstr_robotics/__init__.py; see [tool.setuptools.dynamic]
+# below. Keeping the number in two places let 0.5.9 ship with __version__ = "0.5.8".
+dynamic = ["version"]
 description = "Automation toolkit for MicroStrategy / Strategy One: object read-out, migration, comparison, RAG and OSI export."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -51,6 +53,9 @@ dev = [
     "vulture",
     "jupyter",
 ]
+
+[tool.setuptools.dynamic]
+version = { attr = "mstr_robotics.__version__" }
 
 [tool.setuptools]
 packages = [
