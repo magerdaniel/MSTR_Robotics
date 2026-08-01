@@ -1,0 +1,2 @@
+{"operater":["NotIn","In","IsNotNull","IsNull","Equals","GreaterEqual","LessEqual",
+"Less","Greater","EndsWith","BeginsWith","NotBetween","Between","NotContains","Contains","NotEqual"]}

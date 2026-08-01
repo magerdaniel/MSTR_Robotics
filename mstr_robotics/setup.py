@@ -14,13 +14,14 @@ Typical use::
     # ... fill in config/user_d.yml ...
     print(setup.check_configs())
     conn = setup.open_connection()
-    print(setup.discover_object_ids(conn))
+    print(setup.check_object_ids(conn))
 """
 
 from __future__ import annotations
 
 import contextlib
 import io
+import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,6 +55,18 @@ _OPTIONAL_PURPOSE = {
     "mstr_redis_y.yml": "Redis-backed metadata analysis",
     "dans_migrations.yml": "Azure-staged migrations",
 }
+
+# A MicroStrategy object GUID as it appears in the configs: 32 hex characters.
+# Used to pick the checkable values out of jupyter_objects_d.yml and skip names,
+# types and the numeric Platform Analytics element IDs.
+_GUID_RE = re.compile(r"^[0-9A-F]{32}$", re.IGNORECASE)
+
+# ``GET /api/objects/{id}`` needs the object type alongside the ID, and the config
+# does not record it. The key name picks the likely type first, then the rest are
+# tried, so an ID that exists is usually confirmed on the first call.
+# "fold" rather than "folder" so read_out_cbe_fold_id is hinted too.
+_TYPE_BY_HINT = (("fold", 8), ("search", 39), ("prompt", 10), ("dossier", 55), ("project", 32))
+_TYPE_SWEEP = (3, 8, 55, 39, 10, 32, 12, 13, 4)
 
 
 @dataclass
@@ -165,7 +178,7 @@ def check_configs() -> StepResult:
             suffix = f" -- only needed for {purpose}" if purpose else ""
             res.add(f"note     {msg}{suffix}")
 
-    for example, live in _example_targets():
+    for _example, live in _example_targets():
         if not live.exists():
             report(live, f"{_rel(live)} missing -- run init_configs()")
             continue
@@ -192,18 +205,6 @@ def check_configs() -> StepResult:
             report(live, f"{_rel(live)} still has {len(placeholders)} template value(s): {shown}{more}")
         else:
             res.add(f"ok       {_rel(live)}")
-
-        try:
-            example_d = yaml.safe_load(example.read_text(encoding="utf-8"))
-        except yaml.YAMLError:
-            continue
-        if live_d == example_d and not placeholders:
-            # The shipped examples carry a reference environment's real GUIDs, so an
-            # untouched copy silently points at the wrong MicroStrategy project. This
-            # is the only signal for jupyter_objects_d.yml, which has no placeholders.
-            report(
-                live, f"{_rel(live)} is unchanged from {example.name}, so it still points at the reference environment"
-            )
 
     return res
 
@@ -252,112 +253,163 @@ def check_connection() -> StepResult:
     return res
 
 
-# ── step 4: resolve object GUIDs ──────────────────────────────────────────────
-def _name_id_pairs(node, trail: str = "") -> list[tuple[dict, str, str, str]]:
-    """Find every ``<x>_name`` key that has a sibling ``<x>_id`` in the same dict.
+# ── step 4: check the object GUIDs exist ──────────────────────────────────────
+def _guid_entries(node, trail: str = "") -> list[tuple[str, str, str, object]]:
+    """Collect ``(dotted_path, key, guid, declared_type)`` for every GUID value.
 
-    Returns ``(owning_dict, name_key, id_key, dotted_path)`` so the caller can
-    write the resolved GUID straight back into the loaded document.
+    ``declared_type`` is the sibling ``type`` key where the config records one
+    (``single_object_d``); it saves probing when present.
     """
-    pairs = []
+    entries = []
     if isinstance(node, dict):
+        declared = node.get("type")
         for key, value in node.items():
             path = f"{trail}.{key}" if trail else str(key)
-            if isinstance(key, str) and key.endswith("_name") and isinstance(value, str):
-                id_key = key[: -len("_name")] + "_id"
-                if id_key in node:
-                    pairs.append((node, key, id_key, path))
-            pairs += _name_id_pairs(value, path)
+            if isinstance(value, str) and _GUID_RE.match(value):
+                entries.append((path, str(key), value, declared))
+            else:
+                entries += _guid_entries(value, path)
     elif isinstance(node, list):
+        key = trail.rsplit(".", 1)[-1]
         for idx, value in enumerate(node):
-            pairs += _name_id_pairs(value, f"{trail}[{idx}]")
-    return pairs
+            path = f"{trail}[{idx}]"
+            if isinstance(value, str) and _GUID_RE.match(value):
+                entries.append((path, key, value, None))
+            else:
+                entries += _guid_entries(value, path)
+    return entries
 
 
-def _search_by_name(conn, name: str) -> list[dict]:
-    """Exact-name search across the connected project.
+def _candidate_types(key: str, declared: object = None) -> list[int]:
+    """Object types to probe for ``key``, most likely first."""
+    if declared is not None:
+        with contextlib.suppress(TypeError, ValueError):
+            first = int(declared)
+            return [first] + [t for t in _TYPE_SWEEP if t != first]
 
-    Mirrors the store-instance / fetch-results pattern already used by
-    ``osi_exporter.export_dashboard.fetch_json_search``.
+    low = key.lower()
+    for hint, obj_type in _TYPE_BY_HINT:
+        if hint in low:
+            return [obj_type] + [t for t in _TYPE_SWEEP if t != obj_type]
+    return list(_TYPE_SWEEP)
+
+
+def _search_projects(conn) -> list[tuple[str, str]]:
+    """``(label, project_id)`` pairs an object may live in, most likely first.
+
+    Some configured objects -- the usage reports and element prompts -- are read
+    against Platform Analytics rather than the working project, so a GUID missing
+    from one is not missing from the environment.
     """
-    from mstrio.api import browsing
-
-    instance = browsing.store_search_instance(
-        connection=conn,
-        project_id=conn.project_id,
-        name=name,
-        pattern=2,  # SearchPattern.EXACTLY
-    )
-    total = instance.json().get("totalItems", 0)
-    if not total:
-        return []
-    return browsing.get_search_results(
-        connection=conn,
-        search_id=instance.json()["id"],
-        project_id=conn.project_id,
-        offset=0,
-        limit=100,
-    ).json()
+    projects = [("", conn.project_id)]
+    if USER_CONFIG.exists():
+        with contextlib.suppress(yaml.YAMLError, OSError, AttributeError):
+            user_d = yaml.safe_load(USER_CONFIG.read_text(encoding="utf-8")) or {}
+            pa_id = (user_d.get("mstr_projects") or {}).get("pa_project_id")
+            if pa_id and pa_id != conn.project_id:
+                projects.append(("Platform Analytics", pa_id))
+    return projects
 
 
-def discover_object_ids(conn, dry_run: bool = False) -> StepResult:
-    """Fill the ``*_id`` GUIDs in ``jupyter_objects_d.yml`` by searching on ``*_name``.
+@contextlib.contextmanager
+def _quiet_mstrio():
+    """Mute mstrio's per-request error output for the duration of the block.
 
-    Deploying the Object Manager packages creates objects whose GUIDs differ per
-    environment, but their *names* are fixed by the packages. This resolves each
-    name against the connected project and writes the GUID back, preserving
-    comments via ruamel.yaml. Names that match zero or several objects are
-    reported and left untouched rather than guessed at.
+    Probing object types means most calls are expected to miss, and mstrio reports
+    every miss -- as a log record on the ``mstrio`` logger tree, and on stdout.
+    Both are restored afterwards so nothing else in the session gets quieter.
     """
-    from ruamel.yaml import YAML
+    import logging
 
-    res = StepResult("Object GUID discovery" + (" (dry run)" if dry_run else ""))
+    from mstrio import config
+
+    mstrio_log = logging.getLogger("mstrio")
+    was_level, was_verbose = mstrio_log.level, config.verbose
+    mstrio_log.setLevel(logging.CRITICAL + 1)
+    config.verbose = False
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            yield
+    finally:
+        mstrio_log.setLevel(was_level)
+        config.verbose = was_verbose
+
+
+def _lookup_guid(conn, guid: str, types: list[int], projects: list[tuple[str, str]]) -> tuple[dict, str] | None:
+    """Return ``(metadata, project_label)``, or ``None`` if the GUID resolves nowhere.
+
+    A wrong type is indistinguishable from a missing object, so every candidate
+    type is tried in each project before the ID is reported as gone.
+    """
+    from mstrio.api import objects as api_objects
+
+    for label, project_id in projects:
+        for obj_type in types:
+            try:
+                resp = api_objects.get_object_info(
+                    connection=conn,
+                    id=guid,
+                    object_type=obj_type,
+                    # a project (type 32) lives in the non-project area
+                    project_id=None if obj_type == 32 else project_id,
+                )
+            except Exception:  # noqa: BLE001 - a wrong type is an expected miss, keep probing
+                continue
+            if not getattr(resp, "ok", False):
+                continue
+            body = resp.json()
+            if str(body.get("id", "")).upper() == guid.upper():
+                return body, label
+    return None
+
+
+def check_object_ids(conn) -> StepResult:
+    """Check that every GUID in ``jupyter_objects_d.yml`` exists in the environment.
+
+    Each ID is looked up in the connected project and, failing that, in the
+    Platform Analytics project from ``user_d.yml`` -- the usage reports and
+    element prompts live there. Only the GUID is checked; object names are not
+    consulted, since they drift from what the config records. This only reads:
+    nothing is written and no ID is guessed at. An ID reported as missing means
+    the Object Manager package providing it is not deployed, or the object was
+    recreated and needs its new GUID pasted into the config.
+    """
+    res = StepResult("Object GUIDs")
     target = CONFIG_DIR / "jupyter_objects_d.yml"
     if not target.exists():
         res.fail(f"{_rel(target)} missing -- run init_configs()")
         return res
 
-    ry = YAML()
-    ry.preserve_quotes = True
-    with target.open(encoding="utf-8") as fh:
-        doc = ry.load(fh)
-
-    pairs = _name_id_pairs(doc)
-    if not pairs:
-        res.fail("no <x>_name / <x>_id pairs found -- nothing to resolve")
+    try:
+        doc = yaml.safe_load(target.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        res.fail(f"{_rel(target)} does not parse: {exc}")
         return res
 
-    resolved = 0
-    for owner, name_key, id_key, path in pairs:
-        obj_name = owner[name_key]
-        try:
-            matches = _search_by_name(conn, obj_name)
-        except Exception as exc:  # noqa: BLE001 - one bad name must not stop the rest
-            res.fail(f"{path}: search failed for {obj_name!r}: {type(exc).__name__}: {exc}")
-            continue
+    entries = _guid_entries(doc)
+    if not entries:
+        res.fail(f"no object GUIDs found in {_rel(target)} -- nothing to check")
+        return res
 
-        if not matches:
-            res.fail(f"{path}: no object named {obj_name!r} -- is the Object Manager package deployed?")
-        elif len(matches) > 1:
-            kinds = ", ".join(sorted({f"type {m.get('type')}/{m.get('subtype')}" for m in matches}))
-            res.fail(f"{path}: {len(matches)} objects named {obj_name!r} ({kinds}) -- set {id_key} by hand")
-        else:
-            guid = matches[0]["id"]
-            if owner[id_key] == guid:
-                res.add(f"unchanged  {id_key} = {guid}")
+    projects = _search_projects(conn)
+    missing = 0
+    with _quiet_mstrio():
+        for path, key, guid, declared in entries:
+            found = _lookup_guid(conn, guid, _candidate_types(key, declared), projects)
+            if found is None:
+                where = " or ".join(label or "the working project" for label, _ in projects)
+                res.fail(f"{path} = {guid} does not exist in {where}")
+                missing += 1
             else:
-                if not dry_run:
-                    owner[id_key] = guid
-                res.add(f"resolved   {id_key} = {guid}  ({obj_name})")
-                resolved += 1
+                info, label = found
+                res.add(f"exists   {path} = {guid}  ({info.get('name')}){f'  [{label}]' if label else ''}")
 
-    if resolved and not dry_run:
-        with target.open("w", encoding="utf-8") as fh:
-            ry.dump(doc, fh)
-        res.add(f"wrote {resolved} GUID(s) to {_rel(target)}")
-    elif dry_run:
-        res.add(f"{resolved} GUID(s) would change; nothing written")
-
+    res.add(f"{len(entries) - missing} of {len(entries)} GUID(s) resolved")
+    if missing:
+        res.fail(
+            f"{missing} GUID(s) missing -- deploy the Object Manager package that provides them, "
+            "then put the GUID into config/jupyter_objects_d.yml"
+        )
     return res
 
 

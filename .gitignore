@@ -56,7 +56,7 @@ json_compare/system2_json/
 # Config files with sensitive data (review and adjust as needed)
 config/**/*_d.json
 config/**/*.yml
-!config/example*.yml
+!config/*.example.yml
 
 # BigQuery credentials — never commit
 config/**/bq_sa_key.json

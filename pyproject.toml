@@ -69,6 +69,7 @@ packages = [
     "mstr_robotics.utils.OSI_production",
     "mstr_robotics.utils.OM_packages",
     "mstr_robotics.utils.osi_templates",
+    "mstr_robotics.utils.custom_code",
 ]
 
 # Repo layout keeps notebooks/, config/, docs/, examples/, OSI_production/,
@@ -85,6 +86,7 @@ packages = [
 "mstr_robotics.utils.OSI_production" = "OSI_production"
 "mstr_robotics.utils.OM_packages" = "OM_packages"
 "mstr_robotics.utils.osi_templates" = "osi_templates"
+"mstr_robotics.utils.custom_code" = "custom_code"
 
 # config/ ships example files only — never a populated user_d.yml or API_KEY.env.
 [tool.setuptools.package-data]
@@ -95,6 +97,7 @@ packages = [
 "mstr_robotics.utils.OSI_production" = ["*.yml"]
 "mstr_robotics.utils.OM_packages" = ["*.zip", "*.mmp"]
 "mstr_robotics.utils.osi_templates" = ["*.json"]
+"mstr_robotics.utils.custom_code" = ["*.py"]
 
 [tool.ruff]
 line-length = 120

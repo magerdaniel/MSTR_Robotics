@@ -67,18 +67,24 @@ jupyter lab notebooks/00_setup.ipynb
 ```
 
 Run it top to bottom. It creates the output folders, copies the config templates,
-validates what you filled in, verifies the connection, and then **resolves the object
-GUIDs automatically**.
+validates what you filled in, verifies the connection, and then **checks that the
+object GUIDs exist**.
 
-### If you want to use your 
+### The object GUIDs
 
-If you want or need to modify the cubes, reports or objects, you can use this feature to check if they all fit. 
-This saves a lot of time and nervs. `config/jupyter_objects_d.example.yml` are meaningless if the do not exist. Their *names* are fixed
-by the packages, so the notebook searches your project by name and writes the correct
-GUIDs into `config/jupyter_objects_d.yml` for you.
+`config/jupyter_objects_d.yml` ships with the GUIDs of the objects the notebooks
+read, and its `.example` twin holds the same IDs — that is the intended state, not
+drift. Step 5 only **checks that each ID exists** in your project: it writes
+nothing and guesses nothing. Every ID resolving is the expected result.
 
-If a name is reported as **not found**, the package providing it has not been deployed.
-If a name is **ambiguous**, your project has duplicates — set that ID by hand.
+Object *names* are not consulted. They drift from what the config records — the
+cube behind `cube_attribute_elements_id`, for example, is actually named
+`cube_attribute_elements_name` — so the GUID is the only thing that counts.
+
+An ID reported as **missing** means one of two things: the Object Manager package
+providing that object has not been deployed, or the object was recreated and
+MicroStrategy assigned it a new GUID. Look the object up in MicroStrategy and paste
+its GUID into `config/jupyter_objects_d.yml`.
 
 ### Configuration reference
 
@@ -88,7 +94,7 @@ Every live config is gitignored; each ships an `.example` twin that
 | File | Needed for |
 |---|---|
 | `config/user_d.yml` | everything — connection and project GUIDs |
-| `config/jupyter_objects_d.yml` | the notebooks; filled in automatically in step 5 |
+| `config/jupyter_objects_d.yml` | the notebooks; object GUIDs, checked in step 5 |
 | `config/API_KEY.env` | RAG notebooks and the MCP servers |
 | `config/mstr_redis_y.yml` | Redis-backed metadata analysis |
 | `config/dans_migrations.yml` | Azure-staged migrations |
