@@ -40,8 +40,11 @@ azure = [
     "azure-storage-blob>=12.0",
 ]
 # MCP servers (mstr_robotics/mcp_servers/) — the report-wizard tool uses the RAG stack.
+# mcp is capped below 2.0: that release dropped mcp.server.fastmcp, which
+# mcp_servers/mstr_osi_mcp.py imports. Unpinned, a fresh install pulls 2.x and the
+# server dies at import with ModuleNotFoundError.
 servers = [
-    "mcp",
+    "mcp>=1.6,<2",
     "MSTR-Robotics-magerdaniel[rag]",
 ]
 # Everything above.
