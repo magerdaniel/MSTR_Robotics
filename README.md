@@ -195,7 +195,13 @@ Python project folder** so the notebooks and config sit next to your work:
 
 ```
 config/          notebooks/       examples/        OM_packages/
-docs/            OSI_production/  osi_templates/
+docs/            OSI_production/  osi_templates/   custom_code/
+```
+
+[`bootstrap.ps1`](bootstrap.ps1) does steps 1, 2 and 4 in one go:
+
+```powershell
+.\bootstrap.ps1 -ProjectDir C:\Python\my_project
 ```
 
 If you installed with `-e` from a clone, they are already at project level — skip

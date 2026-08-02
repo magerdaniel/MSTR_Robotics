@@ -3,12 +3,17 @@ import json
 import re
 
 import numpy as np
-from flashtext import KeywordProcessor as FlashtextKeywordProcessor
-from openai import OpenAI
+
+# flashtext and openai are imported lazily, inside the methods that use them.
+# Both come from the [rag] extra, and this module also holds Perplexity, which
+# osi_exporter.export_dashboard imports -- a module-level import here made OSI
+# export unusable on the base install.
 
 
 class KeywordProcessor:
     def __init__(self):
+        from flashtext import KeywordProcessor as FlashtextKeywordProcessor
+
         self.KeywordProcessor = FlashtextKeywordProcessor()
 
     def load_keyword_processor(self, key_l):
@@ -41,6 +46,8 @@ class VectorDbFaiss:
     """
 
     def __init__(self, sKey, model="text-embedding-3-small"):
+        from openai import OpenAI
+
         self._client = OpenAI(api_key=sKey)
         self._model = model
 
@@ -74,6 +81,8 @@ class MstrOpenAi:
 
     def call_open_AI(self, sKey, messages, max_tokens=1000, temperature=0.3, model="gpt-4o-mini"):
         # This is the default and can be omitted
+        from openai import OpenAI
+
         client = OpenAI(api_key=sKey)
         chat_completion = client.chat.completions.create(
             messages=messages,
@@ -209,6 +218,8 @@ class Perplexity:
     def call_perplexity(self, msg_t, sys_cont, message_check_d, temperature=0.1):
         # key_word_l = vector_store.extract_keywords(msg_t)
         import os
+
+        from openai import OpenAI
 
         client = OpenAI(
             api_key=os.environ.get("PERPLEXITY_API_KEY"),
